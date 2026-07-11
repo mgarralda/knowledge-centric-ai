@@ -4,14 +4,52 @@
 
 Mariano Garralda-Barrio
 
-**Abstract**
-Recent advances in agentic systems increasingly treat code as an executable operational substrate rather than as a disposable output artifact. Prior work such as \emph{Code as Agent Harness} frames validated agent-generated artifacts as runtime entities that can be created, executed, revised, persisted, and reused within long-running cognitive loops. However, the governance, lifecycle management, and operational evolution of such artifacts remain under-specified.
-This paper proposes a framework for governed runtime evolution in multi-agent systems through executable operational cognition. We formalize agent-generated artifacts as persistent runtime capabilities that progressively become part of the operational substrate rather than transient intermediate outputs. Building on this perspective, we introduce \emph{HarnessMutation} as a governed mechanism for lifecycle-aware runtime adaptation operating under explicit validation, traceability, evaluation, and rollback constraints.
-Rather than treating runtime adaptation as unrestricted self-modification, the proposed framework models evolution as a bounded and observable process over persistent operational memory. It further shows how these ideas can be operationalized over modern agent runtimes and governance-oriented orchestration systems, providing a conceptual foundation for adaptive infrastructures whose evolution remains explicit, auditable, and constrained. 
+---
 
-...
+## Contribution
 
-**Artifacts**
+This paper introduces a governance-oriented framework for the controlled evolution of agent runtimes through **Executable Operational Cognition**.
 
-- paper.pdf
-- citation.bib
+Rather than treating agent-generated artifacts as transient outputs, it formalizes their evolution into persistent runtime capabilities governed through explicit validation, lifecycle management, mutation, provenance, observability and rollback mechanisms. The paper proposes **HarnessMutation** as a governed adaptation mechanism and introduces a runtime model in which operational capabilities evolve under explicit governance constraints instead of unrestricted self-modification.
+
+---
+
+## Keywords
+
+- Agent Runtimes
+- Executable Operational Cognition
+- Runtime Governance
+- Multi-Agent Systems
+- HarnessMutation
+- Capability Lifecycle
+- Runtime Evolution
+- Agentic AI
+- Runtime Architecture
+- Operational Memory
+
+---
+
+## Artifacts
+
+- 📄 [Paper (PDF)](paper.pdf)
+- 📚 [BibTeX Citation](citation.bib)
+
+---
+
+## Publication
+
+- 🌐 arXiv (Preprint): https://arxiv.org/abs/2605.27328
+
+---
+
+## Related Resources
+
+### Research Papers
+
+- 📄 [Knowledge-Centric Information Systems](../knowledge-centric-information-systems/)
+- 📄 [From Task-Guided Conversational Graphs to Goal-Oriented Dialogue Runtimes](../goal-oriented-dialogue-runtimes/)
+
+### Engineering Resources
+
+- 📘 [RAG Field Guide](../../field-guides/rag-field-guide/)
+- 📄 [Vol. 01 – From Uncertainty to Confidence](../../whitepapers/vol-01-from-uncertainty-to-confidence/)
