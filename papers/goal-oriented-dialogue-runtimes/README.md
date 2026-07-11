@@ -1,9 +1,10 @@
 # From Task-Guided Conversational Graphs to Goal-Oriented Dialogue Runtimes
-**Status:** Preprint (arXiv)
 
 **Author**
 
 Mariano Garralda-Barrio
+
+---
 
 ## Contribution
 
@@ -34,4 +35,17 @@ Rather than replacing graph-based workflows, GODR complements them by introducin
 
 ## Publication
 
-- 🌐 arXiv: https://arxiv.org/abs/2607.02609
+- 🌐 arXiv (Preprint): [https://arxiv.org/abs/2607.02609](https://doi.org/10.48550/arXiv.2606.23797)
+
+---
+## Related Resources
+
+### Research Papers
+
+- 📄 [Knowledge-Centric Information Systems](../knowledge-centric-information-systems/)
+- 📄 [Governed Evolution of Agent Runtimes](../governed-evolution-agent-runtimes/)
+
+### Engineering Resources
+
+- 📘 [RAG Field Guide](../../field-guides/rag-field-guide/)
+- 📄 [Vol. 01 – From Uncertainty to Confidence](../../whitepapers/vol-01-from-uncertainty-to-confidence/)
