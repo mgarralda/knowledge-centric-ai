@@ -1,4 +1,4 @@
-# Governed Evolution of Agent Runtimes through Executable Operational Cognition
+# Knowledge-Centric Information Systems
 
 **Authors**
 
