@@ -4,11 +4,52 @@
 
 Mariano Garralda-Barrio
 
-**Abstract**
-For decades, data engineering has developed mature architectural principles for integrating, governing, validating, cataloging, and serving organizational data. The rise of large language models does not eliminate these concerns; it exposes a broader version of them. Organizational knowledge is becoming executable infrastructure: systems increasingly retrieve it, assemble it, reason over it, and act on it. This paper argues that enterprise artificial intelligence (AI) systems suggest a transition toward an architectural discipline for representing, maintaining, governing, and operationally delivering organizational knowledge. We refer to this discipline as \emph{knowledge architecture}. We offer a conceptual model and taxonomy showing how classical data-engineering guarantees must be redefined when the managed unit shifts from records to knowledge artifacts: extract, transform, and load (ETL) becomes knowledge ingestion, change-data capture (CDC) becomes knowledge change detection, lineage becomes provenance, catalogs become knowledge catalogs, materialized views become knowledge views, and medallion architectures become raw--curated--operational knowledge layers. Emerging formats such as large language model (LLM) Wiki and the Open Knowledge Format (OKF) are treated as early evidence of this transition, not as its endpoint. The central claim is that knowledge architecture becomes useful when organizational knowledge ceases to be a passive information resource and becomes an operational asset used by humans, agents, workflows, and models to execute work.
-...
+---
 
-**Artifacts**
+## Contribution
 
-- paper.pdf
-- citation.bib
+This paper proposes **Knowledge Architecture** as the architectural discipline for systems that operationalize heterogeneous organizational knowledge.
+
+Rather than treating organizational knowledge as passive information, the paper argues that it is becoming an executable infrastructure consumed by humans, AI models, agents, workflows and applications. Building on established principles from data engineering, it generalizes architectural guarantees such as ingestion, governance, provenance, quality, lineage and serving from data records to **knowledge artifacts**, introducing the concept of **Knowledge-Centric Information Systems**.
+
+---
+
+## Keywords
+
+- Knowledge Architecture
+- Knowledge-Centric Information Systems
+- Knowledge Engineering
+- Data Architecture
+- Data Engineering
+- Organizational Knowledge
+- Knowledge Artifacts
+- Knowledge Governance
+- Knowledge Provenance
+- Open Knowledge Format (OKF)
+
+---
+
+## Artifacts
+
+- 📄 [Paper (PDF)](paper.pdf)
+- 📚 [BibTeX Citation](citation.bib)
+
+---
+
+## Publication
+
+- 🌐 arXiv (Preprint): https://arxiv.org/abs/2607.02609
+
+---
+
+## Related Resources
+
+### Research Papers
+
+- 📄 [From Task-Guided Conversational Graphs to Goal-Oriented Dialogue Runtimes](../goal-oriented-dialogue-runtimes/)
+- 📄 [Governed Evolution of Agent Runtimes](../governed-evolution-agent-runtimes/)
+
+### Engineering Resources
+
+- 📘 [RAG Field Guide](../../field-guides/rag-field-guide/)
+- 📄 [Vol. 01 – From Uncertainty to Confidence](../../whitepapers/vol-01-from-uncertainty-to-confidence/)
