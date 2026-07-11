@@ -1,6 +1,6 @@
 # Knowledge-Centric Information Systems
 
-**Authors**
+**Author**
 
 Mariano Garralda-Barrio
 
