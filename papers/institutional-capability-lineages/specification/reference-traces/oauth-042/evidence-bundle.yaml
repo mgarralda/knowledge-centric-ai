@@ -1,0 +1,195 @@
+# Institutional Capability Lineages (ICLA)
+# Reference Trace
+#
+# This artifact is part of the ICLA Reference Specification.
+# It is a normative example and does not represent
+# operational or production data.
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+#
+# Licensed under CC BY 4.0.
+
+document_type: execution-evidence-bundle
+format_version: "icla-artifact/0.1-draft"
+specification_version:
+  icla-spec: "0.1.0"
+id: EVD-OAUTH-042
+artifact_status: reference
+normative: false
+schema_ref: ../../schemas/evidence-bundle.schema.yaml
+status: qualified-for-review
+
+generated_from:
+  execution: EXE-OAUTH-042
+  assembly: ASM-OAUTH-042
+  materialization: MAT-AGENT-042
+
+execution:
+  id: EXE-OAUTH-042
+  cee_ref: CEE-OAUTH-042
+  consumer: CONSUMER-OAUTH-AGENT-01
+  materialization_ref: MAT-AGENT-042
+  human_review_materialization_ref: MAT-REVIEW-042
+  consumed_memory_roles: [semantic, procedural, episodic]
+  produced_knowledge:
+    status: situated-candidate
+    authority: cee-or-source
+    institutional_authority: false
+
+lineage:
+  intent_ref: INT-OAUTH-042
+  registry_snapshot_ref: REG-SNAP-042
+  resolution_ref: RES-OAUTH-042
+  admission_ref: ADM-OAUTH-042
+  assembly_ref: ASM-OAUTH-042
+  exact_ckc_versions:
+    - CKC-ARCH-v5
+    - CKC-IAM-v8
+    - CKC-API-v6
+    - CKC-CHANGE-v11
+    - CKC-VERIFY-v9
+    - CKC-RELEASE-v4
+  source_versions:
+    - SRC-IDENTITY-POLICY-v8
+    - SRC-CLIENT-INVENTORY-v42
+    - SRC-RELEASE-POLICY-v4
+    - SRC-AFFECTED-SERVICE-CODE-OAUTH-BASELINE-042
+    - SRC-THREAT-MODELS-OAUTH-BASELINE-042
+    - SRC-COMPATIBILITY-TESTS-v9
+    - SRC-PRIOR-INCIDENTS-OAUTH-BASELINE-042
+
+results:
+  task_status: completed
+  declared_outcomes_satisfied: true
+  incidents:
+    count: 0
+    items: []
+
+artifacts:
+  - id: ART-OAUTH-ADR-042
+    type: architecture-decision
+    status: submitted
+  - id: ART-OAUTH-CODE-042
+    type: code-and-configuration-change
+    status: submitted
+  - id: ART-OAUTH-COMPAT-042
+    type: compatibility-test-report
+    status: submitted
+  - id: ART-OAUTH-SECURITY-042
+    type: security-validation-report
+    status: submitted
+  - id: ART-OAUTH-DOCS-042
+    type: migration-documentation
+    status: submitted
+  - id: ART-OAUTH-ROLLOUT-042
+    type: rollout-plan
+    status: submitted
+  - id: ART-OAUTH-ROLLBACK-042
+    type: rollback-rehearsal
+    status: submitted
+
+measurements:
+  governed:
+    - metric_id: iam.profile.coverage
+      value: 100
+      unit: percent-of-endpoints
+      collection_condition: affected-endpoints-after-change
+      governed_definition: CKC-IAM-v8
+      threshold:
+        operator: equal
+        value: 100
+      conformity: conforming
+      result: pass
+
+    - metric_id: api.client.compatibility
+      value: 48
+      denominator: 48
+      unit: approved-clients-passing
+      collection_condition: all-48-approved-clients
+      governed_definition: CKC-API-v6
+      threshold:
+        operator: equal
+        value: 48
+        denominator: 48
+      conformity: conforming
+      result: pass
+
+    - metric_id: verify.high.findings
+      value: 0
+      unit: high-severity-findings
+      collection_condition: governed-security-validation
+      governed_definition: CKC-VERIFY-v9
+      threshold:
+        operator: equal
+        value: 0
+      conformity: conforming
+      result: pass
+
+    - metric_id: release.rollback.time
+      value: 4.2
+      unit: minutes
+      collection_condition: governed-rollback-rehearsal
+      governed_definition: CKC-RELEASE-v4
+      threshold:
+        operator: less-than-or-equal
+        value: 5
+      conformity: conforming
+      result: pass
+
+    - metric_id: verify.validation.latency
+      value: 34
+      unit: minutes
+      collection_condition: complete-governed-validation-run
+      governed_definition: CKC-VERIFY-v9
+      threshold:
+        operator: less-than-or-equal
+        value: 45
+      conformity: conforming
+      result: pass
+
+  nonstandard:
+    - metric_id: agent.confidence
+      value: 0.91
+      unit: score
+      governed_definition: null
+      conformity: nonstandard
+      institutional_comparison: excluded
+      threshold_decision_use: prohibited
+
+memory_record:
+  id: MEM-EVD-OAUTH-042
+  role: episodic
+  lineage_status: retained
+  institutional_authority: candidate-pending-adjudication
+  description: Execution-specific results, decisions, exceptions, and evidence retained in lineage
+
+candidate_knowledge:
+  - id: CAND-COMPAT-PATTERN-042
+    description: Reusable compatibility-test pattern for authentication protocol evolution
+    proposed_scope: CAP-VERIFY
+    knowledge_roles: [episodic]
+    produced_by: CEE-OAUTH-042
+    produced_during: EXE-OAUTH-042
+    institutional_authority: candidate-pending-adjudication
+    proposed_transition:
+      from: episodic
+      to: procedural
+      mechanism: successor-ckc
+  - id: CAND-LOCAL-MIGRATION-EXCEPTION-042
+    description: Service-local migration exception
+    proposed_scope: local-only
+    knowledge_roles: [episodic]
+    produced_by: CEE-OAUTH-042
+    produced_during: EXE-OAUTH-042
+    institutional_authority: candidate-pending-adjudication
+    proposed_transition:
+      from: episodic
+      to: episodic
+      mechanism: retain-as-precedent
+
+gateway_receipt:
+  id: RCPT-OAUTH-042
+  schema_conformity: true
+  metric_conformity: true
+  provenance_complete: true
+  qualification_status: qualified-for-review

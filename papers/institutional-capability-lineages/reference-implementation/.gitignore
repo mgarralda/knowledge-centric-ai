@@ -1,0 +1,76 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments (including Poetry in-project environments)
+.venv/
+venv/
+env/
+ENV/
+venv.bak/
+env.bak/
+
+# Tests and coverage
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+pytestdebug.log
+
+# Type checkers, linters and formatters
+.mypy_cache/
+.pyre/
+.pytype/
+.ruff_cache/
+.hypothesis/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# IDEs and operating systems
+.idea/
+.vscode/
+.agents/
+.codex/
+*.iml
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Local runtime data
+.icla-data/
+tmp/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Keep Poetry's lock file under version control for reproducibility.
+!poetry.lock

@@ -1,0 +1,95 @@
+# Institutional Capability Lineages (ICLA)
+# Reference Specification
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+#
+# Licensed under the Creative Commons Attribution 4.0
+# International License (CC BY 4.0).
+#
+# See LICENSE in the repository root.
+
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Governance Decision
+type: object
+required:
+  - document_type
+  - format_version
+  - specification_version
+  - id
+  - artifact_status
+  - normative
+  - schema_ref
+  - status
+  - generated_from
+  - inputs
+  - review
+  - dispositions
+  - impact_record
+  - activation
+  - historical_immutability
+  - capability_formation
+  - resulting_lineage_edges
+properties:
+  document_type: {const: governance-decision}
+  format_version: {const: icla-artifact/0.1-draft}
+  specification_version:
+    type: object
+    required: [icla-spec]
+    properties:
+      icla-spec: {const: 0.1.0}
+    additionalProperties: false
+  id: {type: string, pattern: "^DEC-[A-Z0-9-]+$"}
+  artifact_status: {const: reference}
+  normative: {const: false}
+  schema_ref: {type: string}
+  status: {enum: [approved, rejected, deferred, quarantined, superseded]}
+  generated_from: {type: object, minProperties: 3}
+  inputs:
+    type: object
+    required: [evidence_ref, qualification_receipt_ref, assembly_ref, registry_snapshot_ref]
+    additionalProperties: true
+  review: {type: object}
+  dispositions:
+    type: object
+    minProperties: 1
+    additionalProperties:
+      type: object
+      properties:
+        candidate_ref: {type: string, pattern: "^CAND-[A-Z0-9-]+$"}
+        memory_transition: {$ref: "#/$defs/memory_transition"}
+      dependentRequired:
+        candidate_ref: [memory_transition]
+      additionalProperties: true
+  impact_record:
+    type: object
+    required: [id, affected_capabilities, affected_ckcs, review_required]
+    additionalProperties: true
+  activation:
+    type: object
+    required: [id, capability, ckc, version, applies_to, active_pointer_transition]
+    additionalProperties: true
+  historical_immutability:
+    type: object
+    required: [assembly_ref, remains_linked_to, retroactive_mutation]
+    additionalProperties: true
+  capability_formation:
+    type: object
+    required: [new_capability_created_by_this_decision, rationale]
+    additionalProperties: true
+  resulting_lineage_edges:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [type, from, to]
+      additionalProperties: true
+$defs:
+  memory_transition:
+    type: object
+    required: [from, to, mechanism]
+    properties:
+      from: {enum: [semantic, procedural, episodic]}
+      to: {enum: [semantic, procedural, episodic]}
+      mechanism: {enum: [successor-ckc, source-binding-refresh, retain-as-precedent]}
+    additionalProperties: false
+additionalProperties: true

@@ -1,0 +1,134 @@
+# Institutional Capability Lineages (ICLA)
+# Reference Specification
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+#
+# Licensed under the Creative Commons Attribution 4.0
+# International License (CC BY 4.0).
+#
+# See LICENSE in the repository root.
+
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Execution Evidence Bundle
+type: object
+required:
+  - document_type
+  - format_version
+  - specification_version
+  - id
+  - artifact_status
+  - normative
+  - schema_ref
+  - status
+  - generated_from
+  - execution
+  - lineage
+  - results
+  - artifacts
+  - measurements
+  - memory_record
+  - candidate_knowledge
+properties:
+  document_type: {const: execution-evidence-bundle}
+  format_version: {const: icla-artifact/0.1-draft}
+  specification_version:
+    type: object
+    required: [icla-spec]
+    properties:
+      icla-spec: {const: 0.1.0}
+    additionalProperties: false
+  id: {type: string, pattern: "^EVD-[A-Z0-9-]+$"}
+  artifact_status: {const: reference}
+  normative: {const: false}
+  schema_ref: {type: string}
+  status: {enum: [submitted, qualified-for-review, adjudicated, rejected, quarantined]}
+  generated_from: {type: object, minProperties: 3}
+  execution:
+    type: object
+    required: [id, cee_ref, consumer, materialization_ref]
+    additionalProperties: true
+  lineage:
+    type: object
+    required: [intent_ref, registry_snapshot_ref, resolution_ref, admission_ref, assembly_ref, exact_ckc_versions, source_versions]
+    additionalProperties: true
+  results: {type: object}
+  artifacts:
+    type: array
+    minItems: 1
+  measurements:
+    type: object
+    required: [governed, nonstandard]
+    properties:
+      governed:
+        type: array
+        items:
+          type: object
+          required: [metric_id, value, unit, collection_condition, governed_definition, threshold, conformity, result]
+          additionalProperties: true
+      nonstandard:
+        type: array
+        items:
+          type: object
+          required: [metric_id, governed_definition, conformity, institutional_comparison, threshold_decision_use]
+          properties:
+            metric_id: {type: string}
+            governed_definition: {type: "null"}
+            conformity: {const: nonstandard}
+            institutional_comparison: {const: excluded}
+            threshold_decision_use: {const: prohibited}
+          additionalProperties: true
+    additionalProperties: true
+  memory_record:
+    type: object
+    required: [id, role, lineage_status, institutional_authority]
+    properties:
+      id: {type: string, pattern: "^MEM-[A-Z0-9-]+$"}
+      role: {const: episodic}
+      lineage_status: {enum: [retained, quarantined, adjudicated]}
+      institutional_authority: {enum: [candidate-pending-adjudication, admitted, rejected]}
+    additionalProperties: true
+  candidate_knowledge:
+    type: array
+    items:
+      type: object
+      required: [id, description, proposed_scope, knowledge_roles]
+      properties:
+        id: {type: string}
+        description: {type: string}
+        proposed_scope: {type: string}
+        knowledge_roles: {$ref: "#/$defs/knowledge_roles"}
+        proposed_transition:
+          type: object
+          required: [from, to, mechanism]
+          properties:
+            from: {enum: [semantic, procedural, episodic]}
+            to: {enum: [semantic, procedural, episodic]}
+            mechanism: {enum: [successor-ckc, source-binding-refresh, retain-as-precedent]}
+          additionalProperties: false
+      additionalProperties: true
+  gateway_receipt:
+    type: object
+    required: [id, schema_conformity, metric_conformity, provenance_complete, qualification_status]
+    properties:
+      id: {type: string, pattern: "^RCPT-[A-Z0-9-]+$"}
+      schema_conformity: {type: boolean}
+      metric_conformity: {type: boolean}
+      provenance_complete: {type: boolean}
+      qualification_status: {enum: [qualified-for-review, rejected]}
+    additionalProperties: true
+allOf:
+  - if:
+      properties:
+        status:
+          enum: [qualified-for-review, adjudicated]
+      required: [status]
+    then:
+      required: [gateway_receipt]
+$defs:
+  knowledge_roles:
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      enum: [semantic, procedural, episodic]
+additionalProperties: true

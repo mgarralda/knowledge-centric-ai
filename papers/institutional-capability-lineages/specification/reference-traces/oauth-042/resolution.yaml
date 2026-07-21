@@ -1,0 +1,120 @@
+# Institutional Capability Lineages (ICLA)
+# Reference Trace
+#
+# This artifact is part of the ICLA Reference Specification.
+# It is a normative example and does not represent
+# operational or production data.
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+#
+# Licensed under CC BY 4.0.
+
+document_type: capability-resolution
+format_version: "icla-artifact/0.1-draft"
+specification_version:
+  icla-spec: "0.1.0"
+id: RES-OAUTH-042
+artifact_status: reference
+normative: false
+schema_ref: ../../schemas/resolution.schema.yaml
+
+generated_from:
+  registry_snapshot: REG-SNAP-042
+  intent: INT-OAUTH-042
+
+cee_ref: CEE-OAUTH-042
+intent_ref: INT-OAUTH-042
+registry_snapshot_ref: REG-SNAP-042
+resolution_method: hybrid-metadata-and-relation-traversal
+scoring_disclosure: qualitative-ranking-only
+
+candidate_generation:
+  direct:
+    - capability: CAP-IAM
+      rationale: Owns identity and authorization architecture
+    - capability: CAP-API
+      rationale: Owns protocol-facing API compatibility
+    - capability: CAP-CHANGE
+      rationale: Owns governed implementation changes
+    - capability: CAP-VERIFY
+      rationale: Owns security and compatibility validation
+  lower_ranked:
+    - capability: CAP-DATA
+      rationale: Data obligations were considered but no new data scope was declared
+    - capability: CAP-OBS
+      rationale: Telemetry needs were considered during validation and release analysis
+
+relation_expansion:
+  traversed_edges:
+    - type: depends_on
+      from: CAP-IAM
+      to: CAP-ARCH
+      result: added
+      rationale: Cross-platform identity changes require architecture governance
+    - type: depends_on
+      from: CAP-CHANGE
+      to: CAP-RELEASE
+      result: added
+      rationale: Governed code changes require controlled release
+  added_capabilities:
+    - CAP-ARCH
+    - CAP-RELEASE
+
+filtering:
+  excluded:
+    - capability: CAP-DATA
+      reason: No new data or retention obligation is introduced
+    - capability: CAP-OBS
+      reason: >-
+        Validation and release contracts already bind the telemetry required
+        for this intent
+
+constraint_validation:
+  - constraint: selected-capabilities-active
+    result: pass
+  - constraint: consumer-authorized
+    result: pass
+  - constraint: bound-sources-fresh
+    result: pass
+  - constraint: assurance-level-satisfied
+    result: pass
+  - constraint: assembly-budget-satisfied
+    result: pass
+
+conflict_resolution:
+  conflicts_detected: 1
+  resolutions:
+    - subject: backward-compatibility-obligation
+      rule: stricter-obligation-prevails
+      result: resolved
+
+admission:
+  id: ADM-OAUTH-042
+  status: admitted
+  rationale: All mandatory coverage, authority, freshness, assurance, and budget conditions pass
+  admitted_capabilities:
+    - capability: CAP-ARCH
+      ckc: CKC-ARCH
+      version: 5
+    - capability: CAP-IAM
+      ckc: CKC-IAM
+      version: 8
+    - capability: CAP-API
+      ckc: CKC-API
+      version: 6
+    - capability: CAP-CHANGE
+      ckc: CKC-CHANGE
+      version: 11
+    - capability: CAP-VERIFY
+      ckc: CKC-VERIFY
+      version: 9
+    - capability: CAP-RELEASE
+      ckc: CKC-RELEASE
+      version: 4
+
+trace:
+  persistent_records:
+    - REG-SNAP-042
+    - RES-OAUTH-042
+    - ADM-OAUTH-042
+  next_operation: assemble

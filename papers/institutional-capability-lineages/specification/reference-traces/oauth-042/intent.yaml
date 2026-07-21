@@ -1,0 +1,83 @@
+# Institutional Capability Lineages (ICLA)
+# Reference Trace
+#
+# This artifact is part of the ICLA Reference Specification.
+# It is a normative example and does not represent
+# operational or production data.
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+#
+# Licensed under CC BY 4.0.
+
+document_type: operational-intent
+format_version: "icla-artifact/0.1-draft"
+specification_version:
+  icla-spec: "0.1.0"
+id: INT-OAUTH-042
+artifact_status: reference
+normative: false
+schema_ref: ../../schemas/intent.schema.yaml
+
+generated_from:
+  paper_trace: oauth-042
+  registry_snapshot: REG-SNAP-042
+
+goal: >-
+  Introduce the OAuth 2.1 authorization protocol across a multi-service
+  platform while preserving backward compatibility for approved clients,
+  regulatory controls, and auditable release evidence.
+
+context:
+  platform_scope: multi-service-platform
+  change_type: authentication-protocol-evolution
+  target_protocol: OAuth 2.1
+  affected_services: determined-during-assembly
+  approved_client_count: 48
+  constraints:
+    - preserve-backward-compatibility
+    - preserve-regulatory-controls
+    - produce-auditable-release-evidence
+    - do-not-expose-credentials
+
+cee:
+  id: CEE-OAUTH-042
+  type: composite-agent-validation-and-human-review
+  consumer_configuration_id: CONSUMER-OAUTH-AGENT-01
+
+consumer:
+  type: coding-agent-with-human-review
+  configuration_id: CONSUMER-OAUTH-AGENT-01
+  authorized_domains:
+    - enterprise-architecture
+    - identity-and-access-management
+    - platform-api
+    - software-delivery
+    - verification
+    - release-management
+
+risk:
+  level: high
+  factors:
+    - authentication-boundary-change
+    - cross-service-impact
+    - backward-compatibility
+    - regulated-controls
+    - production-release
+
+budget:
+  context_policy: bounded-to-affected-services-and-approved-clients
+  execution_policy: organization-defined
+  explicit_numeric_limit: null
+
+assurance:
+  level: high
+  human_review_required: true
+  governed_measurements_required: true
+  rollback_evidence_required: true
+
+required_outcomes:
+  - protocol-profile-coverage
+  - approved-client-compatibility
+  - zero-high-severity-verification-findings
+  - rollback-within-governed-threshold
+  - validation-within-governed-latency

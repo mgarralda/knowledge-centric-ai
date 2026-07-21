@@ -1,0 +1,94 @@
+<!--
+Institutional Capability Lineages (ICLA)
+
+Reference Specification
+
+Copyright (c) 2026 Mariano Garralda-Barrio
+
+Licensed under CC BY 4.0.
+-->
+
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="1270" viewBox="0 0 760 1270" role="img" aria-labelledby="title desc">
+  <title id="title">OAuth 2.1 reference artifact lineage</title>
+  <desc id="desc">A vertical trace from the Registry snapshot through intent, resolution, assembly, CEE execution, evidence, governance decision, and result.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L7,3 z" fill="#253858"/>
+    </marker>
+    <style>
+      .title { font: 700 24px Arial, sans-serif; fill: #172B4D; }
+      .label { font: 700 18px Arial, sans-serif; fill: #172B4D; }
+      .file { font: 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #253858; }
+      .id { font: 13px Arial, sans-serif; fill: #42526E; }
+      .arrow { stroke: #253858; stroke-width: 3; marker-end: url(#arrow); }
+      .box { stroke: #253858; stroke-width: 2.5; rx: 10; }
+    </style>
+  </defs>
+
+  <rect width="760" height="1270" fill="#FFFFFF"/>
+  <text x="380" y="45" text-anchor="middle" class="title">OAuth 2.1 Reference Artifact Trace</text>
+
+  <g transform="translate(160 75)">
+    <rect class="box" width="440" height="100" fill="#DCEBFF"/>
+    <text x="220" y="35" text-anchor="middle" class="label">Registry Snapshot</text>
+    <text x="220" y="62" text-anchor="middle" class="file">capability-registry.yaml</text>
+    <text x="220" y="84" text-anchor="middle" class="id">REG-SNAP-042</text>
+  </g>
+  <line x1="380" y1="175" x2="380" y2="215" class="arrow"/>
+
+  <g transform="translate(160 225)">
+    <rect class="box" width="440" height="100" fill="#FFFFFF"/>
+    <text x="220" y="35" text-anchor="middle" class="label">Operational Intent</text>
+    <text x="220" y="62" text-anchor="middle" class="file">intent.yaml</text>
+    <text x="220" y="84" text-anchor="middle" class="id">INT-OAUTH-042</text>
+  </g>
+  <line x1="380" y1="325" x2="380" y2="365" class="arrow"/>
+
+  <g transform="translate(160 375)">
+    <rect class="box" width="440" height="100" fill="#DCEBFF"/>
+    <text x="220" y="35" text-anchor="middle" class="label">Resolution and Admission</text>
+    <text x="220" y="62" text-anchor="middle" class="file">resolution.yaml</text>
+    <text x="220" y="84" text-anchor="middle" class="id">RES-OAUTH-042 / ADM-OAUTH-042</text>
+  </g>
+  <line x1="380" y1="475" x2="380" y2="515" class="arrow"/>
+
+  <g transform="translate(160 525)">
+    <rect class="box" width="440" height="100" fill="#F4E8FF"/>
+    <text x="220" y="35" text-anchor="middle" class="label">Contextual Assembly</text>
+    <text x="220" y="62" text-anchor="middle" class="file">assembly.yaml</text>
+    <text x="220" y="84" text-anchor="middle" class="id">ASM-OAUTH-042</text>
+  </g>
+  <line x1="380" y1="625" x2="380" y2="665" class="arrow"/>
+
+  <g transform="translate(160 675)">
+    <rect class="box" width="440" height="100" fill="#FFF4E5"/>
+    <text x="220" y="35" text-anchor="middle" class="label">CEE Execution</text>
+    <text x="220" y="62" text-anchor="middle" class="file">consume assembly / produce situated knowledge</text>
+    <text x="220" y="84" text-anchor="middle" class="id">CEE-OAUTH-042 / EXE-OAUTH-042</text>
+  </g>
+  <line x1="380" y1="775" x2="380" y2="815" class="arrow"/>
+
+  <g transform="translate(160 825)">
+    <rect class="box" width="440" height="100" fill="#E1F5F7"/>
+    <text x="220" y="35" text-anchor="middle" class="label">Execution Evidence</text>
+    <text x="220" y="62" text-anchor="middle" class="file">evidence-bundle.yaml</text>
+    <text x="220" y="84" text-anchor="middle" class="id">EVD-OAUTH-042 / RCPT-OAUTH-042</text>
+  </g>
+  <line x1="380" y1="925" x2="380" y2="965" class="arrow"/>
+
+  <g transform="translate(160 975)">
+    <rect class="box" width="440" height="100" fill="#E8F3E8"/>
+    <text x="220" y="35" text-anchor="middle" class="label">Governance Decision</text>
+    <text x="220" y="62" text-anchor="middle" class="file">governance-decision.yaml</text>
+    <text x="220" y="84" text-anchor="middle" class="id">DEC-OAUTH-042 / ACT-VERIFY-010</text>
+  </g>
+  <line x1="380" y1="1075" x2="380" y2="1115" class="arrow"/>
+
+  <g transform="translate(120 1125)">
+    <rect class="box" width="520" height="110" fill="#E5F6EA"/>
+    <text x="260" y="33" text-anchor="middle" class="label">Governed Result</text>
+    <text x="260" y="60" text-anchor="middle" class="id">CKC-VERIFY v10 applies to future resolutions</text>
+    <text x="260" y="82" text-anchor="middle" class="id">ASM-OAUTH-042 remains linked to v9</text>
+    <text x="260" y="102" text-anchor="middle" class="id">No new capability is created by this decision</text>
+  </g>
+</svg>

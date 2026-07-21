@@ -1,0 +1,61 @@
+# Institutional Capability Lineages (ICLA)
+# Reference Specification
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+#
+# Licensed under the Creative Commons Attribution 4.0
+# International License (CC BY 4.0).
+#
+# See LICENSE in the repository root.
+
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Institutional Capability
+description: Stable institutional identity with a governed active CKC pointer.
+type: object
+required:
+  - document_type
+  - format_version
+  - specification_version
+  - id
+  - artifact_status
+  - normative
+  - schema_ref
+  - generated_from
+  - name
+  - outcome
+  - owner
+  - domain
+  - lifecycle
+  - active_ckc
+properties:
+  document_type: {const: institutional-capability}
+  format_version: {const: icla-artifact/0.1-draft}
+  specification_version:
+    type: object
+    required: [icla-spec]
+    properties:
+      icla-spec: {const: 0.1.0}
+    additionalProperties: false
+  id: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+  artifact_status: {const: reference}
+  normative: {const: false}
+  schema_ref: {type: string}
+  generated_from: {type: object, minProperties: 1}
+  name: {type: string, minLength: 1}
+  outcome: {type: string, minLength: 1}
+  owner: {type: string, minLength: 1}
+  domain: {type: string, minLength: 1}
+  lifecycle:
+    enum: [discovered, proposed, canonical, active, under-review, retired, merged]
+  active_ckc:
+    type: object
+    required: [id, version]
+    properties:
+      id: {type: string, pattern: "^CKC-[A-Z0-9-]+$"}
+      version: {type: integer, minimum: 1}
+    additionalProperties: true
+  policy_refs:
+    type: array
+    items: {type: string}
+  conditions: {type: object}
+additionalProperties: true

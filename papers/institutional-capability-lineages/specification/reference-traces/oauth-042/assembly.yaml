@@ -1,0 +1,203 @@
+# Institutional Capability Lineages (ICLA)
+# Reference Trace
+#
+# This artifact is part of the ICLA Reference Specification.
+# It is a normative example and does not represent
+# operational or production data.
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+#
+# Licensed under CC BY 4.0.
+
+document_type: contextual-assembly
+format_version: "icla-artifact/0.1-draft"
+specification_version:
+  icla-spec: "0.1.0"
+id: ASM-OAUTH-042
+artifact_status: reference
+normative: false
+schema_ref: ../../schemas/assembly.schema.yaml
+status: immutable
+
+generated_from:
+  registry_snapshot: REG-SNAP-042
+  intent: INT-OAUTH-042
+  resolution: RES-OAUTH-042
+  admission: ADM-OAUTH-042
+
+lineage:
+  cee_ref: CEE-OAUTH-042
+  intent_ref: INT-OAUTH-042
+  registry_snapshot_ref: REG-SNAP-042
+  resolution_ref: RES-OAUTH-042
+  admission_ref: ADM-OAUTH-042
+
+ckc_snapshot:
+  - capability: CAP-ARCH
+    ckc: CKC-ARCH
+    version: 5
+  - capability: CAP-IAM
+    ckc: CKC-IAM
+    version: 8
+  - capability: CAP-API
+    ckc: CKC-API
+    version: 6
+  - capability: CAP-CHANGE
+    ckc: CKC-CHANGE
+    version: 11
+  - capability: CAP-VERIFY
+    ckc: CKC-VERIFY
+    version: 9
+  - capability: CAP-RELEASE
+    ckc: CKC-RELEASE
+    version: 4
+
+source_snapshot:
+  - source: SRC-IDENTITY-POLICY
+    version: 8
+    binding: BIND-IDENTITY-POLICY
+    knowledge_roles: [semantic, procedural]
+  - source: SRC-CLIENT-INVENTORY
+    version: 42
+    binding: BIND-CLIENT-INVENTORY
+    selected_records: 48
+    knowledge_roles: [semantic, episodic]
+  - source: SRC-RELEASE-POLICY
+    version: 4
+    binding: BIND-RELEASE-POLICY
+    knowledge_roles: [semantic, procedural]
+  - source: SRC-AFFECTED-SERVICE-CODE
+    version: OAUTH-BASELINE-042
+    knowledge_roles: [procedural]
+  - source: SRC-THREAT-MODELS
+    version: OAUTH-BASELINE-042
+    knowledge_roles: [semantic]
+  - source: SRC-COMPATIBILITY-TESTS
+    version: 9
+    knowledge_roles: [procedural, episodic]
+  - source: SRC-PRIOR-INCIDENTS
+    version: OAUTH-BASELINE-042
+    knowledge_roles: [episodic]
+
+policy_snapshot:
+  - id: POL-GOVERNANCE-REVIEW
+    version: 1
+  - id: POL-STRICTER-OBLIGATION-PREVAILS
+    version: 1
+  - id: POL-EVIDENCE-QUALIFICATION
+    version: 1
+
+transformation_snapshot:
+  - id: TRANSFORM-OAUTH-ASSEMBLY
+    version: 1
+
+selection:
+  included:
+    - affected-service-architecture-decisions
+    - identity-and-authorization-policies
+    - api-contracts
+    - affected-service-code
+    - 48-approved-client-profiles
+    - threat-models
+    - security-and-compatibility-tests
+    - relevant-prior-incidents
+    - rollout-and-rollback-procedures
+  excluded:
+    - item: credentials
+      reason: prohibited-by-security-policy
+    - item: unrelated-data
+      reason: outside-declared-capability-scope
+    - item: superseded-policies
+      reason: inactive-source-version
+    - item: unaffected-services
+      reason: outside-intent-and-budget
+  knowledge_role_composition:
+    semantic:
+      - identity-and-authorization-policies
+      - api-contracts
+      - threat-models
+    procedural:
+      - affected-service-code
+      - security-and-compatibility-tests
+      - rollout-and-rollback-procedures
+    episodic:
+      - 48-approved-client-profiles
+      - relevant-prior-incidents
+      - prior-validation-evidence
+
+ordering:
+  - architecture-constraints
+  - identity-profile
+  - api-compatibility-obligations
+  - implementation-procedures
+  - verification-contract
+  - release-and-rollback-contract
+
+evaluation_contract:
+  id: EVAL-OAUTH-042
+  version: 1
+  metrics:
+    - id: iam.profile.coverage
+      unit: percent-of-endpoints
+      collection_condition: affected-endpoints-after-change
+      operator: equal
+      threshold: 100
+      authority: CKC-IAM-v8
+    - id: api.client.compatibility
+      unit: approved-clients-passing
+      collection_condition: all-48-approved-clients
+      operator: equal
+      threshold: 48
+      denominator: 48
+      authority: CKC-API-v6
+    - id: verify.high.findings
+      unit: high-severity-findings
+      collection_condition: governed-security-validation
+      operator: equal
+      threshold: 0
+      authority: CKC-VERIFY-v9
+    - id: release.rollback.time
+      unit: minutes
+      collection_condition: governed-rollback-rehearsal
+      operator: less-than-or-equal
+      threshold: 5
+      authority: CKC-RELEASE-v4
+    - id: verify.validation.latency
+      unit: minutes
+      collection_condition: complete-governed-validation-run
+      operator: less-than-or-equal
+      threshold: 45
+      authority: CKC-VERIFY-v9
+
+evidence_contract:
+  required_artifact_types:
+    - architecture-decision
+    - code-and-configuration-change
+    - compatibility-test-report
+    - security-validation-report
+    - migration-documentation
+    - rollout-plan
+    - rollback-rehearsal
+  measurements_must_reference_governed_definitions: true
+  nonstandard_measurements_policy: retain-but-exclude-from-comparison
+
+correctness:
+  traceable: true
+  authorized: true
+  required_covered: true
+  evaluation_bound: true
+  conflicts_resolved: true
+  within_budget: true
+
+retention:
+  policy_ref: POL-ICLA-TRACE-RETENTION-v1
+  historical_reproduction: required
+access_policy_ref: POL-ICLA-TRACE-ACCESS-v1
+
+materializations:
+  - id: MAT-AGENT-042
+    substrate: coding-agent-workspace
+    preserves_assembly_semantics: true
+  - id: MAT-REVIEW-042
+    substrate: human-review-packet
+    preserves_assembly_semantics: true

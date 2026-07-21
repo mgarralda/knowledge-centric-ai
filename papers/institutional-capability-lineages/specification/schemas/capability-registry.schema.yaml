@@ -1,0 +1,103 @@
+# Institutional Capability Lineages (ICLA)
+# Reference Specification
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+#
+# Licensed under the Creative Commons Attribution 4.0
+# International License (CC BY 4.0).
+#
+# See LICENSE in the repository root.
+
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Institutional Capability Registry Snapshot
+type: object
+required:
+  - document_type
+  - format_version
+  - specification_version
+  - id
+  - artifact_status
+  - normative
+  - schema_ref
+  - generated_from
+  - registry
+  - capabilities
+  - relations
+properties:
+  document_type: {const: institutional-capability-registry-snapshot}
+  format_version: {const: icla-artifact/0.1-draft}
+  specification_version:
+    type: object
+    required: [icla-spec]
+    properties:
+      icla-spec: {const: 0.1.0}
+    additionalProperties: false
+  id: {type: string, pattern: "^REG-SNAP-[A-Z0-9-]+$"}
+  artifact_status: {const: reference}
+  normative: {const: false}
+  schema_ref: {type: string}
+  generated_from: {type: object, minProperties: 1}
+  registry:
+    type: object
+    required: [logical_registry_id, snapshot_status, capability_count, active_pointer_policy]
+    properties:
+      logical_registry_id: {type: string}
+      snapshot_status: {const: immutable}
+      capability_count: {type: integer, minimum: 1}
+      active_pointer_policy: {type: string}
+    additionalProperties: true
+  capabilities:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [id, name, outcome, owner, domain, lifecycle, active_ckc, policy_refs, conditions]
+      properties:
+        id: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+        name: {type: string, minLength: 1}
+        outcome: {type: string, minLength: 1}
+        owner: {type: string, minLength: 1}
+        domain: {type: string, minLength: 1}
+        lifecycle:
+          enum: [discovered, proposed, canonical, active, under-review, retired, merged]
+        policy_refs:
+          type: array
+          minItems: 1
+          items: {type: string}
+        conditions: {type: object, minProperties: 1}
+        active_ckc:
+          type: object
+          required: [id, version]
+          properties:
+            id: {type: string, pattern: "^CKC-[A-Z0-9-]+$"}
+            version: {type: integer, minimum: 1}
+          additionalProperties: true
+      additionalProperties: true
+  relations:
+    type: array
+    items:
+      type: object
+      required: [type, from, to]
+      properties:
+        type: {type: string}
+        from: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+        to: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+      additionalProperties: true
+  source_bindings:
+    type: array
+    items:
+      type: object
+      required: [id, source, version, authority]
+      properties:
+        id: {type: string}
+        source: {type: string}
+        version: {type: [integer, string]}
+        authority: {type: string}
+        knowledge_roles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            enum: [semantic, procedural, episodic]
+      additionalProperties: true
+additionalProperties: true

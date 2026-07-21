@@ -1,0 +1,130 @@
+# Institutional Capability Lineages (ICLA)
+# Reference Specification
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+#
+# Licensed under the Creative Commons Attribution 4.0
+# International License (CC BY 4.0).
+#
+# See LICENSE in the repository root.
+
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Capability Knowledge Contract
+description: Minimal contract for one immutable CKC version.
+type: object
+required:
+  - document_type
+  - format_version
+  - specification_version
+  - id
+  - artifact_status
+  - normative
+  - schema_ref
+  - generated_from
+  - capability_ref
+  - version
+  - status
+  - knowledge_scope
+  - obligations
+  - authorities
+  - evidence_contract
+  - evaluation_contract
+  - governance
+  - projection_rules
+  - source_bindings
+properties:
+  document_type:
+    const: capability-knowledge-contract
+  format_version:
+    const: icla-artifact/0.1-draft
+  specification_version:
+    type: object
+    required: [icla-spec]
+    properties:
+      icla-spec: {const: 0.1.0}
+    additionalProperties: false
+  id: {type: string, pattern: "^CKC-[A-Z0-9-]+$"}
+  artifact_status: {const: reference}
+  normative: {const: false}
+  schema_ref: {type: string}
+  generated_from: {type: object, minProperties: 1}
+  capability_ref: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+  version: {type: integer, minimum: 1}
+  status:
+    enum: [draft, canonical-approved, active, superseded, retired]
+  predecessor:
+    type: [string, "null"]
+  knowledge_scope:
+    type: object
+    minProperties: 1
+    properties:
+      knowledge_roles: {$ref: "#/$defs/knowledge_roles"}
+    additionalProperties: true
+  obligations: {type: array, minItems: 1}
+  authorities: {type: object, minProperties: 1}
+  evidence_contract:
+    type: object
+    required: [schema_refs, submission_path]
+    additionalProperties: true
+  evaluation_contract:
+    type: object
+    required: [metrics]
+    properties:
+      metrics:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          required: [id, unit, collection_condition, threshold, interpretation_rule, representative_case_basis]
+          additionalProperties: true
+    additionalProperties: true
+  governance:
+    type: object
+    minProperties: 1
+    properties:
+      memory_role_delta:
+        type: object
+        required: [candidate_ref, from, to, rationale]
+        properties:
+          candidate_ref: {type: string, pattern: "^CAND-[A-Z0-9-]+$"}
+          from: {$ref: "#/$defs/knowledge_role"}
+          to: {$ref: "#/$defs/knowledge_role"}
+          rationale: {type: string, minLength: 1}
+        additionalProperties: false
+    additionalProperties: true
+  projection_rules:
+    type: object
+    minProperties: 1
+    properties:
+      knowledge_role_selection:
+        type: object
+        minProperties: 1
+        properties:
+          semantic: {type: string, minLength: 1}
+          procedural: {type: string, minLength: 1}
+          episodic: {type: string, minLength: 1}
+        additionalProperties: false
+    additionalProperties: true
+  source_bindings:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [id, source, version, authority]
+      properties:
+        id: {type: string}
+        source: {type: string}
+        version: {type: [integer, string]}
+        authority: {type: string}
+        knowledge_roles: {$ref: "#/$defs/knowledge_roles"}
+        derived_from: {type: string}
+      additionalProperties: true
+$defs:
+  knowledge_role:
+    enum: [semantic, procedural, episodic]
+  knowledge_roles:
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items: {$ref: "#/$defs/knowledge_role"}
+additionalProperties: true

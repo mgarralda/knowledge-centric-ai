@@ -1,0 +1,143 @@
+# Institutional Capability Lineages (ICLA)
+# Reference Trace
+#
+# This artifact is part of the ICLA Reference Specification.
+# It is a normative example and does not represent
+# operational or production data.
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+#
+# Licensed under CC BY 4.0.
+
+document_type: governance-decision
+format_version: "icla-artifact/0.1-draft"
+specification_version:
+  icla-spec: "0.1.0"
+id: DEC-OAUTH-042
+artifact_status: reference
+normative: false
+schema_ref: ../../schemas/governance-decision.schema.yaml
+status: approved
+
+generated_from:
+  evidence_bundle: EVD-OAUTH-042
+  qualification_receipt: RCPT-OAUTH-042
+  assembly: ASM-OAUTH-042
+
+inputs:
+  evidence_ref: EVD-OAUTH-042
+  qualification_receipt_ref: RCPT-OAUTH-042
+  assembly_ref: ASM-OAUTH-042
+  registry_snapshot_ref: REG-SNAP-042
+
+review:
+  authority: security-and-release-governance-review
+  evidence_schema_conforming: true
+  governed_measurements_conforming: true
+  all_governed_thresholds_pass: true
+  lineage_complete: true
+
+dispositions:
+  artifacts:
+    action: accept
+    artifact_refs:
+      - ART-OAUTH-ADR-042
+      - ART-OAUTH-CODE-042
+      - ART-OAUTH-COMPAT-042
+      - ART-OAUTH-SECURITY-042
+      - ART-OAUTH-DOCS-042
+      - ART-OAUTH-ROLLOUT-042
+      - ART-OAUTH-ROLLBACK-042
+
+  governed_measurements:
+    action: accept
+    metric_ids:
+      - iam.profile.coverage
+      - api.client.compatibility
+      - verify.high.findings
+      - release.rollback.time
+      - verify.validation.latency
+
+  nonstandard_measurement:
+    metric_id: agent.confidence
+    action: retain-as-context
+    institutional_comparison: excluded
+    threshold_decision_use: prohibited
+
+  reusable_compatibility_pattern:
+    candidate_ref: CAND-COMPAT-PATTERN-042
+    action: admit-to-successor-ckc
+    target_capability: CAP-VERIFY
+    predecessor:
+      ckc: CKC-VERIFY
+      version: 9
+    successor:
+      ckc: CKC-VERIFY
+      version: 10
+      status: canonical-approved
+    memory_transition:
+      from: episodic
+      to: procedural
+      mechanism: successor-ckc
+
+  service_local_exception:
+    candidate_ref: CAND-LOCAL-MIGRATION-EXCEPTION-042
+    action: retain-locally
+    canonical_ckc_change: false
+    memory_transition:
+      from: episodic
+      to: episodic
+      mechanism: retain-as-precedent
+
+impact_record:
+  id: IMP-VERIFY-010
+  change_type: successor-ckc
+  affected_capabilities:
+    - CAP-VERIFY
+  affected_ckcs:
+    - CKC-VERIFY-v9
+    - CKC-VERIFY-v10
+  retained_assemblies:
+    - ASM-OAUTH-042
+  review_required: true
+  rationale: The compatibility pattern changes the future canonical CKC contract
+
+activation:
+  id: ACT-VERIFY-010
+  capability: CAP-VERIFY
+  ckc: CKC-VERIFY
+  version: 10
+  applies_to: future-resolutions-only
+  active_pointer_transition:
+    from: CKC-VERIFY-v9
+    to: CKC-VERIFY-v10
+
+historical_immutability:
+  assembly_ref: ASM-OAUTH-042
+  remains_linked_to: CKC-VERIFY-v9
+  retroactive_mutation: false
+
+capability_formation:
+  new_capability_created_by_this_decision: false
+  rationale: The admitted pattern remains within CAP-VERIFY responsibility
+  later_recurrence_may_support:
+    proposal: PROP-AUTH-EVOL-01
+    candidate_name: Authentication Protocol Evolution
+    possible_outcomes:
+      - retain-as-assembly-template
+      - promote-as-CAP-AUTH-EVOL-with-CKC-AUTH-EVOL-v1
+    authority_required: separate-institutional-review
+
+resulting_lineage_edges:
+  - type: adjudicated_by
+    from: EVD-OAUTH-042
+    to: DEC-OAUTH-042
+  - type: supersedes
+    from: CKC-VERIFY-v10
+    to: CKC-VERIFY-v9
+  - type: activated_by
+    from: CKC-VERIFY-v10
+    to: ACT-VERIFY-010
+  - type: derived_from
+    from: CAND-COMPAT-PATTERN-042
+    to: EVD-OAUTH-042

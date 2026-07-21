@@ -1,0 +1,125 @@
+# Institutional Capability Lineages (ICLA)
+# Reference Trace
+#
+# This artifact is part of the ICLA Reference Specification.
+# It is a normative example and does not represent
+# operational or production data.
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+#
+# Licensed under CC BY 4.0.
+
+document_type: capability-knowledge-contract
+format_version: "icla-artifact/0.1-draft"
+specification_version:
+  icla-spec: "0.1.0"
+id: CKC-VERIFY
+artifact_status: reference
+normative: false
+schema_ref: ../../schemas/ckc.schema.yaml
+generated_from:
+  predecessor: CKC-VERIFY-v9
+  evidence_bundle: EVD-OAUTH-042
+  governance_decision: DEC-OAUTH-042
+  impact_record: IMP-VERIFY-010
+capability_ref: CAP-VERIFY
+version: 10
+status: canonical-approved
+predecessor: CKC-VERIFY-v9
+
+knowledge_scope:
+  purpose: Govern security and compatibility validation for platform changes
+  knowledge_roles: [semantic, procedural, episodic]
+  outcomes:
+    - Accepted security and compatibility evidence
+  operational_relations:
+    - validates CAP-CHANGE outputs
+    - shares governed verification knowledge with CAP-IAM and CAP-API
+  representative_case_basis:
+    - OAuth 2.1 protocol migration across approved clients
+
+obligations:
+  - id: OBL-VERIFY-HIGH-FINDINGS
+    statement: No high-severity finding may remain open at release review
+    authority: security-assurance
+  - id: OBL-VERIFY-COMPATIBILITY
+    statement: Every approved client must pass the governed compatibility suite
+    authority: security-and-release-governance-review
+
+authorities:
+  owner: security-assurance
+  review_authority: security-and-release-governance-review
+  activation_policy: POL-GOVERNANCE-REVIEW-v1
+
+evidence_contract:
+  schema_refs:
+    - evidence-bundle.schema.yaml@icla-spec-0.1.0
+  submission_path: Evidence Gateway
+  required_artifact_types:
+    - compatibility-test-report
+    - security-validation-report
+  provenance_required: true
+
+evaluation_contract:
+  metrics:
+    - id: verify.high.findings
+      unit: high-severity-findings
+      collection_condition: governed-security-validation
+      operator: equal
+      threshold: 0
+      interpretation_rule: Zero high-severity findings passes
+      representative_case_basis: governed security validation suite
+    - id: verify.validation.latency
+      unit: minutes
+      collection_condition: complete-governed-validation-run
+      operator: less-than-or-equal
+      threshold: 45
+      interpretation_rule: A complete validation run at or below 45 minutes passes
+      representative_case_basis: OAuth 2.1 multi-service migration
+    - id: api.client.compatibility
+      unit: approved-clients-passing
+      collection_condition: all-approved-clients
+      operator: equal-to-denominator
+      threshold: 100-percent
+      interpretation_rule: Every approved client must pass
+      representative_case_basis: Reusable compatibility-test pattern admitted by DEC-OAUTH-042
+
+governance:
+  immutable: true
+  admission_decision_ref: DEC-OAUTH-042
+  impact_record_ref: IMP-VERIFY-010
+  owner: security-assurance
+  memory_role_delta:
+    candidate_ref: CAND-COMPAT-PATTERN-042
+    from: episodic
+    to: procedural
+    rationale: A qualified execution precedent becomes a reusable validation commitment
+
+projection_rules:
+  permitted_substrates:
+    - coding-agent-workspace
+    - human-review-packet
+  preserve_metric_definitions: true
+  exclude_credentials: true
+  knowledge_role_selection:
+    semantic: include applicable controls and threat interpretations
+    procedural: include governed validation methods and compatibility suites
+    episodic: include authorized precedents relevant to the intent
+
+source_bindings:
+  - id: BIND-COMPATIBILITY-TESTS
+    source: SRC-COMPATIBILITY-TESTS
+    version: 10
+    authority: security-assurance
+    knowledge_roles: [procedural]
+    derived_from: CAND-COMPAT-PATTERN-042
+  - id: BIND-THREAT-MODELS
+    source: SRC-THREAT-MODELS
+    version: OAUTH-042
+    authority: security-assurance
+    knowledge_roles: [semantic]
+  - id: BIND-VERIFICATION-PRECEDENTS
+    source: EVD-OAUTH-042
+    version: 1
+    authority: security-and-release-governance-review
+    knowledge_roles: [episodic]

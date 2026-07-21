@@ -1,0 +1,72 @@
+# Institutional Capability Lineages (ICLA)
+# Reference Specification
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+#
+# Licensed under the Creative Commons Attribution 4.0
+# International License (CC BY 4.0).
+#
+# See LICENSE in the repository root.
+
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Operational Intent
+type: object
+required:
+  - document_type
+  - format_version
+  - specification_version
+  - id
+  - artifact_status
+  - normative
+  - schema_ref
+  - generated_from
+  - goal
+  - context
+  - cee
+  - consumer
+  - risk
+  - budget
+  - assurance
+  - required_outcomes
+properties:
+  document_type: {const: operational-intent}
+  format_version: {const: icla-artifact/0.1-draft}
+  specification_version:
+    type: object
+    required: [icla-spec]
+    properties:
+      icla-spec: {const: 0.1.0}
+    additionalProperties: false
+  id: {type: string, pattern: "^INT-[A-Z0-9-]+$"}
+  artifact_status: {const: reference}
+  normative: {const: false}
+  schema_ref: {type: string}
+  generated_from: {type: object, minProperties: 1}
+  goal: {type: string, minLength: 1}
+  context: {type: object}
+  cee:
+    type: object
+    required: [id, type, consumer_configuration_id]
+    properties:
+      id: {type: string, pattern: "^CEE-[A-Z0-9-]+$"}
+      type: {type: string}
+      consumer_configuration_id: {type: string}
+    additionalProperties: true
+  consumer:
+    type: object
+    required: [type, configuration_id]
+    additionalProperties: true
+  risk:
+    type: object
+    required: [level]
+    additionalProperties: true
+  budget: {type: object}
+  assurance:
+    type: object
+    required: [level]
+    additionalProperties: true
+  required_outcomes:
+    type: array
+    minItems: 1
+    items: {type: string}
+additionalProperties: true

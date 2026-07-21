@@ -1,0 +1,194 @@
+# Institutional Capability Lineages (ICLA)
+# Reference Trace
+#
+# This artifact is part of the ICLA Reference Specification.
+# It is a normative example and does not represent
+# operational or production data.
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+#
+# Licensed under CC BY 4.0.
+
+document_type: institutional-capability-registry-snapshot
+format_version: "icla-artifact/0.1-draft"
+specification_version:
+  icla-spec: "0.1.0"
+id: REG-SNAP-042
+artifact_status: reference
+normative: false
+schema_ref: ../../schemas/capability-registry.schema.yaml
+description: >-
+  Registry snapshot used to resolve INT-OAUTH-042. Capability identifiers,
+  active CKC versions, and resolution outcomes match the worked example in
+  the paper. Owners and source-binding identifiers are illustrative.
+
+generated_from:
+  paper_trace: oauth-042
+  architectural_object: Institutional Capability Registry
+
+registry:
+  logical_registry_id: ICR-EXAMPLE-001
+  snapshot_status: immutable
+  capability_count: 8
+  active_pointer_policy: approved-activation-only
+
+capabilities:
+  - id: CAP-ARCH
+    name: Architecture Governance
+    outcome: Approved cross-platform architecture decisions
+    owner: architecture-review-board
+    domain: enterprise-architecture
+    lifecycle: active
+    risk: high
+    maturity: governed
+    policy_refs: [POL-ARCH-DISCOVERY-v1]
+    conditions: {consumer_authorization: required, assurance: high}
+    active_ckc:
+      id: CKC-ARCH
+      version: 5
+
+  - id: CAP-IAM
+    name: Identity and Access Architecture
+    outcome: Compliant identity and authorization architecture
+    owner: identity-governance
+    domain: identity-and-access-management
+    lifecycle: active
+    risk: high
+    maturity: governed
+    policy_refs: [POL-IAM-DISCOVERY-v8]
+    conditions: {consumer_authorization: required, assurance: high}
+    active_ckc:
+      id: CKC-IAM
+      version: 8
+      activation_record: ACT-IAM-008
+      previous_version: 7
+
+  - id: CAP-API
+    name: API Evolution
+    outcome: Compatible and governed API evolution
+    owner: api-governance
+    domain: platform-api
+    lifecycle: active
+    risk: high
+    maturity: governed
+    policy_refs: [POL-API-DISCOVERY-v6]
+    conditions: {consumer_authorization: required, assurance: high}
+    active_ckc:
+      id: CKC-API
+      version: 6
+
+  - id: CAP-CHANGE
+    name: Governed Code Change
+    outcome: Traceable implementation of approved changes
+    owner: platform-engineering
+    domain: software-delivery
+    lifecycle: active
+    risk: high
+    maturity: governed
+    policy_refs: [POL-CHANGE-DISCOVERY-v11]
+    conditions: {consumer_authorization: required, assurance: high}
+    active_ckc:
+      id: CKC-CHANGE
+      version: 11
+
+  - id: CAP-VERIFY
+    name: Security and Compatibility Validation
+    outcome: Accepted security and compatibility evidence
+    owner: security-assurance
+    domain: verification
+    lifecycle: active
+    risk: critical
+    maturity: governed
+    policy_refs: [POL-VERIFY-DISCOVERY-v9]
+    conditions: {consumer_authorization: required, assurance: high}
+    active_ckc:
+      id: CKC-VERIFY
+      version: 9
+
+  - id: CAP-RELEASE
+    name: Controlled Release
+    outcome: Auditable and reversible production release
+    owner: release-governance
+    domain: release-management
+    lifecycle: active
+    risk: critical
+    maturity: governed
+    policy_refs: [POL-RELEASE-DISCOVERY-v4]
+    conditions: {consumer_authorization: required, assurance: high}
+    active_ckc:
+      id: CKC-RELEASE
+      version: 4
+
+  - id: CAP-DATA
+    name: Data Governance
+    outcome: Compliant data use and retention
+    owner: data-governance
+    domain: data-management
+    lifecycle: active
+    risk: high
+    maturity: governed
+    policy_refs: [POL-DATA-DISCOVERY-v7]
+    conditions: {consumer_authorization: required, assurance: high}
+    active_ckc:
+      id: CKC-DATA
+      version: 7
+
+  - id: CAP-OBS
+    name: Operational Observability
+    outcome: Sufficient operational telemetry and alerting
+    owner: observability-platform
+    domain: platform-operations
+    lifecycle: active
+    risk: medium
+    maturity: governed
+    policy_refs: [POL-OBS-DISCOVERY-v5]
+    conditions: {consumer_authorization: required, assurance: standard}
+    active_ckc:
+      id: CKC-OBS
+      version: 5
+
+relations:
+  - type: depends_on
+    from: CAP-IAM
+    to: CAP-ARCH
+    mandatory_for_resolution: true
+
+  - type: depends_on
+    from: CAP-CHANGE
+    to: CAP-RELEASE
+    mandatory_for_resolution: true
+
+  - type: composes_with
+    from: CAP-IAM
+    to: CAP-API
+
+  - type: composes_with
+    from: CAP-CHANGE
+    to: CAP-VERIFY
+
+  - type: shares_knowledge
+    from: CAP-IAM
+    to: CAP-VERIFY
+
+  - type: shares_knowledge
+    from: CAP-API
+    to: CAP-VERIFY
+
+source_bindings:
+  - id: BIND-IDENTITY-POLICY
+    source: SRC-IDENTITY-POLICY
+    version: 8
+    authority: identity-governance
+    knowledge_roles: [semantic, procedural]
+
+  - id: BIND-CLIENT-INVENTORY
+    source: SRC-CLIENT-INVENTORY
+    version: 42
+    authority: api-governance
+    knowledge_roles: [semantic, episodic]
+
+  - id: BIND-RELEASE-POLICY
+    source: SRC-RELEASE-POLICY
+    version: 4
+    authority: release-governance
+    knowledge_roles: [semantic, procedural]
