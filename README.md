@@ -14,11 +14,12 @@ The repository brings together scientific publications, conceptual frameworks an
 
 Scientific publications introducing new concepts, architectures and research directions.
 
-| Resource | Description |
-|----------|-------------|
-| 📄 [Knowledge-Centric Information Systems](papers/knowledge-centric-information-systems/) | Introduces **Knowledge Architecture** and **Knowledge-Centric Information Systems** as an architectural discipline for operational knowledge. |
-| 📄 [Governed Evolution of Agent Runtimes through Executable Operational Cognition](papers/governed-evolution-agent-runtimes/) | Proposes a governance model for the controlled evolution of agent runtimes through Executable Operational Cognition. |
-| 📄 [From Task-Guided Conversational Graphs to Goal-Oriented Dialogue Runtimes](papers/goal-oriented-dialogue-runtimes/) | Introduces the **Goal-Oriented Dialogue Runtime (GODR)** design pattern for long-lived conversational objectives. |
+| Resource                                                                                                                      | Description                                                                                                                                   |
+|-------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| 📄 [Knowledge-Centric Information Systems](papers/knowledge-centric-information-systems/)                                     | Introduces **Knowledge Architecture** and **Knowledge-Centric Information Systems** as an architectural discipline for operational knowledge. |
+| 📄 [Governed Evolution of Agent Runtimes through Executable Operational Cognition](papers/governed-evolution-agent-runtimes/) | Proposes a governance model for the controlled evolution of agent runtimes through Executable Operational Cognition.                          |
+| 📄 [From Task-Guided Conversational Graphs to Goal-Oriented Dialogue Runtimes](papers/goal-oriented-dialogue-runtimes/)       | Introduces the **Goal-Oriented Dialogue Runtime (GODR)** design pattern for long-lived conversational objectives.                             |
+| 📄 [Institutional Capability Lineages (ICLA)](papers/institutional-capability-lineages) | Proposes a **registry-centered reference architecture** that transforms distributed organizational knowledge into **governed institutional capabilities** through canonical contracts, contextual assemblies, evidence-governed evolution, and persistent capability lineages. |
 
 ---
 
