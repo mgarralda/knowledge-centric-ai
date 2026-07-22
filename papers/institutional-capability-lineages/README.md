@@ -20,7 +20,29 @@ ICLA addresses a problem that sits above retrieval, memory, context engineering,
 
 The architecture separates **distributed execution and knowledge production** from **institutional authority**. Humans, AI agents, workflows, software systems, and hybrid environments may reason and act locally, while capability identity, canonical contracts, evidence admission, and institutional evolution remain governed, traceable, and auditable.
 
-The paper defines the conceptual model, architectural boundaries, lifecycle, conformance invariants, reference artifacts, worked trace, and comparative evaluation protocol.
+---
+
+## The Missing Question
+
+Current AI systems continue to improve at execution.
+
+Retrieval-Augmented Generation (RAG), agent memory, context engineering, skills, multi-agent systems, and interoperability protocols all help humans and AI systems perform increasingly complex work.
+
+Yet organizations depend on something that none of these mechanisms guarantee on their own:
+
+> **Who preserves organizational capability when people, agents, models, workflows, and platforms change?**
+
+ICLA is designed to answer that institutional question. Rather than improving execution itself, it introduces an architectural layer that preserves capability identity, authoritative knowledge, governed evolution, and institutional continuity across heterogeneous execution environments.
+
+<p align="center">
+  <img src="figures/question.png"
+       alt="The Missing Question in Enterprise AI"
+       width="100%">
+</p>
+
+*Figure 1 — Current AI stacks continuously improve execution. ICLA addresses the missing institutional layer required to preserve organizational capability over time.*
+
+---
 
 **Quick links:** [Paper](paper.pdf) · [Citation](citation.bib) · [Schemas](specification/schemas/) · [Reference objects](specification/reference-objects/) · [Reference traces](specification/reference-traces/) · [Reference implementation](reference-implementation/)
 
@@ -40,8 +62,7 @@ ICLA introduces an institutional architecture layer that connects these responsi
 
 ![Why ICLA Exists](figures/why-icla-exists.png)
 
-*Figure 1 — Why: the current execution stack, the institutional gap, and the architectural responsibilities introduced by ICLA.*
-
+*Figure 2 — Why: the current execution stack, the institutional gap, and the architectural responsibilities introduced by ICLA.*
 ---
 
 ## Core Thesis
