@@ -44,7 +44,7 @@ ICLA is designed to answer that institutional question. Rather than improving ex
 
 ---
 
-**Quick links:** [Paper](paper.pdf) · [Citation](citation.bib) · [Schemas](specification/schemas/) · [Reference objects](specification/reference-objects/) · [Reference traces](specification/reference-traces/) · [Reference implementation](reference-implementation/)
+**Quick links:** [Paper](paper.pdf) · [Citation](citation.bib) · [Changelog](CHANGELOG.md) · [Schemas](specification/schemas/) · [Reference objects](specification/reference-objects/) · [Reference traces](specification/reference-traces/) · [Reference implementation](reference-implementation/)
 
 ---
 
@@ -104,9 +104,9 @@ The main architectural flow is:
 
 1. **Registry** — resolves stable institutional capability identity, ownership, lifecycle, relations, and the active CKC.
 2. **Canonical CKC** — defines the authoritative, versioned, consumer-independent knowledge and evaluation contract.
-3. **Contextual Assembly** — projects active CKCs and governed sources into an immutable execution-specific view.
-4. **CEE** — executes the admitted capability instance using governed memory, local judgment, tools, and intermediate state.
-5. **Evidence** — preserves outputs, measurements, provenance, assembly identity, and applicable contracts.
+3. **Contextual Assembly** — records an immutable, bounded operational mandate over exact CKCs, governed sources, evidence, and evaluation contracts.
+4. **CEE** — executes autonomously within that mandate using local reasoning, working state, tools, coordination, and iteration.
+5. **Evidence** — returns only contract-selected outputs and checkpoints while preserving provenance, assembly identity, and applicable contracts.
 6. **Governance** — qualifies and adjudicates candidate institutional knowledge.
 7. **Successor** — activates a new CKC version for future resolutions while preserving historical state.
 
@@ -114,7 +114,7 @@ The **Institutional Capability Lineage** spans the complete lifecycle rather tha
 
 ![How ICLA Works](figures/how-icla-works.png)
 
-*Figure 3 — How: governed organizational memory is projected into execution, returned as evidence, and evolved through an auditable lineage.*
+*Figure 3 — How: governed organizational memory becomes a bounded mandate, the CEE executes autonomously within it, and contract-selected evidence returns through an auditable lineage.*
 
 ---
 
@@ -132,7 +132,7 @@ Those mechanisms primarily operate at execution time:
 - **MCP and other protocols** provide interoperability.
 - **ICLA** governs which institutional capability is responsible, which contract is authoritative, how execution views are derived, and how evidence may legitimately change future institutional state.
 
-ICLA therefore operates at the institutional architecture layer around heterogeneous human and machine execution.
+ICLA therefore operates at the institutional architecture layer around heterogeneous human and machine execution. Retrieval, orchestration, planning, memory updates, and tool use may occur inside the assembly or CEE; ICLA is not part of their step-wise execution loop.
 
 ---
 
@@ -204,6 +204,10 @@ It records:
 
 An assembly may combine semantic commitments from policies, procedural guidance from governed practices, and episodic knowledge from prior incidents or evidence.
 
+Admission turns the assembly into a **bounded operational mandate**. It delegates execution-scoped authority to the identified CEE while explicitly withholding institutional or canonical change authority. The mandate remains valid without repeated Registry interaction until intent, coverage, authority, freshness, risk, or assurance changes materially.
+
+Materialization may deliver a bundle, payload, workspace, procedure, or governed access handle. Every form must preserve the assembly's exact versions, limits, evidence contract, and lineage.
+
 ### Capability Execution Environment
 
 A **Capability Execution Environment (CEE)** is the situated boundary that performs an admitted capability instance.
@@ -217,7 +221,7 @@ A CEE may be:
 - a software service;
 - a hybrid environment.
 
-Through a contextual assembly, a CEE consumes authorized semantic commitments, procedural guidance, and episodic precedents. It combines them with local memory, judgment, tools, and intermediate state during execution.
+Through a contextual assembly, a CEE consumes authorized semantic commitments, procedural guidance, and episodic precedents. Within the admitted mandate it controls reasoning, planning, working memory, local stores, tools, intermediate artifacts, coordination, and iteration without step-wise ICLA interaction.
 
 A CEE may produce situated observations, interpretations, artifacts, practices, decisions, measurements, and execution records. Those outputs remain candidate organizational knowledge until they pass through an identified source or evidence path.
 
@@ -225,7 +229,7 @@ Production, recurrence, or technical success does not grant institutional author
 
 ### Governed Evidence and Evolution
 
-CEE-produced outputs return through an identified evidence path with their execution identity, assembly, applicable contracts, and provenance intact.
+Only terminal or contract-defined checkpoint outputs return through the identified evidence path, with their execution identity, assembly, applicable contracts, and provenance intact. Conformance does not require disclosure of internal reasoning or working state beyond the evidence contract.
 
 A submitted evidence bundle creates an episodic lineage record and presents reusable lessons as candidate knowledge. After qualification and adjudication, governance may:
 
@@ -284,6 +288,8 @@ Supporting contributions include:
 |---|---|
 | [`paper.pdf`](paper.pdf) | Current published or preprint version of the paper. |
 | [`citation.bib`](citation.bib) | BibTeX citation entry. |
+| [`CITATION.cff`](CITATION.cff) | GitHub-compatible citation metadata. |
+| [`CHANGELOG.md`](CHANGELOG.md) | Public record of companion-artifact changes. |
 | [`figures/`](figures/) | README and publication figures. |
 | [`specification/schemas/`](specification/schemas/) | Machine-checkable JSON Schema contracts for the principal ICLA object types. |
 | [`specification/reference-objects/`](specification/reference-objects/) | Consumer-independent reference objects and schema mappings. |
@@ -436,7 +442,7 @@ When using this work in research, architecture analysis, or implementation, cite
 
 The paper and accompanying documentation are licensed under the:
 
-**Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0)**
+**Creative Commons Attribution 4.0 International License (CC BY 4.0)**
 
 The reference implementation and executable code are licensed separately under the:
 

@@ -91,6 +91,27 @@ transformation_snapshot:
   - id: TRANSFORM-OAUTH-ASSEMBLY
     version: 1
 
+operational_mandate:
+  authority_scope: execution-scoped
+  institutional_change_authority: false
+  local_autonomy:
+    - reasoning
+    - planning
+    - working-memory
+    - local-stores
+    - tool-use
+    - coordination
+    - iteration
+  evidence_disclosure: evidence-contract-only
+  registry_interaction: reresolution-or-evidence-only
+  reresolution_triggers:
+    - intent-materially-changed
+    - coverage-insufficient
+    - authority-invalid
+    - source-or-binding-stale
+    - risk-changed
+    - assurance-changed
+
 selection:
   included:
     - affected-service-architecture-decisions
@@ -170,6 +191,9 @@ evaluation_contract:
       authority: CKC-VERIFY-v9
 
 evidence_contract:
+  selection_mode: contract-selected
+  working_state_disclosure: prohibited-unless-contract-required
+  checkpoint_policy: [terminal, contract-defined]
   required_artifact_types:
     - architecture-decision
     - code-and-configuration-change
@@ -188,6 +212,7 @@ correctness:
   evaluation_bound: true
   conflicts_resolved: true
   within_budget: true
+  mandate_bounded: true
 
 retention:
   policy_ref: POL-ICLA-TRACE-RETENTION-v1
@@ -197,7 +222,9 @@ access_policy_ref: POL-ICLA-TRACE-ACCESS-v1
 materializations:
   - id: MAT-AGENT-042
     substrate: coding-agent-workspace
+    delivery_mode: bundle
     preserves_assembly_semantics: true
   - id: MAT-REVIEW-042
     substrate: human-review-packet
+    delivery_mode: payload
     preserves_assembly_semantics: true

@@ -15,12 +15,17 @@ from .evidence_gateway import EvidenceGateway
 from .governance_service import GovernanceService
 from .impact_analysis_service import ImpactAnalysisService
 from .lineage_service import LineageService
-from .materialization_service import WorkspaceMaterializer, YamlBundleMaterializer
+from .materialization_service import (
+    AccessHandleMaterializer,
+    WorkspaceMaterializer,
+    YamlBundleMaterializer,
+)
 from .registry_service import RegistryService
 from .resolution_service import ResolutionService
 
 __all__ = [
     "ActivationService",
+    "AccessHandleMaterializer",
     "AssemblyService",
     "CrystallizationService",
     "EvidenceGateway",

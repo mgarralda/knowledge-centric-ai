@@ -35,6 +35,7 @@ def test_lineage_edges_are_extracted_from_each_artifact_type():
                 "id": "EXE-1",
                 "cee_ref": "CEE-1",
                 "materialization_ref": "MAT-1",
+                "mandate_ref": "ASM-1",
             },
             "lineage": {"assembly_ref": "ASM-1"},
             "candidate_knowledge": [
@@ -63,6 +64,7 @@ def test_lineage_edges_are_extracted_from_each_artifact_type():
         "uses",
         "consumes",
         "performed_by",
+        "operates_under",
         "produced_during",
         "submitted_as",
         "adjudicates",

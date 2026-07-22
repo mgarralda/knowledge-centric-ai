@@ -37,9 +37,9 @@ The implementation includes:
 - overlapping semantic, procedural, and episodic knowledge-role annotations
   without imposing storage partitions;
 - intent resolution, relation traversal, constraint checking, and admission;
-- immutable contextual assembly with exact CKC, source, policy, evaluation,
-  and transformation versions;
-- substrate-specific materialization;
+- immutable contextual assembly with an execution-scoped operational mandate
+  and exact CKC, source, policy, evaluation, and transformation versions;
+- bundle, payload, workspace, and governed-access-handle materialization;
 - explicit CEE consumption of authorized assemblies and production of
   situated, non-authoritative candidate knowledge;
 - Evidence Gateway validation, metric qualification, and receipt generation;
@@ -53,6 +53,22 @@ The implementation includes:
 
 YAML reference artifacts remain the source of truth for the worked trace.
 Runtime persistence uses local append-only YAML records.
+
+## Executable differentiators
+
+The companion is more than a collection of example YAML files. Its tests make
+several architectural boundaries from the paper executable:
+
+- **authority without micromanagement**: admission grants a bounded mandate,
+  while conformance rejects step-wise Registry control of CEE execution;
+- **autonomy without opacity**: a CEE may keep local working state private,
+  but selected evidence must retain contract, execution, and producer lineage;
+- **access without copying**: governed access handles can materialize an
+  assembly without moving source payloads or changing source authority;
+- **event-driven re-resolution**: the mandate is reused until intent, coverage,
+  authority, freshness, risk, or assurance invalidates it;
+- **learning without self-promotion**: candidate knowledge can affect canonical
+  state only through Evidence Gateway qualification and governance.
 
 ## Requirements
 
@@ -164,6 +180,9 @@ reference-implementation/
   and persists them during qualification.
 - CEE-produced knowledge retains its execution and producer identity and
   cannot become institutional knowledge without qualification and governance.
+- CEE reasoning, working memory, local stores, and intermediate artifacts are
+  not disclosed unless selected by the evidence contract.
+- Re-resolution is event-driven; it is not required for each local CEE step.
 - Governed and non-standard measurements remain separate.
 - Materializations cannot silently become canonical CKCs.
 - Capability crystallization creates proposals, never institutional identity.

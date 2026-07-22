@@ -30,6 +30,15 @@ execution:
   consumer: CONSUMER-OAUTH-AGENT-01
   materialization_ref: MAT-AGENT-042
   human_review_materialization_ref: MAT-REVIEW-042
+  mandate_ref: ASM-OAUTH-042
+  local_execution:
+    mode: autonomous-within-mandate
+    registry_stepwise_interaction: false
+    working_state_disclosure: none
+    wholesale_working_state_capture: false
+  submission:
+    selection_mode: contract-selected
+    checkpoint: terminal
   consumed_memory_roles: [semantic, procedural, episodic]
   produced_knowledge:
     status: situated-candidate

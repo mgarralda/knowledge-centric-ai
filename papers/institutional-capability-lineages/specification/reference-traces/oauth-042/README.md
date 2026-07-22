@@ -45,13 +45,16 @@ CKC-VERIFY v10 (future resolutions)
    the compatibility conflict, and produces admission `ADM-OAUTH-042`.
 4. [Assembly](./assembly.yaml) — `ASM-OAUTH-042` snapshots six exact CKC
    versions, selects and excludes knowledge, binds governed metrics, and
-   defines the agent and reviewer materializations. `CEE-OAUTH-042` consumes
-   the authorized semantic, procedural, and episodic elements selected into
-   that assembly.
+   establishes the bounded operational mandate. Agent and reviewer
+   materializations preserve that mandate while `CEE-OAUTH-042` consumes the
+   authorized semantic, procedural, and episodic elements selected into the
+   assembly.
 5. [Evidence Bundle](./evidence-bundle.yaml) — `EVD-OAUTH-042` returns
-   situated knowledge produced by `CEE-OAUTH-042` during `EXE-OAUTH-042` as
-   artifacts, provenance, five conforming governed measurements, and one
-   explicitly non-standard measurement. The serialized object shows the
+   terminal, contract-selected knowledge produced by `CEE-OAUTH-042` during
+   the autonomous `EXE-OAUTH-042` interval as artifacts, provenance, five
+   conforming governed measurements, and one explicitly non-standard
+   measurement. Local reasoning and working state are not submitted. The
+   serialized object shows the
    post-Gateway state; the executable test removes the receipt from the
    submission and verifies that the Gateway recreates `RCPT-OAUTH-042`. It also
    records the execution as episodic memory, preserves candidate producer and

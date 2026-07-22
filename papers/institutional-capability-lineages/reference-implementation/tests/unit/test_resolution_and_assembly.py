@@ -162,6 +162,10 @@ def test_assembly_checks_actual_required_outcome_coverage():
         contracts,
     )
     assert assembly.correctness["required_covered"] is True
+    assert assembly.correctness["mandate_bounded"] is True
+    assert assembly.operational_mandate.authority_scope == "execution-scoped"
+    assert assembly.operational_mandate.institutional_change_authority is False
+    assert assembly.evidence_contract["selection_mode"] == "contract-selected"
     ArtifactValidator().validate_artifact(assembly.model_dump(mode="json", by_alias=True))
 
     uncovered_intent = original_intent.model_copy(

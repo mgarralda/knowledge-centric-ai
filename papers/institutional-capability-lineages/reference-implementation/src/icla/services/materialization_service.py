@@ -15,6 +15,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
 from uuid import NAMESPACE_URL, uuid5
 
 import yaml
@@ -61,3 +62,32 @@ class WorkspaceMaterializer(YamlBundleMaterializer):
         directory = Path(target)
         directory.mkdir(parents=True, exist_ok=True)
         return super().materialize(assembly, directory / "assembly.yaml")
+
+
+class AccessHandleMaterializer:
+    """Materialize governed references without copying their source payloads."""
+
+    substrate = "governed-access-handles"
+
+    def materialize(
+        self,
+        assembly: Assembly,
+        handles: list[dict[str, Any]],
+    ) -> Materialization:
+        if not handles:
+            raise ValueError("At least one governed access handle is required")
+        required = {"id", "uri", "authority"}
+        if any(required - handle.keys() for handle in handles):
+            raise ValueError("Each access handle requires id, uri, and authority")
+        descriptor = json.dumps(handles, sort_keys=True, separators=(",", ":")).encode()
+        content_hash = hashlib.sha256(_canonical(assembly) + descriptor).hexdigest()
+        identifier_seed = assembly.id + self.substrate + content_hash
+        return Materialization(
+            id=f"MAT-{str(uuid5(NAMESPACE_URL, identifier_seed)).upper()}",
+            assembly_ref=assembly.id,
+            substrate=self.substrate,
+            content_hash=content_hash,
+            created_at=utc_now(),
+            delivery_mode="access-handles",
+            access_handles=handles,
+        )

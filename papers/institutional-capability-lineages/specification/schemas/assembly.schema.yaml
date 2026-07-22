@@ -26,6 +26,7 @@ required:
   - source_snapshot
   - policy_snapshot
   - transformation_snapshot
+  - operational_mandate
   - selection
   - evaluation_contract
   - evidence_contract
@@ -83,6 +84,39 @@ properties:
       type: object
       required: [id, version]
       additionalProperties: true
+  operational_mandate:
+    type: object
+    required:
+      - authority_scope
+      - institutional_change_authority
+      - local_autonomy
+      - evidence_disclosure
+      - registry_interaction
+      - reresolution_triggers
+    properties:
+      authority_scope: {const: execution-scoped}
+      institutional_change_authority: {const: false}
+      local_autonomy:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          enum: [reasoning, planning, working-memory, local-stores, tool-use, coordination, iteration]
+      evidence_disclosure: {const: evidence-contract-only}
+      registry_interaction: {const: reresolution-or-evidence-only}
+      reresolution_triggers:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          enum:
+            - intent-materially-changed
+            - coverage-insufficient
+            - authority-invalid
+            - source-or-binding-stale
+            - risk-changed
+            - assurance-changed
+    additionalProperties: false
   selection:
     type: object
     required: [included, excluded]
@@ -103,10 +137,21 @@ properties:
         type: array
         minItems: 1
     additionalProperties: true
-  evidence_contract: {type: object}
+  evidence_contract:
+    type: object
+    required: [selection_mode, working_state_disclosure, checkpoint_policy]
+    properties:
+      selection_mode: {const: contract-selected}
+      working_state_disclosure: {const: prohibited-unless-contract-required}
+      checkpoint_policy:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {enum: [terminal, contract-defined]}
+    additionalProperties: true
   correctness:
     type: object
-    required: [traceable, authorized, required_covered, evaluation_bound, conflicts_resolved, within_budget]
+    required: [traceable, authorized, required_covered, evaluation_bound, conflicts_resolved, within_budget, mandate_bounded]
     additionalProperties: true
   retention:
     type: object
@@ -116,6 +161,21 @@ properties:
   materializations:
     type: array
     minItems: 1
+    items:
+      type: object
+      required: [substrate, delivery_mode, preserves_assembly_semantics]
+      properties:
+        substrate: {type: string, minLength: 1}
+        delivery_mode: {enum: [logical, bundle, payload, access-handles]}
+        preserves_assembly_semantics: {const: true}
+        access_handles:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [id, uri, authority]
+            additionalProperties: true
+      additionalProperties: true
 $defs:
   knowledge_roles:
     type: array

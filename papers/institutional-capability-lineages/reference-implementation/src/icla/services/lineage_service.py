@@ -220,6 +220,17 @@ class LineageService:
                         }
                     )
                 )
+            mandate_ref = artifact.get("execution", {}).get("mandate_ref")
+            if mandate_ref:
+                edges.append(
+                    LineageEdge.model_validate(
+                        {
+                            "from": execution_id,
+                            "type": "operates_under",
+                            "to": mandate_ref,
+                        }
+                    )
+                )
         memory_id = artifact.get("memory_record", {}).get("id")
         if memory_id:
             edges.append(

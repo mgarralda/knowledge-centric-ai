@@ -16,6 +16,12 @@ CEEs consume authorized assemblies but may produce situated observations,
 artifacts, practices, and decisions. Such outputs remain candidate knowledge
 until an identified evidence path and governance decision admit them.
 
+An Assembly is also the persistent record of a bounded operational mandate. It
+delegates execution-scoped authority without granting canonical change and can
+be materialized as copied content or governed access handles. Internal CEE
+working state remains local unless the evidence contract explicitly selects
+it.
+
 The initial object catalog is defined through the schemas:
 
 | Object | Structural contract |

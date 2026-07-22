@@ -13,6 +13,13 @@ overlapping knowledge-role annotations. They describe how governed knowledge
 functions for a capability; they are not storage partitions, and a source may
 declare more than one role.
 
+The Assembly contract also makes the admitted operational mandate explicit:
+execution-scoped authority, local CEE autonomy, evidence-only disclosure, and
+event-driven re-resolution triggers. The Evidence Bundle records an autonomous
+execution interval and contract-selected submission without requiring working
+state disclosure. These are nested commitments, not new principal object
+types.
+
 | Schema | Applies to |
 |---|---|
 | [`capability.schema.yaml`](./capability.schema.yaml) | Standalone institutional capability |

@@ -20,16 +20,17 @@ abstract: >
   architecture, including the scientific paper, executable specification,
   JSON Schemas, reference objects, end-to-end traces, deterministic reference
   implementation, and conformance tests for governed institutional capability
-  evolution.
+  evolution, bounded operational mandates, autonomous CEE execution, and
+  contract-selected evidence.
   Documentation and scientific artifacts are licensed under
-  CC BY-NC-SA 4.0.
+  CC BY 4.0.
   Source code is licensed under the MIT License.
 
 license: "MIT"
 
 version: "1.0.0"
 
-date-released: "2026-07"
+date-released: "2026-07-22"
 
 preferred-citation:
   type: article

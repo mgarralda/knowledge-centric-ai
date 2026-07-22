@@ -20,9 +20,9 @@ flowchart TD
     SPEC["Reference Specification<br/>schemas and artifact contracts"]
     REG["Registry Service<br/>stable capability identity"]
     RES["Resolution Service<br/>intent to admitted capabilities"]
-    ASM["Assembly Service<br/>immutable contextual assembly"]
-    MAT["Materialization Service<br/>substrate-specific projection"]
-    CEE["CEE Execution<br/>consume governed memory<br/>produce situated knowledge"]
+    ASM["Assembly Service<br/>bounded operational mandate"]
+    MAT["Materialization Service<br/>bundle, payload, or access handles"]
+    CEE["CEE autonomous interval<br/>local state, tools, coordination, iteration"]
     EVD["Evidence Gateway<br/>qualification and receipt"]
     GOV["Governance Service<br/>declared adjudication"]
     ACT["Activation Service<br/>atomic active-pointer transition"]
@@ -31,9 +31,9 @@ flowchart TD
     SPEC --> REG
     REG --> RES
     RES --> ASM
-    ASM --> MAT
-    MAT --> CEE
-    CEE --> EVD
+    ASM -->|"mandate"| MAT
+    MAT -->|"usable representation"| CEE
+    CEE -->|"contract-selected evidence"| EVD
     EVD --> GOV
     GOV --> ACT
     ACT --> LIN
@@ -44,9 +44,11 @@ flowchart TD
 ```
 
 Materialization is a projection boundary: an assembly remains logically valid
-independently of whether it is rendered as a YAML bundle, a workspace, or a
-future transport-specific representation. Lineage is shown at the end of the
-main flow, but it is a cross-cutting responsibility populated throughout the
+independently of whether it is rendered as a YAML bundle, workspace, payload,
+or governed access handles. The CEE box is an autonomous interval, not a
+step-wise service loop. Registry interaction resumes only when the mandate
+requires re-resolution or the CEE submits contract-selected evidence. Lineage
+is shown at the end of the main flow, but it is populated throughout the
 entire lifecycle.
 
 ## Direct mapping from the paper to the code
@@ -59,9 +61,9 @@ entire lifecycle.
 | Capability Knowledge Contract (CKC) | Represent immutable, versioned knowledge scope, obligations, evidence, evaluation, governance, projection rules, and source bindings | [`ckc.py`](src/icla/models/ckc.py), [`ckc_repository.py`](src/icla/repositories/ckc_repository.py) |
 | Operational Intent | Capture goal, context, consumer, risk, budget, assurance, and required outcomes | [`intent.py`](src/icla/models/intent.py) |
 | Capability Resolution | Perform candidate generation, relation expansion, filtering, constraint validation, and admission | [`resolution_service.py`](src/icla/services/resolution_service.py) |
-| Contextual Assembly | Bind intent, resolution, Registry snapshot, exact CKC versions, sources, policies, evaluation, and evidence contracts | [`assembly_service.py`](src/icla/services/assembly_service.py) |
-| Materialization | Project a logical assembly into a substrate without changing its meaning or version bindings | [`materialization_service.py`](src/icla/services/materialization_service.py) |
-| Capability Execution Environment (CEE) | Consume an authorized assembly, produce situated candidate knowledge, and preserve execution and producer identity without conferring institutional authority | [`evidence.py`](src/icla/models/evidence.py), [`conformance.py`](src/icla/specification/conformance.py) |
+| Contextual Assembly | Bind exact versions and establish a bounded, execution-scoped mandate with explicit re-resolution triggers | [`assembly.py`](src/icla/models/assembly.py), [`assembly_service.py`](src/icla/services/assembly_service.py), [`mandate.py`](src/icla/policies/mandate.py) |
+| Materialization | Deliver a bundle, payload, workspace, or governed access handles without changing assembly semantics or source authority | [`materialization_service.py`](src/icla/services/materialization_service.py) |
+| Capability Execution Environment (CEE) | Operate autonomously inside the mandate, retain private working state, and return only contract-selected evidence | [`evidence.py`](src/icla/models/evidence.py), [`conformance.py`](src/icla/specification/conformance.py) |
 | Execution Evidence | Separate governed from non-standard measurements, check schema and provenance, and issue a qualification receipt | [`evidence_gateway.py`](src/icla/services/evidence_gateway.py) |
 | Governance | Persist an explicit institutional decision without synthesizing human approval | [`governance_service.py`](src/icla/services/governance_service.py) |
 | Governed Activation | Verify an approved decision and atomically move the active CKC pointer while preserving history | [`activation_service.py`](src/icla/services/activation_service.py) |
@@ -80,9 +82,9 @@ Operational Intent
     + active CKC pointers
         -> Resolution and Admission
         -> immutable Contextual Assembly
-        -> optional Materialization
-        -> situated CEE Execution
-        -> Execution Evidence Bundle
+        -> Materialization or governed access handles
+        -> autonomous CEE interval within the mandate
+        -> contract-selected Execution Evidence Bundle
         -> Evidence Qualification Receipt
         -> declared Governance Decision
         -> separate Activation Record
@@ -151,16 +153,30 @@ hold:
 - exact CKC versions supplied.
 
 The resulting assembly is authorized input to a CEE, not a claim that the
-CEE's later observations or outputs are already institutional knowledge.
+CEE's later observations or outputs are already institutional knowledge. It
+also records the limits of delegated authority, permitted local autonomy,
+evidence-disclosure boundary, and explicit re-resolution triggers.
+
+### Materialization Service
+
+Materialization makes the mandate usable without changing it. The reference
+implementation supports YAML bundles, workspaces, and governed access handles.
+Access handles retain source ownership and avoid copying payloads; their
+descriptors and the logical assembly are hashed together for reproducibility.
+
+Materialization does not initiate a step-wise control loop. The CEE may reuse
+the admitted mandate until intent, coverage, authority, freshness, risk, or
+assurance changes enough to require re-resolution.
 
 ### Evidence Gateway
 
-The Evidence Gateway validates CEE-produced evidence and candidate knowledge
+The Evidence Gateway validates contract-selected CEE evidence and candidate knowledge
 before governance review. It verifies schema conformity, governed metric
 conformity, producer and execution provenance, and provenance completeness. It
 keeps governed and non-standard measurements distinct and returns a receipt.
 Qualification means *eligible for review*; it is not approval or institutional
-admission.
+admission. Internal reasoning, working memory, local stores, and intermediate
+artifacts remain outside submission unless the evidence contract selects them.
 
 ### Governance and Activation
 
@@ -186,6 +202,7 @@ edges such as:
 - `derived_from`;
 - `consumes`;
 - `performed_by`;
+- `operates_under`;
 - `produced_during`;
 - `submitted_as`;
 - `adjudicates`;
@@ -221,7 +238,7 @@ The conformance layer and tests make the main paper invariants executable:
 |---|---|
 | ICLA-1 | Every active capability has stable identity, owner, lifecycle, and a governed active CKC pointer |
 | ICLA-2 | Canonical CKCs declare immutable knowledge, operational relations, obligations, authorities, evidence, evaluation, source, and projection contracts |
-| ICLA-3 | CEE contributions retain execution identity and enter through governed source or evidence paths |
+| ICLA-3 | A bounded mandate preserves CEE autonomy and working-state privacy while candidate contributions retain identity and enter only through governed source or evidence paths |
 | ICLA-4 | Registry entries are filterable by metadata, lifecycle, policy, and conditions and expose typed relations |
 | ICLA-5 | Resolution and assembly retain intent, CEE, Registry, admission, and mandatory-constraint traceability |
 | ICLA-6 | Assemblies pin CKC, evaluation-contract, source, policy, and transformation versions |

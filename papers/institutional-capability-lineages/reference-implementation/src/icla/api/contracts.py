@@ -36,7 +36,11 @@ class AssemblyPort(Protocol):
 
 
 class MaterializerPort(Protocol):
-    def materialize(self, assembly: Assembly, target: str | Path) -> Any: ...
+    def materialize(
+        self,
+        assembly: Assembly,
+        target: str | Path | list[dict[str, Any]],
+    ) -> Any: ...
 
 
 class EvidenceGatewayPort(Protocol):

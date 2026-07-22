@@ -121,6 +121,21 @@ def check_icla_3_distributed_authority(artifact: dict[str, Any]) -> list[str]:
         if not artifact.get("authorities") or not artifact.get("governance"):
             errors.append("ICLA-3: CKC has no governed authority declaration")
         return errors
+    if document_type == "contextual-assembly":
+        errors = []
+        mandate = artifact.get("operational_mandate", {})
+        if mandate.get("authority_scope") != "execution-scoped":
+            errors.append("ICLA-3: assembly lacks an execution-scoped operational mandate")
+        if mandate.get("institutional_change_authority") is not False:
+            errors.append("ICLA-3: operational mandate grants institutional change authority")
+        if mandate.get("evidence_disclosure") != "evidence-contract-only":
+            errors.append("ICLA-3: mandate requires disclosure beyond the evidence contract")
+        if mandate.get("registry_interaction") != "reresolution-or-evidence-only":
+            errors.append("ICLA-3: mandate implies step-wise Registry control of CEE execution")
+        evidence_contract = artifact.get("evidence_contract", {})
+        if evidence_contract.get("selection_mode") != "contract-selected":
+            errors.append("ICLA-3: assembly does not contractually select submitted evidence")
+        return errors
     if document_type == "execution-evidence-bundle":
         errors = []
         execution = artifact.get("execution", {})
@@ -130,6 +145,13 @@ def check_icla_3_distributed_authority(artifact: dict[str, Any]) -> list[str]:
             errors.append("ICLA-3: evidence has no identified governed submission path")
         if artifact.get("canonical_mutation") is True:
             errors.append("ICLA-3: a CEE contribution cannot directly mutate canonical state")
+        local_execution = execution.get("local_execution", {})
+        if local_execution.get("registry_stepwise_interaction") is not False:
+            errors.append("ICLA-3: conformance cannot require step-wise CEE interaction")
+        if local_execution.get("wholesale_working_state_capture") is not False:
+            errors.append("ICLA-3: evidence requires wholesale CEE working-state capture")
+        if execution.get("submission", {}).get("selection_mode") != "contract-selected":
+            errors.append("ICLA-3: evidence is not contract-selected")
         return errors
     return []
 
@@ -189,7 +211,7 @@ def check_icla_5_intent_traceability(artifact: dict[str, Any]) -> list[str]:
         if missing:
             errors.append(f"ICLA-5: assembly misses execution trace fields {missing}")
         correctness = artifact.get("correctness", {})
-        required = ("traceable", "authorized", "required_covered")
+        required = ("traceable", "authorized", "required_covered", "mandate_bounded")
         failed = [name for name in required if correctness.get(name) is not True]
         if failed:
             errors.append(f"ICLA-5: authoritative assembly fails {failed}")
@@ -430,6 +452,18 @@ class ConformanceChecker:
             errors.append("ICLA-8: evidence does not reference the retained assembly")
 
         if assembly and evidence:
+            execution = evidence.get("execution", {})
+            if execution.get("mandate_ref") != assembly.get("id"):
+                errors.append("ICLA-5: execution does not reference its operational mandate")
+            materialization_ids = {
+                item.get("id") for item in assembly.get("materializations", []) if item.get("id")
+            }
+            if execution.get("materialization_ref") not in materialization_ids:
+                errors.append("ICLA-6: execution uses an unrecorded materialization")
+            if execution.get("submission", {}).get("selection_mode") != assembly.get(
+                "evidence_contract", {}
+            ).get("selection_mode"):
+                errors.append("ICLA-8: evidence submission exceeds the assembly contract")
             selected_roles = {
                 role
                 for role, items in assembly.get("selection", {})

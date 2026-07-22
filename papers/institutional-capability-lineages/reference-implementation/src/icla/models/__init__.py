@@ -10,7 +10,7 @@ See the LICENSE file in the repository root for details.
 
 # Module purpose: Public information model.
 
-from .assembly import Assembly, Materialization
+from .assembly import Assembly, Materialization, OperationalMandate
 from .capability import Capability, InstitutionalCapability
 from .ckc import CapabilityKnowledgeContract
 from .common import KnowledgeRole
@@ -40,6 +40,7 @@ __all__ = [
     "LineageEdge",
     "LineageNode",
     "Materialization",
+    "OperationalMandate",
     "RegistryRelation",
     "RegistrySnapshot",
     "ResolutionResult",

@@ -16,8 +16,10 @@ from pathlib import Path
 
 from ..config import Settings
 from ..models import EvidenceBundle, GovernanceDecision, Intent, RegistrySnapshot
+from ..policies import assess_reresolution
 from ..repositories import EvidenceRepository, GovernanceRepository
 from ..services import (
+    AccessHandleMaterializer,
     ActivationService,
     AssemblyService,
     CrystallizationService,
@@ -61,6 +63,14 @@ class ICLA:
     @staticmethod
     def materialize(assembly, target: str | Path):
         return YamlBundleMaterializer().materialize(assembly, target)
+
+    @staticmethod
+    def materialize_access_handles(assembly, handles: list[dict]):
+        return AccessHandleMaterializer().materialize(assembly, handles)
+
+    @staticmethod
+    def requires_reresolution(**conditions):
+        return assess_reresolution(**conditions)
 
     def submit_evidence(self, bundle: EvidenceBundle):
         return self.evidence_gateway.submit_evidence(bundle)

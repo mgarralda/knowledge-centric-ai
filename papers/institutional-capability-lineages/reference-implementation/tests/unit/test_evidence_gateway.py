@@ -16,6 +16,17 @@ def bundle():
             "cee_ref": "CEE-1",
             "consumer": "AGENT-1",
             "materialization_ref": "MAT-1",
+            "mandate_ref": "ASM-1",
+            "local_execution": {
+                "mode": "autonomous-within-mandate",
+                "registry_stepwise_interaction": False,
+                "working_state_disclosure": "none",
+                "wholesale_working_state_capture": False,
+            },
+            "submission": {
+                "selection_mode": "contract-selected",
+                "checkpoint": "terminal",
+            },
         },
         lineage={
             "intent_ref": "INT-1",

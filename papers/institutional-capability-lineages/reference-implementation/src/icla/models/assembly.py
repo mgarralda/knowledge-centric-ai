@@ -11,11 +11,22 @@ See the LICENSE file in the repository root for details.
 # Module purpose: Immutable logical assembly and substrate-specific materializations.
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import Field
 
 from .common import ExtensibleModel, SpecificationMetadata
+
+
+class OperationalMandate(ExtensibleModel):
+    authority_scope: Literal["execution-scoped"] = "execution-scoped"
+    institutional_change_authority: Literal[False] = False
+    local_autonomy: list[str] = Field(min_length=1)
+    evidence_disclosure: Literal["evidence-contract-only"] = "evidence-contract-only"
+    registry_interaction: Literal["reresolution-or-evidence-only"] = (
+        "reresolution-or-evidence-only"
+    )
+    reresolution_triggers: list[str] = Field(min_length=1)
 
 
 class Materialization(ExtensibleModel):
@@ -26,6 +37,9 @@ class Materialization(ExtensibleModel):
     content_hash: str
     created_at: datetime
     expires_at: datetime | None = None
+    delivery_mode: Literal["bundle", "payload", "access-handles"] = "bundle"
+    preserves_assembly_semantics: Literal[True] = True
+    access_handles: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class Assembly(SpecificationMetadata):
@@ -36,6 +50,7 @@ class Assembly(SpecificationMetadata):
     source_snapshot: list[dict[str, Any]] = Field(default_factory=list)
     policy_snapshot: list[dict[str, Any]] = Field(default_factory=list)
     transformation_snapshot: list[dict[str, Any]] = Field(default_factory=list)
+    operational_mandate: OperationalMandate
     selection: dict[str, Any]
     evaluation_contract: dict[str, Any]
     evidence_contract: dict[str, Any]

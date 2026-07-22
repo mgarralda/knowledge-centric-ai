@@ -45,7 +45,29 @@ properties:
   generated_from: {type: object, minProperties: 3}
   execution:
     type: object
-    required: [id, cee_ref, consumer, materialization_ref]
+    required: [id, cee_ref, consumer, materialization_ref, mandate_ref, local_execution, submission]
+    properties:
+      id: {type: string, pattern: "^EXE-[A-Z0-9-]+$"}
+      cee_ref: {type: string, pattern: "^CEE-[A-Z0-9-]+$"}
+      consumer: {type: string}
+      materialization_ref: {type: string, pattern: "^MAT-[A-Z0-9-]+$"}
+      mandate_ref: {type: string, pattern: "^ASM-[A-Z0-9-]+$"}
+      local_execution:
+        type: object
+        required: [mode, registry_stepwise_interaction, working_state_disclosure, wholesale_working_state_capture]
+        properties:
+          mode: {const: autonomous-within-mandate}
+          registry_stepwise_interaction: {const: false}
+          working_state_disclosure: {enum: [none, contract-selected]}
+          wholesale_working_state_capture: {const: false}
+        additionalProperties: false
+      submission:
+        type: object
+        required: [selection_mode, checkpoint]
+        properties:
+          selection_mode: {const: contract-selected}
+          checkpoint: {enum: [terminal, contract-defined]}
+        additionalProperties: false
     additionalProperties: true
   lineage:
     type: object

@@ -80,6 +80,22 @@ def test_oauth_042_end_to_end_governed_successor(tmp_path):
     governance_repository = GovernanceRepository(store)
     evidence = EvidenceBundle.model_validate(artifacts["evidence-bundle"])
     assert evidence.memory_record["role"] == "episodic"
+    assert artifacts["assembly"]["operational_mandate"]["authority_scope"] == (
+        "execution-scoped"
+    )
+    assert artifacts["assembly"]["operational_mandate"][
+        "institutional_change_authority"
+    ] is False
+    assert evidence.execution["local_execution"] == {
+        "mode": "autonomous-within-mandate",
+        "registry_stepwise_interaction": False,
+        "working_state_disclosure": "none",
+        "wholesale_working_state_capture": False,
+    }
+    assert evidence.execution["submission"] == {
+        "selection_mode": "contract-selected",
+        "checkpoint": "terminal",
+    }
     assert evidence.execution["consumed_memory_roles"] == [
         "semantic",
         "procedural",
@@ -140,6 +156,12 @@ def test_oauth_042_end_to_end_governed_successor(tmp_path):
         edge.source == "EXE-OAUTH-042"
         and edge.relation_type == "performed_by"
         and edge.target == "CEE-OAUTH-042"
+        for edge in lineage.edges
+    )
+    assert any(
+        edge.source == "EXE-OAUTH-042"
+        and edge.relation_type == "operates_under"
+        and edge.target == "ASM-OAUTH-042"
         for edge in lineage.edges
     )
     assert "DEC-OAUTH-042" in LineageService().trace_from_evidence("EVD-OAUTH-042", lineage)

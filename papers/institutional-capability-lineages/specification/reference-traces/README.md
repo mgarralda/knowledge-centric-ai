@@ -14,6 +14,12 @@ selected into its assembly and may produce situated candidate knowledge. The
 trace must retain execution and producer identity while keeping production
 separate from institutional admission.
 
+Between materialization and evidence submission, the CEE may run autonomously
+inside its bounded mandate. A conforming trace records the mandate, the exact
+materialization used, and the terminal or contract-defined checkpoint, but
+does not require step-wise Registry interaction or wholesale working-state
+capture.
+
 ## Available traces
 
 - [OAuth 2.1 protocol evolution](./oauth-042/README.md) — a complete trace from

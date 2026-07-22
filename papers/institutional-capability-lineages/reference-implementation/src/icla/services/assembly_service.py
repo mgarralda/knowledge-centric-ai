@@ -84,6 +84,7 @@ class AssemblyService:
             "evaluation_bound": bool(metrics),
             "conflicts_resolved": not unresolved_obligations and not resolution_conflicts,
             "within_budget": within_budget,
+            "mandate_bounded": True,
         }
         failed = [name for name, value in correctness.items() if not value]
         if not exact:
@@ -119,6 +120,29 @@ class AssemblyService:
             transformation_snapshot=[
                 {"id": "TRANSFORM-ICLA-REFERENCE-ASSEMBLY", "version": 1}
             ],
+            operational_mandate={
+                "authority_scope": "execution-scoped",
+                "institutional_change_authority": False,
+                "local_autonomy": [
+                    "reasoning",
+                    "planning",
+                    "working-memory",
+                    "local-stores",
+                    "tool-use",
+                    "coordination",
+                    "iteration",
+                ],
+                "evidence_disclosure": "evidence-contract-only",
+                "registry_interaction": "reresolution-or-evidence-only",
+                "reresolution_triggers": [
+                    "intent-materially-changed",
+                    "coverage-insufficient",
+                    "authority-invalid",
+                    "source-or-binding-stale",
+                    "risk-changed",
+                    "assurance-changed",
+                ],
+            },
             selection={
                 "included": sorted(item[0] for item in admitted),
                 "excluded": resolution.filtering.get("excluded", []),
@@ -134,12 +158,24 @@ class AssemblyService:
                 "version": 1,
                 "metrics": metrics,
             },
-            evidence_contract={"contracts": [c.evidence_contract for c in ckcs]},
+            evidence_contract={
+                "contracts": [c.evidence_contract for c in ckcs],
+                "selection_mode": "contract-selected",
+                "working_state_disclosure": "prohibited-unless-contract-required",
+                "checkpoint_policy": ["terminal", "contract-defined"],
+            },
             correctness=correctness,
             retention={
                 "policy_ref": "POL-ICLA-TRACE-RETENTION-v1",
                 "historical_reproduction": "required",
             },
             access_policy_ref="POL-ICLA-TRACE-ACCESS-v1",
-            materializations=[{"substrate": "logical", "status": "available"}],
+            materializations=[
+                {
+                    "substrate": "logical",
+                    "delivery_mode": "logical",
+                    "preserves_assembly_semantics": True,
+                    "status": "available",
+                }
+            ],
         )

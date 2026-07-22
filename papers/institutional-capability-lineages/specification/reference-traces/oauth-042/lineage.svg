@@ -10,7 +10,7 @@ Licensed under CC BY 4.0.
 
 <svg xmlns="http://www.w3.org/2000/svg" width="760" height="1270" viewBox="0 0 760 1270" role="img" aria-labelledby="title desc">
   <title id="title">OAuth 2.1 reference artifact lineage</title>
-  <desc id="desc">A vertical trace from the Registry snapshot through intent, resolution, assembly, CEE execution, evidence, governance decision, and result.</desc>
+  <desc id="desc">A vertical trace from the Registry snapshot through intent, resolution, a bounded assembly mandate, autonomous CEE execution, contract-selected evidence, governance decision, and result.</desc>
   <defs>
     <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L0,6 L7,3 z" fill="#253858"/>
@@ -62,15 +62,15 @@ Licensed under CC BY 4.0.
 
   <g transform="translate(160 675)">
     <rect class="box" width="440" height="100" fill="#FFF4E5"/>
-    <text x="220" y="35" text-anchor="middle" class="label">CEE Execution</text>
-    <text x="220" y="62" text-anchor="middle" class="file">consume assembly / produce situated knowledge</text>
+    <text x="220" y="35" text-anchor="middle" class="label">Autonomous CEE Execution</text>
+    <text x="220" y="62" text-anchor="middle" class="file">local state / tools / coordination / iteration</text>
     <text x="220" y="84" text-anchor="middle" class="id">CEE-OAUTH-042 / EXE-OAUTH-042</text>
   </g>
   <line x1="380" y1="775" x2="380" y2="815" class="arrow"/>
 
   <g transform="translate(160 825)">
     <rect class="box" width="440" height="100" fill="#E1F5F7"/>
-    <text x="220" y="35" text-anchor="middle" class="label">Execution Evidence</text>
+    <text x="220" y="35" text-anchor="middle" class="label">Contract-Selected Evidence</text>
     <text x="220" y="62" text-anchor="middle" class="file">evidence-bundle.yaml</text>
     <text x="220" y="84" text-anchor="middle" class="id">EVD-OAUTH-042 / RCPT-OAUTH-042</text>
   </g>

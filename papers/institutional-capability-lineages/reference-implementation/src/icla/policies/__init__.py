@@ -9,3 +9,7 @@ See the LICENSE file in the repository root for details.
 """
 
 # Module purpose: Replaceable institutional policy functions.
+
+from .mandate import assess_reresolution
+
+__all__ = ["assess_reresolution"]
