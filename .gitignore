@@ -57,6 +57,7 @@ pytestdebug.log
 .vscode/
 .agents/
 .codex/
+.internal/
 *.iml
 *.swp
 *.swo
