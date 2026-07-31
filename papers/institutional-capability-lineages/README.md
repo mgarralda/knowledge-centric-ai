@@ -6,13 +6,17 @@
 
 # Institutional Capability Lineages (ICLA)
 
-**A Registry-Centered Reference Architecture for Governed and Evolving AI**
+**A Registry-Centered Conceptual Reference Architecture for Governed and Evolving AI**
 
 **Author**
 
 Mariano Garralda-Barrio
 
 Institutional Capability Lineages (**ICLA**) is a reference architecture for preserving the continuity of recurring institutional capabilities across changing people, agents, models, workflows, systems, and infrastructures.
+
+The bundled `paper.pdf` remains the current public SSRN preprint. The
+specification, reference trace, and executable companion track the refined
+conceptual model and conformance boundaries being prepared for its successor.
 
 ICLA addresses a problem that sits above retrieval, memory, context engineering, and agent orchestration:
 

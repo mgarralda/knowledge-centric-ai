@@ -1,8 +1,8 @@
 # ICLA Reference Implementation
 
 Deterministic Python demonstrator for **Institutional Capability Lineages
-(ICLA)**, a registry-centered reference architecture for governed and evolving
-AI.
+(ICLA)**, a registry-centered conceptual reference architecture for governed
+and evolving AI.
 
 This package provides an inspectable execution model for the companion ICLA
 specification. It demonstrates how stable capability identity, versioned
@@ -44,11 +44,14 @@ The implementation includes:
   situated, non-authoritative candidate knowledge;
 - Evidence Gateway validation, metric qualification, and receipt generation;
 - explicit governance decisions and impact records;
-- authorized CKC active-pointer transitions for future resolutions;
+- ordered, event-identified impact analysis for continuous change streams;
+- authorized CKC active-pointer transitions for future resolutions and exact,
+  pre-authorized rollback targets;
 - connected institutional lineage and historical preservation;
 - episodic evidence records and governed transition of accepted precedents into
   semantic or procedural CKC commitments;
-- recurrence-based capability proposals without automatic promotion;
+- recurrence-based capability proposals with explicit proposed, review,
+  decision, and governed-promotion states;
 - schema, artifact, profile, and cross-artifact conformance validation.
 
 YAML reference artifacts remain the source of truth for the worked trace.
@@ -69,6 +72,8 @@ several architectural boundaries from the paper executable:
   authority, freshness, risk, or assurance invalidates it;
 - **learning without self-promotion**: candidate knowledge can affect canonical
   state only through Evidence Gateway qualification and governance.
+- **evolution without irreversible activation**: every successor activation
+  identifies its exact predecessor as the governed rollback target.
 
 ## Requirements
 
@@ -185,13 +190,14 @@ reference-implementation/
 - Re-resolution is event-driven; it is not required for each local CEE step.
 - Governed and non-standard measurements remain separate.
 - Materializations cannot silently become canonical CKCs.
-- Capability crystallization creates proposals, never institutional identity.
+- Recurrence scores never assign identity; only an approved, traceable
+  promotion transition can do so.
 - Architecture decisions and validation failures carry machine-readable
   rationale.
 
-The crystallization service intentionally implements recurrence-based proposal
-generation only. Institutional promotion remains an external, governed review
-process.
+The crystallization service implements an explicit proposal lifecycle.
+Detection creates only a proposal; institutional review must approve it before
+a separate promotion transition may assign identity and an initial CKC.
 
 ## Non-goals
 

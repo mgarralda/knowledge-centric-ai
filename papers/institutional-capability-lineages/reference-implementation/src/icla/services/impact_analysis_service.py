@@ -21,6 +21,13 @@ class ImpactAnalysis:
     rationale: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class ImpactEventResult:
+    event_ref: str
+    sequence: int
+    analysis: ImpactAnalysis
+
+
 class ImpactAnalysisService:
     def analyze(self, change: dict, *, registry, ckcs: list, assemblies: list) -> ImpactAnalysis:
         references = self._change_references(change)
@@ -97,6 +104,29 @@ class ImpactAnalysisService:
                 "impact derived from explicit CKC fields and Registry relations",
             ),
         )
+
+    def analyze_change_stream(
+        self, changes: list[dict], *, registry, ckcs: list, assemblies: list
+    ) -> tuple[ImpactEventResult, ...]:
+        """Evaluate an ordered stream of governed change events without mutating prior results."""
+        results = []
+        for sequence, change in enumerate(changes, start=1):
+            event_ref = change.get("id") or change.get("event_ref")
+            if not event_ref:
+                raise ValueError("Continuous impact analysis requires an identified change event")
+            results.append(
+                ImpactEventResult(
+                    event_ref=str(event_ref),
+                    sequence=sequence,
+                    analysis=self.analyze(
+                        change,
+                        registry=registry,
+                        ckcs=ckcs,
+                        assemblies=assemblies,
+                    ),
+                )
+            )
+        return tuple(results)
 
     @staticmethod
     def _change_references(change: dict) -> set[str]:

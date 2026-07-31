@@ -78,6 +78,6 @@ class RegistryService:
         capability = self.get_capability(capability_id)
         return (
             None
-            if capability is None
+            if capability is None or capability.active_ckc is None
             else (capability.active_ckc.id, capability.active_ckc.version)
         )

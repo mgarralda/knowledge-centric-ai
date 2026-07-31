@@ -37,5 +37,7 @@ class ActivationRecord(ExtensibleModel):
     capability_ref: str
     previous_ckc: dict[str, Any]
     active_ckc: dict[str, Any]
+    rollback_target: dict[str, Any]
+    action: str = "activate"
     activated_by: str
     activated_at: datetime

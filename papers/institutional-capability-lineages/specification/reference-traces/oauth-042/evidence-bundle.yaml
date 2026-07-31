@@ -2,7 +2,7 @@
 # Reference Trace
 #
 # This artifact is part of the ICLA Reference Specification.
-# It is a normative example and does not represent
+# It is a non-normative reference example and does not represent
 # operational or production data.
 #
 # Copyright (c) 2026 Mariano Garralda-Barrio
@@ -180,6 +180,7 @@ candidate_knowledge:
     produced_by: CEE-OAUTH-042
     produced_during: EXE-OAUTH-042
     institutional_authority: candidate-pending-adjudication
+    lifecycle_status: submitted
     proposed_transition:
       from: episodic
       to: procedural
@@ -191,6 +192,7 @@ candidate_knowledge:
     produced_by: CEE-OAUTH-042
     produced_during: EXE-OAUTH-042
     institutional_authority: candidate-pending-adjudication
+    lifecycle_status: submitted
     proposed_transition:
       from: episodic
       to: episodic

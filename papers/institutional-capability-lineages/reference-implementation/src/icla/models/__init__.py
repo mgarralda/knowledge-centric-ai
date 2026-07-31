@@ -14,7 +14,7 @@ from .assembly import Assembly, Materialization, OperationalMandate
 from .capability import Capability, InstitutionalCapability
 from .ckc import CapabilityKnowledgeContract
 from .common import KnowledgeRole
-from .crystallization import CapabilityProposal
+from .crystallization import CapabilityProposal, ProposalStatus
 from .evidence import EvidenceBundle, EvidenceReceipt
 from .governance import ActivationRecord, GovernanceDecision
 from .intent import Intent
@@ -41,6 +41,7 @@ __all__ = [
     "LineageNode",
     "Materialization",
     "OperationalMandate",
+    "ProposalStatus",
     "RegistryRelation",
     "RegistrySnapshot",
     "ResolutionResult",

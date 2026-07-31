@@ -91,8 +91,23 @@ class ICLA:
     def propose_capability(self, signatures, **proposal):
         return self.crystallization.propose(signatures, **proposal)
 
+    def submit_capability_proposal(self, proposal, *, submitted_by: str):
+        return self.crystallization.submit_for_review(proposal, submitted_by=submitted_by)
+
+    def decide_capability_proposal(self, proposal, **decision):
+        return self.crystallization.decide(proposal, **decision)
+
+    def promote_capability_proposal(self, proposal, **promotion):
+        return self.crystallization.promote(proposal, **promotion)
+
     def impact_analysis(self, change, **context):
         return self.impact.analyze(change, **context)
 
+    def impact_analysis_stream(self, changes, **context):
+        return self.impact.analyze_change_stream(changes, **context)
+
     def activate_ckc(self, snapshot, successor, decision, *, actor: str):
         return self.activation.activate(snapshot, successor, decision, actor=actor)
+
+    def rollback_ckc(self, snapshot, target, decision, *, actor: str):
+        return self.activation.rollback(snapshot, target, decision, actor=actor)

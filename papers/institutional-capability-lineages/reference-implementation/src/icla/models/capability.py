@@ -10,7 +10,7 @@ See the LICENSE file in the repository root for details.
 
 # Module purpose: Stable institutional capability identity.
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from .common import ExtensibleModel, LifecycleStatus, SpecificationMetadata
 
@@ -27,11 +27,17 @@ class Capability(ExtensibleModel):
     owner: str
     domain: str
     lifecycle: LifecycleStatus
-    active_ckc: ActiveCKC
+    active_ckc: ActiveCKC | None = None
     risk: str | None = None
     maturity: str | None = None
     policy_refs: list[str] = Field(default_factory=list)
     conditions: dict[str, str] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def require_active_pointer(self):
+        if self.lifecycle == LifecycleStatus.ACTIVE and self.active_ckc is None:
+            raise ValueError("An active capability requires an active CKC pointer")
+        return self
 
 
 class InstitutionalCapability(SpecificationMetadata):
@@ -43,8 +49,14 @@ class InstitutionalCapability(SpecificationMetadata):
     owner: str
     domain: str
     lifecycle: LifecycleStatus
-    active_ckc: ActiveCKC
+    active_ckc: ActiveCKC | None = None
     risk: str | None = None
     maturity: str | None = None
     policy_refs: list[str] = Field(default_factory=list)
     conditions: dict[str, str] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def require_active_pointer(self):
+        if self.lifecycle == LifecycleStatus.ACTIVE and self.active_ckc is None:
+            raise ValueError("An active capability requires an active CKC pointer")
+        return self

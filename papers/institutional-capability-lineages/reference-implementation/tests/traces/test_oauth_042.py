@@ -125,6 +125,9 @@ def test_oauth_042_end_to_end_governed_successor(tmp_path):
     assert all(item["passed"] is True for item in receipt.threshold_outcomes)
 
     decision = GovernanceDecision.model_validate(artifacts["governance-decision"])
+    assert decision.activation["rollback_target"] == "CKC-VERIFY-v9"
+    assert decision.impact_record["assessment_mode"] == "continuous-event-driven"
+    assert decision.capability_formation["proposal"]["id"] == "PROP-AUTH-EVOL-01"
     GovernanceService(governance_repository).adjudicate(
         decision,
         reviewer="security-and-release-governance-review",

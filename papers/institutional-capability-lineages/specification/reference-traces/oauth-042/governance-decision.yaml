@@ -2,7 +2,7 @@
 # Reference Trace
 #
 # This artifact is part of the ICLA Reference Specification.
-# It is a normative example and does not represent
+# It is a non-normative reference example and does not represent
 # operational or production data.
 #
 # Copyright (c) 2026 Mariano Garralda-Barrio
@@ -79,6 +79,9 @@ dispositions:
       from: episodic
       to: procedural
       mechanism: successor-ckc
+    candidate_lifecycle_transition:
+      from: submitted
+      to: admitted
 
   service_local_exception:
     candidate_ref: CAND-LOCAL-MIGRATION-EXCEPTION-042
@@ -88,9 +91,14 @@ dispositions:
       from: episodic
       to: episodic
       mechanism: retain-as-precedent
+    candidate_lifecycle_transition:
+      from: submitted
+      to: retained-local
 
 impact_record:
   id: IMP-VERIFY-010
+  change_event_ref: CHG-EVD-OAUTH-042
+  assessment_mode: continuous-event-driven
   change_type: successor-ckc
   affected_capabilities:
     - CAP-VERIFY
@@ -111,6 +119,7 @@ activation:
   active_pointer_transition:
     from: CKC-VERIFY-v9
     to: CKC-VERIFY-v10
+  rollback_target: CKC-VERIFY-v9
 
 historical_immutability:
   assembly_ref: ASM-OAUTH-042
@@ -120,6 +129,22 @@ historical_immutability:
 capability_formation:
   new_capability_created_by_this_decision: false
   rationale: The admitted pattern remains within CAP-VERIFY responsibility
+  proposal:
+    id: PROP-AUTH-EVOL-01
+    status: proposed
+    recurrent_pattern_refs:
+      - SIG-TOKEN-ROTATION
+      - SIG-PROVIDER-REPLACEMENT
+      - SIG-SCOPE-REDESIGN
+      - SIG-CLIENT-MIGRATION
+      - SIG-PROTOCOL-UPGRADE
+    comparable_outcome_refs:
+      - OUT-AUTH-EVOL-COMPATIBILITY
+      - OUT-AUTH-EVOL-ASSURANCE
+    candidate_owner: identity-and-api-governance-review
+    overlap_analysis:
+      - Review overlap with CAP-IAM, CAP-API, and CAP-VERIFY
+    draft_ckc_ref: CKC-AUTH-EVOL-v1-draft
   later_recurrence_may_support:
     proposal: PROP-AUTH-EVOL-01
     candidate_name: Authentication Protocol Evolution

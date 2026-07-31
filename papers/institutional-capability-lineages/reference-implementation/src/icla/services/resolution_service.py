@@ -97,7 +97,7 @@ class ResolutionService:
             if capability is None:
                 continue
             authorized, rationale = can_consume(intent.consumer, capability)
-            active = capability.lifecycle.value == "active"
+            active = capability.lifecycle.value == "active" and capability.active_ckc is not None
             fresh, freshness_rationale = is_fresh(getattr(capability, "expires_at", None))
             offered_assurance = getattr(capability, "assurance", None)
             required_assurance = intent.assurance.get("level")
@@ -119,6 +119,7 @@ class ResolutionService:
                 }
             )
             if passed:
+                assert capability.active_ckc is not None
                 admitted.append(
                     {
                         "capability": capability.id,

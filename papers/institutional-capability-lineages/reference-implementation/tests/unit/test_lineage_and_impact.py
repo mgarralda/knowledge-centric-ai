@@ -119,3 +119,16 @@ def test_impact_analysis_uses_exact_structured_references():
 
     assert accidental.affected_ckcs == ()
     assert exact.affected_ckcs == ("CKC-1",)
+
+    streamed = service.analyze_change_stream(
+        [
+            {"id": "CHG-1", "source_ref": "SRC-10"},
+            {"id": "CHG-2", "capability_ref": "CAP-1"},
+        ],
+        registry=registry,
+        ckcs=[contract],
+        assemblies=[],
+    )
+    assert [item.event_ref for item in streamed] == ["CHG-1", "CHG-2"]
+    assert [item.sequence for item in streamed] == [1, 2]
+    assert all(item.analysis.review_required for item in streamed)

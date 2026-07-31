@@ -303,11 +303,16 @@ def check_icla_9_governed_activation(artifact: dict[str, Any]) -> list[str]:
         ("id", "affected_capabilities", "affected_ckcs"),
     ):
         errors.append("ICLA-9: canonical change has no impact record")
-    if _missing(activation, ("id", "capability", "ckc", "version", "active_pointer_transition")):
+    if _missing(
+        activation,
+        ("id", "capability", "ckc", "version", "active_pointer_transition", "rollback_target"),
+    ):
         errors.append("ICLA-9: activation target is incomplete")
     transition = activation.get("active_pointer_transition")
     if not isinstance(transition, dict) or _missing(transition, ("from", "to")):
         errors.append("ICLA-9: activation does not declare the exact pointer transition")
+    elif activation.get("rollback_target") != transition.get("from"):
+        errors.append("ICLA-9: activation rollback target is not the exact predecessor")
     if artifact.get("historical_immutability", {}).get("retroactive_mutation") is not False:
         errors.append("ICLA-9: activation does not preserve historical state")
     return errors
@@ -352,6 +357,64 @@ def check_icla_11_discovery_authority(artifact: dict[str, Any]) -> list[str]:
     )
 
 
+def check_icla_evolving_controls(artifact: dict[str, Any]) -> list[str]:
+    """Additional observable capabilities required by the ICLA-Evolving profile."""
+    document_type = artifact.get("document_type")
+    if document_type == "execution-evidence-bundle":
+        return [
+            "ICLA-Evolving: candidate knowledge has no explicit lifecycle state"
+            for candidate in artifact.get("candidate_knowledge", [])
+            if candidate.get("lifecycle_status") != "submitted"
+        ]
+    if document_type != "governance-decision":
+        return []
+
+    errors = []
+    impact = artifact.get("impact_record", {})
+    if impact.get("assessment_mode") != "continuous-event-driven" or not impact.get(
+        "change_event_ref"
+    ):
+        errors.append(
+            "ICLA-Evolving: impact analysis is not linked to an identified continuous event"
+        )
+    activation = artifact.get("activation", {})
+    transition = activation.get("active_pointer_transition", {})
+    if activation and (
+        not activation.get("rollback_target")
+        or activation.get("rollback_target") != transition.get("from")
+    ):
+        errors.append("ICLA-Evolving: activation has no exact rollback target")
+    for disposition in artifact.get("dispositions", {}).values():
+        if not isinstance(disposition, dict) or not disposition.get("candidate_ref"):
+            continue
+        lifecycle = disposition.get("candidate_lifecycle_transition", {})
+        if lifecycle.get("from") != "submitted" or lifecycle.get("to") not in {
+            "admitted",
+            "rejected",
+            "quarantined",
+            "retained-local",
+        }:
+            errors.append("ICLA-Evolving: candidate disposition has no governed lifecycle")
+
+    proposal = artifact.get("capability_formation", {}).get("proposal")
+    if proposal:
+        missing = _missing(
+            proposal,
+            (
+                "id",
+                "status",
+                "recurrent_pattern_refs",
+                "comparable_outcome_refs",
+                "candidate_owner",
+                "overlap_analysis",
+                "draft_ckc_ref",
+            ),
+        )
+        if missing:
+            errors.append(f"ICLA-Evolving: crystallization proposal misses {missing}")
+    return errors
+
+
 class ConformanceChecker:
     _core: tuple[Callable[[dict[str, Any]], list[str]], ...] = (
         check_icla_1_capability_identity,
@@ -367,7 +430,10 @@ class ConformanceChecker:
         check_icla_8_evidence_separation,
         check_icla_9_governed_activation,
     )
-    _evolving = _governed + (check_icla_11_discovery_authority,)
+    _evolving = _governed + (
+        check_icla_11_discovery_authority,
+        check_icla_evolving_controls,
+    )
 
     def check(
         self, artifact: dict[str, Any], profile: ConformanceProfile = ConformanceProfile.CORE
@@ -499,6 +565,11 @@ class ConformanceChecker:
                 if disposition.get("memory_transition") != candidate.get("proposed_transition"):
                     errors.append(
                         "ICLA-9: adjudicated memory transition differs from the evidence proposal"
+                    )
+                lifecycle = disposition.get("candidate_lifecycle_transition", {})
+                if lifecycle.get("from") != candidate.get("lifecycle_status"):
+                    errors.append(
+                        "ICLA-Evolving: candidate lifecycle loses its submitted state"
                     )
 
         if decision:

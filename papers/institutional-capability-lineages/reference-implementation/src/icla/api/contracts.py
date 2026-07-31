@@ -54,9 +54,19 @@ class GovernancePort(Protocol):
 class CapabilityProposalPort(Protocol):
     def propose_capability(self, signatures: list[str], **proposal: Any) -> Any: ...
 
+    def submit_capability_proposal(self, proposal: Any, *, submitted_by: str) -> Any: ...
+
+    def decide_capability_proposal(self, proposal: Any, **decision: Any) -> Any: ...
+
+    def promote_capability_proposal(self, proposal: Any, **promotion: Any) -> Any: ...
+
 
 class ImpactAnalysisPort(Protocol):
     def impact_analysis(self, change: dict[str, Any], **context: Any) -> Any: ...
+
+    def impact_analysis_stream(
+        self, changes: list[dict[str, Any]], **context: Any
+    ) -> Any: ...
 
 
 class ActivationPort(Protocol):
@@ -64,6 +74,15 @@ class ActivationPort(Protocol):
         self,
         snapshot: Any,
         successor: Any,
+        decision: Any,
+        *,
+        actor: str,
+    ) -> Any: ...
+
+    def rollback_ckc(
+        self,
+        snapshot: Any,
+        target: Any,
         decision: Any,
         *,
         actor: str,

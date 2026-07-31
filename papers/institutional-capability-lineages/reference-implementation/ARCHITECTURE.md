@@ -66,10 +66,10 @@ entire lifecycle.
 | Capability Execution Environment (CEE) | Operate autonomously inside the mandate, retain private working state, and return only contract-selected evidence | [`evidence.py`](src/icla/models/evidence.py), [`conformance.py`](src/icla/specification/conformance.py) |
 | Execution Evidence | Separate governed from non-standard measurements, check schema and provenance, and issue a qualification receipt | [`evidence_gateway.py`](src/icla/services/evidence_gateway.py) |
 | Governance | Persist an explicit institutional decision without synthesizing human approval | [`governance_service.py`](src/icla/services/governance_service.py) |
-| Governed Activation | Verify an approved decision and atomically move the active CKC pointer while preserving history | [`activation_service.py`](src/icla/services/activation_service.py) |
+| Governed Activation | Verify an approved decision, atomically move the active CKC pointer, and support an exact pre-authorized rollback while preserving history | [`activation_service.py`](src/icla/services/activation_service.py) |
 | Institutional Capability Lineage | Build and validate the connected, typed trace across artifacts and transitions | [`lineage_service.py`](src/icla/services/lineage_service.py) |
-| Impact Analysis | Identify capabilities, CKCs, retained assemblies, and consumers affected by a change | [`impact_analysis_service.py`](src/icla/services/impact_analysis_service.py) |
-| Capability Crystallization | Detect declared recurrence and produce a proposal, never a capability directly | [`crystallization_service.py`](src/icla/services/crystallization_service.py) |
+| Impact Analysis | Identify capabilities, CKCs, retained assemblies, and consumers affected by individual changes or ordered change-event streams | [`impact_analysis_service.py`](src/icla/services/impact_analysis_service.py) |
+| Capability Crystallization | Detect recurrence and govern the proposal lifecycle; scores cannot assign identity and promotion requires prior approval | [`crystallization_service.py`](src/icla/services/crystallization_service.py) |
 
 ## Artifact flow
 
@@ -244,21 +244,24 @@ The conformance layer and tests make the main paper invariants executable:
 | ICLA-6 | Assemblies pin CKC, evaluation-contract, source, policy, and transformation versions |
 | ICLA-7 | A consumer projection cannot silently become a canonical CKC |
 | ICLA-8 | Governed and non-standard measurements remain separate and receipts originate at the Evidence Gateway |
-| ICLA-9 | Canonical change records impact, approval, exact pointer transition, and historical immutability |
+| ICLA-9 | Canonical change records impact, approval, exact pointer transition, rollback target, and historical immutability |
 | ICLA-10 | Retained assemblies include version and policy metadata needed for reproduction and interpretation |
 | ICLA-11 | Only a governed, traceable promotion can assign a new institutional capability identity |
 
 The corresponding tests live in [`tests/conformance/`](tests/conformance/).
 The end-to-end [`oauth-042` test](tests/traces/test_oauth_042.py) loads the
 published sibling artifacts, applies the Evolving profile to the complete
-trace, generates the declared receipt, records adjudication, activates the
-published successor CKC with the declared activation identifier, preserves the
-historical assembly snapshot, and verifies connected lineage without creating
-a new capability.
+trace, verifies event-linked impact analysis and candidate lifecycle,
+generates the declared receipt, records adjudication, activates the published
+successor CKC with its exact rollback target, preserves the historical
+assembly snapshot, and verifies connected lineage without creating a new
+capability.
 
 ## Scope boundary
 
-This implementation proves architectural behavior, not production deployment.
+This implementation demonstrates executable consistency with the declared
+architectural behavior; it does not prove organizational effectiveness or
+production readiness.
 Authentication infrastructure, distributed transactions, databases, REST or
 MCP transports, observability platforms, and human workflow systems remain
 outside its scope. They may be added behind the existing ports without changing

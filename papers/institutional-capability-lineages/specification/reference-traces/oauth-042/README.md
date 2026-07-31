@@ -58,11 +58,15 @@ CKC-VERIFY v10 (future resolutions)
    post-Gateway state; the executable test removes the receipt from the
    submission and verifies that the Gateway recreates `RCPT-OAUTH-042`. It also
    records the execution as episodic memory, preserves candidate producer and
-   execution identity, and declares candidate memory-role transitions.
+   execution identity, and declares submitted candidate lifecycle and
+   memory-role transitions.
 6. [Governance Decision](./governance-decision.yaml) — `DEC-OAUTH-042`
    accepts the conforming evidence, retains a local exception, creates
    successor `CKC-VERIFY v10`, and activates it through `ACT-VERIFY-010` only
-   for future resolutions.
+   for future resolutions. The decision links its impact assessment to an
+   identified change event, records `CKC-VERIFY v9` as the exact rollback
+   target, and retains the separate `PROP-AUTH-EVOL-01` proposal with its
+   recurrence, outcome, ownership, overlap, and draft-CKC evidence.
 7. [Successor CKC](./ckc-verify-v10.yaml) — the complete immutable
    `CKC-VERIFY v10` contract records its predecessor, scope, obligations,
    authorities, evidence and evaluation definitions, source bindings,
@@ -77,6 +81,8 @@ commitment in `CKC-VERIFY v10`.
 
 - `ASM-OAUTH-042` remains immutably linked to `CKC-VERIFY v9`.
 - Future resolutions use `CKC-VERIFY v10` after activation.
+- The approved activation can be rolled back only to its declared
+  `CKC-VERIFY v9` target.
 - No new institutional capability is created by this decision.
 - Later recurrent executions may support `PROP-AUTH-EVOL-01`, which requires a
   separate institutional review before any capability promotion.

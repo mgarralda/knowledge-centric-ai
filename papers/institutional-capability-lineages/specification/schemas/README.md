@@ -20,6 +20,12 @@ execution interval and contract-selected submission without requiring working
 state disclosure. These are nested commitments, not new principal object
 types.
 
+Capability records require an active CKC pointer only in the `active`
+lifecycle state. Governance decisions identify the exact rollback target for
+each activation. Evidence candidates and crystallization proposals expose
+their governed lifecycle states so that ICLA-Evolving conformance can
+distinguish detection, review, disposition, and promotion.
+
 | Schema | Applies to |
 |---|---|
 | [`capability.schema.yaml`](./capability.schema.yaml) | Standalone institutional capability |

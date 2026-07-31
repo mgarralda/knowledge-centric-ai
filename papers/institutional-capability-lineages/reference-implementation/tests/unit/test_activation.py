@@ -52,6 +52,23 @@ def successor():
     )
 
 
+def predecessor():
+    return CapabilityKnowledgeContract(
+        id="CKC-VERIFY",
+        generated_from={"source": "retained-lineage"},
+        capability_ref="CAP-VERIFY",
+        version=9,
+        status="superseded",
+        knowledge_scope={},
+        obligations=[],
+        evidence_contract={},
+        evaluation_contract={},
+        governance={},
+        projection_rules={},
+        source_bindings=[],
+    )
+
+
 def decision(status="approved"):
     return GovernanceDecision(
         id="DEC-1",
@@ -77,6 +94,7 @@ def decision(status="approved"):
                 "from": "CKC-VERIFY@9",
                 "to": "CKC-VERIFY@10",
             },
+            "rollback_target": "CKC-VERIFY@9",
         },
         historical_immutability={},
         capability_formation={},
@@ -91,6 +109,32 @@ def test_approval_and_activation_are_separate_and_historical_snapshot_is_unchang
     assert updated.capability("CAP-VERIFY").active_ckc.version == 10
     assert record.id == "ACT-1"
     assert record.previous_ckc["version"] == 9
+    assert record.rollback_target["version"] == 9
+
+
+def test_approved_rollback_restores_the_exact_predecessor_without_mutating_history():
+    service = ActivationService()
+    original = snapshot()
+    advanced, activation = service.activate(
+        original,
+        successor(),
+        decision(),
+        actor="OWNER",
+    )
+
+    restored, rollback = service.rollback(
+        advanced,
+        predecessor(),
+        decision(),
+        actor="OWNER",
+    )
+
+    assert original.capability("CAP-VERIFY").active_ckc.version == 9
+    assert advanced.capability("CAP-VERIFY").active_ckc.version == 10
+    assert restored.capability("CAP-VERIFY").active_ckc.version == 9
+    assert activation.action == "activate"
+    assert rollback.action == "rollback"
+    assert rollback.previous_ckc["version"] == 10
 
 
 def test_rejected_decision_cannot_activate():

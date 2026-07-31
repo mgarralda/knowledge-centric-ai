@@ -51,7 +51,7 @@ properties:
     minItems: 1
     items:
       type: object
-      required: [id, name, outcome, owner, domain, lifecycle, active_ckc, policy_refs, conditions]
+      required: [id, name, outcome, owner, domain, lifecycle, policy_refs, conditions]
       properties:
         id: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
         name: {type: string, minLength: 1}
@@ -59,7 +59,7 @@ properties:
         owner: {type: string, minLength: 1}
         domain: {type: string, minLength: 1}
         lifecycle:
-          enum: [discovered, proposed, canonical, active, under-review, retired, merged]
+          enum: [discovered, proposed, approved, active, under-review, retired, merged]
         policy_refs:
           type: array
           minItems: 1
@@ -72,6 +72,13 @@ properties:
             id: {type: string, pattern: "^CKC-[A-Z0-9-]+$"}
             version: {type: integer, minimum: 1}
           additionalProperties: true
+      allOf:
+        - if:
+            properties:
+              lifecycle: {const: active}
+            required: [lifecycle]
+          then:
+            required: [active_ckc]
       additionalProperties: true
   relations:
     type: array

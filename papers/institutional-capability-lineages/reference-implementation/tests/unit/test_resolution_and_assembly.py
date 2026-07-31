@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 
 from icla.exceptions import AdmissionError
 from icla.models.capability import ActiveCKC, Capability
@@ -23,6 +24,28 @@ def capability(identifier, outcome, *, lifecycle="active"):
         lifecycle=lifecycle,
         active_ckc=ActiveCKC(id=f"CKC-{suffix}", version=1),
     )
+
+
+def test_only_active_capabilities_require_an_active_ckc_pointer():
+    proposed = Capability(
+        id="CAP-PROPOSED",
+        name="Proposed",
+        outcome="candidate responsibility",
+        owner="OWNER",
+        domain="security",
+        lifecycle="proposed",
+    )
+    assert proposed.active_ckc is None
+
+    with pytest.raises(ValidationError, match="active CKC pointer"):
+        Capability(
+            id="CAP-ACTIVE",
+            name="Active",
+            outcome="active responsibility",
+            owner="OWNER",
+            domain="security",
+            lifecycle="active",
+        )
 
 
 def registry(*, include_conflict=False):

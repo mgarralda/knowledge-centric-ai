@@ -10,7 +10,7 @@
 
 $schema: https://json-schema.org/draft/2020-12/schema
 title: Institutional Capability
-description: Stable institutional identity with a governed active CKC pointer.
+description: Stable institutional identity with a governed CKC pointer when active.
 type: object
 required:
   - document_type
@@ -26,7 +26,6 @@ required:
   - owner
   - domain
   - lifecycle
-  - active_ckc
 properties:
   document_type: {const: institutional-capability}
   format_version: {const: icla-artifact/0.1-draft}
@@ -46,7 +45,7 @@ properties:
   owner: {type: string, minLength: 1}
   domain: {type: string, minLength: 1}
   lifecycle:
-    enum: [discovered, proposed, canonical, active, under-review, retired, merged]
+    enum: [discovered, proposed, approved, active, under-review, retired, merged]
   active_ckc:
     type: object
     required: [id, version]
@@ -58,4 +57,11 @@ properties:
     type: array
     items: {type: string}
   conditions: {type: object}
+allOf:
+  - if:
+      properties:
+        lifecycle: {const: active}
+      required: [lifecycle]
+    then:
+      required: [active_ckc]
 additionalProperties: true

@@ -57,16 +57,26 @@ properties:
       properties:
         candidate_ref: {type: string, pattern: "^CAND-[A-Z0-9-]+$"}
         memory_transition: {$ref: "#/$defs/memory_transition"}
+        candidate_lifecycle_transition:
+          type: object
+          required: [from, to]
+          properties:
+            from: {const: submitted}
+            to: {enum: [admitted, rejected, quarantined, retained-local]}
+          additionalProperties: false
       dependentRequired:
-        candidate_ref: [memory_transition]
+        candidate_ref: [memory_transition, candidate_lifecycle_transition]
       additionalProperties: true
   impact_record:
     type: object
     required: [id, affected_capabilities, affected_ckcs, review_required]
+    properties:
+      change_event_ref: {type: string, minLength: 1}
+      assessment_mode: {enum: [event-driven, continuous-event-driven]}
     additionalProperties: true
   activation:
     type: object
-    required: [id, capability, ckc, version, applies_to, active_pointer_transition]
+    required: [id, capability, ckc, version, applies_to, active_pointer_transition, rollback_target]
     additionalProperties: true
   historical_immutability:
     type: object
@@ -75,6 +85,26 @@ properties:
   capability_formation:
     type: object
     required: [new_capability_created_by_this_decision, rationale]
+    properties:
+      proposal:
+        type: object
+        required:
+          - id
+          - status
+          - recurrent_pattern_refs
+          - comparable_outcome_refs
+          - candidate_owner
+          - overlap_analysis
+          - draft_ckc_ref
+        properties:
+          id: {type: string, pattern: "^PROP-[A-Z0-9-]+$"}
+          status: {enum: [proposed, under-review, approved, rejected, promoted]}
+          recurrent_pattern_refs: {type: array, minItems: 1}
+          comparable_outcome_refs: {type: array, minItems: 1}
+          candidate_owner: {type: string, minLength: 1}
+          overlap_analysis: {type: array, minItems: 1}
+          draft_ckc_ref: {type: string, minLength: 1}
+        additionalProperties: true
     additionalProperties: true
   resulting_lineage_edges:
     type: array

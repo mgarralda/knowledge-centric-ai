@@ -113,12 +113,13 @@ properties:
     type: array
     items:
       type: object
-      required: [id, description, proposed_scope, knowledge_roles]
+      required: [id, description, proposed_scope, knowledge_roles, lifecycle_status]
       properties:
         id: {type: string}
         description: {type: string}
         proposed_scope: {type: string}
         knowledge_roles: {$ref: "#/$defs/knowledge_roles"}
+        lifecycle_status: {const: submitted}
         proposed_transition:
           type: object
           required: [from, to, mechanism]

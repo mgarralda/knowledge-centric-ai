@@ -4,6 +4,7 @@ from icla.specification.conformance import (
     check_icla_3_distributed_authority,
     check_icla_4_registry_navigation,
     check_icla_7_canonical_transient_separation,
+    check_icla_evolving_controls,
 )
 
 
@@ -53,3 +54,21 @@ def test_missing_core_invariants_are_explicitly_checked():
             "materializations": [{"status": "canonical"}],
         }
     )
+
+
+def test_evolving_profile_requires_event_impact_candidate_lifecycle_and_rollback():
+    incomplete = {
+        "document_type": "governance-decision",
+        "impact_record": {},
+        "activation": {"active_pointer_transition": {}},
+        "dispositions": {
+            "candidate": {"candidate_ref": "CAND-1"},
+        },
+        "capability_formation": {},
+    }
+
+    errors = check_icla_evolving_controls(incomplete)
+
+    assert any("continuous event" in error for error in errors)
+    assert any("rollback target" in error for error in errors)
+    assert any("governed lifecycle" in error for error in errors)
