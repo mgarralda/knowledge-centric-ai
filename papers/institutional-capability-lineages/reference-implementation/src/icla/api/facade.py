@@ -91,6 +91,12 @@ class ICLA:
     def propose_capability(self, signatures, **proposal):
         return self.crystallization.propose(signatures, **proposal)
 
+    def detect_capability_proposals(self, signatures, **detection):
+        return self.crystallization.detect_capability_proposals(signatures, **detection)
+
+    def rank_capability_proposals(self, proposals):
+        return self.crystallization.rank_capability_proposals(proposals)
+
     def submit_capability_proposal(self, proposal, *, submitted_by: str):
         return self.crystallization.submit_for_review(proposal, submitted_by=submitted_by)
 

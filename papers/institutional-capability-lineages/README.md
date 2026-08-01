@@ -250,6 +250,10 @@ A local execution never mutates canonical institutional state directly.
 
 Capability crystallization is the governed formation of a new institutional capability from recurrent, stable, and valuable execution patterns.
 
+Detection may yield no proposal, one proposal, or several independent
+proposals. Ranking can prioritize this set, but it does not discard candidates
+or grant institutional authority.
+
 It is distinct from extending the CKC lineage of an existing capability:
 
 - **successor activation** evolves an existing capability;

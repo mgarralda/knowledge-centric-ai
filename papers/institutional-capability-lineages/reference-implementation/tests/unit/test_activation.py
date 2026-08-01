@@ -37,7 +37,10 @@ def snapshot():
 def successor():
     return CapabilityKnowledgeContract(
         id="CKC-VERIFY",
-        generated_from={"predecessor": "v9"},
+        generated_from={
+            "predecessor": "CKC-VERIFY@9",
+            "governance_decision": "DEC-1",
+        },
         capability_ref="CAP-VERIFY",
         version=10,
         status="canonical-approved",
@@ -46,7 +49,7 @@ def successor():
         obligations=[],
         evidence_contract={},
         evaluation_contract={},
-        governance={},
+        governance={"admission_decision_ref": "DEC-1"},
         projection_rules={},
         source_bindings=[],
     )
@@ -140,6 +143,14 @@ def test_approved_rollback_restores_the_exact_predecessor_without_mutating_histo
 def test_rejected_decision_cannot_activate():
     with pytest.raises(ActivationError):
         ActivationService().activate(snapshot(), successor(), decision("rejected"), actor="OWNER")
+
+
+def test_successor_from_another_decision_cannot_activate():
+    unrelated = successor().model_copy(
+        update={"generated_from": {"predecessor": "CKC-VERIFY@9", "governance_decision": "DEC-2"}}
+    )
+    with pytest.raises(ActivationError, match="authorizing decision"):
+        ActivationService().activate(snapshot(), unrelated, decision(), actor="OWNER")
 
 
 def test_activation_rejects_an_undeclared_authority():

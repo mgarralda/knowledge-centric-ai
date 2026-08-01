@@ -32,9 +32,12 @@ class CapabilityProposal(ExtensibleModel):
     recurrent_pattern_refs: list[str] = Field(min_length=1)
     proposed_name: str
     responsibility: str
-    candidate_owner: str | None = None
-    overlap_analysis: list[str] = Field(default_factory=list)
-    draft_ckc_ref: str | None = None
+    stable_assembly_rules: list[str] = Field(min_length=1)
+    value_assessment: dict[str, Any]
+    comparable_outcome_refs: list[str] = Field(min_length=1)
+    candidate_owner: str
+    overlap_analysis: list[str] = Field(min_length=1)
+    draft_ckc_ref: str
     evidence_refs: list[str] = Field(default_factory=list)
     score: float | None = None
     lifecycle_history: list[dict[str, Any]] = Field(default_factory=list)

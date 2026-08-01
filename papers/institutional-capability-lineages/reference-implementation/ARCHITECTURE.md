@@ -69,7 +69,7 @@ entire lifecycle.
 | Governed Activation | Verify an approved decision, atomically move the active CKC pointer, and support an exact pre-authorized rollback while preserving history | [`activation_service.py`](src/icla/services/activation_service.py) |
 | Institutional Capability Lineage | Build and validate the connected, typed trace across artifacts and transitions | [`lineage_service.py`](src/icla/services/lineage_service.py) |
 | Impact Analysis | Identify capabilities, CKCs, retained assemblies, and consumers affected by individual changes or ordered change-event streams | [`impact_analysis_service.py`](src/icla/services/impact_analysis_service.py) |
-| Capability Crystallization | Detect recurrence and govern the proposal lifecycle; scores cannot assign identity and promotion requires prior approval | [`crystallization_service.py`](src/icla/services/crystallization_service.py) |
+| Capability Crystallization | Detect zero-to-many recurrent proposals, rank them without information loss, and govern each lifecycle; scores cannot assign identity and promotion requires prior approval | [`crystallization_service.py`](src/icla/services/crystallization_service.py) |
 
 ## Artifact flow
 
@@ -190,8 +190,10 @@ qualified evidence -> governance decision -> approved successor -> activation
 ```
 
 An approved decision alone does not mutate the Registry. Activation verifies
-the target capability, CKC identity, successor version, and decision status,
-then returns a new Registry snapshot and a separate activation record.
+the target capability, CKC identity, successor version, decision status, exact
+predecessor, and the successor CKC's reference to that same authorizing
+decision. It then returns a new Registry snapshot and a separate activation
+record.
 
 ### Lineage Service
 

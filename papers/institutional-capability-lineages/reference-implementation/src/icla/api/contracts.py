@@ -52,6 +52,16 @@ class GovernancePort(Protocol):
 
 
 class CapabilityProposalPort(Protocol):
+    def detect_capability_proposals(
+        self,
+        signatures: list[str],
+        *,
+        candidates: dict[str, dict[str, Any]],
+        threshold: int = 3,
+    ) -> list[Any]: ...
+
+    def rank_capability_proposals(self, proposals: list[Any]) -> list[Any]: ...
+
     def propose_capability(self, signatures: list[str], **proposal: Any) -> Any: ...
 
     def submit_capability_proposal(self, proposal: Any, *, submitted_by: str) -> Any: ...

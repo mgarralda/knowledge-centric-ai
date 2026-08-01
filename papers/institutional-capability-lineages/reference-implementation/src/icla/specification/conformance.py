@@ -396,14 +396,19 @@ def check_icla_evolving_controls(artifact: dict[str, Any]) -> list[str]:
         }:
             errors.append("ICLA-Evolving: candidate disposition has no governed lifecycle")
 
-    proposal = artifact.get("capability_formation", {}).get("proposal")
-    if proposal:
+    proposals = artifact.get("capability_formation", {}).get("proposals", [])
+    proposal_ids = [proposal.get("id") for proposal in proposals]
+    if len(proposal_ids) != len(set(proposal_ids)):
+        errors.append("ICLA-Evolving: crystallization proposal identifiers are not unique")
+    for proposal in proposals:
         missing = _missing(
             proposal,
             (
                 "id",
                 "status",
                 "recurrent_pattern_refs",
+                "stable_assembly_rules",
+                "value_assessment",
                 "comparable_outcome_refs",
                 "candidate_owner",
                 "overlap_analysis",
@@ -599,6 +604,24 @@ class ConformanceChecker:
             successor_transition = (
                 successor.get("governance", {}).get("memory_role_delta") if successor else None
             )
+            if successor:
+                authorizing_decision = successor.get("generated_from", {}).get(
+                    "governance_decision"
+                ) or successor.get("governance", {}).get("admission_decision_ref")
+                if authorizing_decision != decision.get("id"):
+                    errors.append(
+                        "ICLA-9: successor CKC is not linked to its authorizing decision"
+                    )
+                predecessor_refs = {
+                    successor.get("predecessor"),
+                    successor.get("generated_from", {}).get("predecessor"),
+                }
+                if activation.get("active_pointer_transition", {}).get(
+                    "from"
+                ) not in predecessor_refs:
+                    errors.append(
+                        "ICLA-9: successor CKC predecessor differs from the approved transition"
+                    )
             if admitted_transition and successor_transition:
                 comparable_successor = {
                     key: successor_transition.get(key) for key in ("from", "to")

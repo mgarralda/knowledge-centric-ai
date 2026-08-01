@@ -49,6 +49,17 @@ class ActivationService:
             f"{successor.id}@{successor.version}",
             f"{successor.id}-v{successor.version}",
         }
+        authorizing_decision = successor.generated_from.get(
+            "governance_decision"
+        ) or successor.governance.get("admission_decision_ref")
+        if authorizing_decision != decision.id:
+            raise ActivationError("Successor CKC is not linked to the authorizing decision")
+        predecessor_refs = {
+            successor.predecessor,
+            successor.generated_from.get("predecessor"),
+        }
+        if not expected_from & predecessor_refs:
+            raise ActivationError("Successor CKC does not identify the active predecessor")
         if (
             not isinstance(transition, dict)
             or transition.get("from") not in expected_from

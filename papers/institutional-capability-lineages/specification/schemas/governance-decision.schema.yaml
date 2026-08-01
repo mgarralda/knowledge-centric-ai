@@ -86,25 +86,32 @@ properties:
     type: object
     required: [new_capability_created_by_this_decision, rationale]
     properties:
-      proposal:
-        type: object
-        required:
-          - id
-          - status
-          - recurrent_pattern_refs
-          - comparable_outcome_refs
-          - candidate_owner
-          - overlap_analysis
-          - draft_ckc_ref
-        properties:
-          id: {type: string, pattern: "^PROP-[A-Z0-9-]+$"}
-          status: {enum: [proposed, under-review, approved, rejected, promoted]}
-          recurrent_pattern_refs: {type: array, minItems: 1}
-          comparable_outcome_refs: {type: array, minItems: 1}
-          candidate_owner: {type: string, minLength: 1}
-          overlap_analysis: {type: array, minItems: 1}
-          draft_ckc_ref: {type: string, minLength: 1}
-        additionalProperties: true
+      proposals:
+        type: array
+        uniqueItems: true
+        items:
+          type: object
+          required:
+            - id
+            - status
+            - recurrent_pattern_refs
+            - stable_assembly_rules
+            - value_assessment
+            - comparable_outcome_refs
+            - candidate_owner
+            - overlap_analysis
+            - draft_ckc_ref
+          properties:
+            id: {type: string, pattern: "^PROP-[A-Z0-9-]+$"}
+            status: {enum: [proposed, under-review, approved, rejected, promoted]}
+            recurrent_pattern_refs: {type: array, minItems: 1}
+            stable_assembly_rules: {type: array, minItems: 1}
+            value_assessment: {type: object, minProperties: 1}
+            comparable_outcome_refs: {type: array, minItems: 1}
+            candidate_owner: {type: string, minLength: 1}
+            overlap_analysis: {type: array, minItems: 1}
+            draft_ckc_ref: {type: string, minLength: 1}
+          additionalProperties: true
     additionalProperties: true
   resulting_lineage_edges:
     type: array

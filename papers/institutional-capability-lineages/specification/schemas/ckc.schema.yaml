@@ -127,4 +127,15 @@ $defs:
     minItems: 1
     uniqueItems: true
     items: {$ref: "#/$defs/knowledge_role"}
+allOf:
+  - if:
+      required: [predecessor]
+      properties:
+        predecessor: {type: string}
+    then:
+      properties:
+        generated_from:
+          required: [governance_decision, predecessor]
+        governance:
+          required: [admission_decision_ref]
 additionalProperties: true

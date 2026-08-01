@@ -24,7 +24,9 @@ Capability records require an active CKC pointer only in the `active`
 lifecycle state. Governance decisions identify the exact rollback target for
 each activation. Evidence candidates and crystallization proposals expose
 their governed lifecycle states so that ICLA-Evolving conformance can
-distinguish detection, review, disposition, and promotion.
+distinguish detection, review, disposition, and promotion. Proposal detection
+has cardinality `0..n`; ranking is a separate operation and never removes or
+promotes candidates.
 
 | Schema | Applies to |
 |---|---|

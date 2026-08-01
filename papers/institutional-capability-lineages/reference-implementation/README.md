@@ -50,8 +50,8 @@ The implementation includes:
 - connected institutional lineage and historical preservation;
 - episodic evidence records and governed transition of accepted precedents into
   semantic or procedural CKC commitments;
-- recurrence-based capability proposals with explicit proposed, review,
-  decision, and governed-promotion states;
+- zero-to-many recurrence-based capability proposals, separately ranked, with
+  explicit proposed, review, decision, and governed-promotion states;
 - schema, artifact, profile, and cross-artifact conformance validation.
 
 YAML reference artifacts remain the source of truth for the worked trace.
@@ -195,8 +195,10 @@ reference-implementation/
 - Architecture decisions and validation failures carry machine-readable
   rationale.
 
-The crystallization service implements an explicit proposal lifecycle.
-Detection creates only a proposal; institutional review must approve it before
+The crystallization service implements set-valued detection and an explicit
+proposal lifecycle. Detection may return zero, one, or several independent
+proposals. Ranking and top-candidate selection are separate views that retain
+the complete detected set. Institutional review must approve a proposal before
 a separate promotion transition may assign identity and an initial CKC.
 
 ## Non-goals

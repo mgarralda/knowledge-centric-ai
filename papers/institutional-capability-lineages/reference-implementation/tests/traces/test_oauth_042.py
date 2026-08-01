@@ -52,6 +52,21 @@ def test_oauth_042_candidate_knowledge_cannot_claim_institutional_authority():
 @pytest.mark.skipif(
     not TRACE.is_dir(), reason="oauth-042 reference artifacts are not published yet"
 )
+def test_oauth_042_successor_must_reference_the_authorizing_decision():
+    validator = ArtifactValidator()
+    artifacts = {path.stem: validator.validate_file(path) for path in sorted(TRACE.glob("*.yaml"))}
+    artifacts["ckc-verify-v10"]["generated_from"]["governance_decision"] = "DEC-OTHER"
+
+    errors = ConformanceChecker().check_trace(
+        artifacts.values(), ConformanceProfile.EVOLVING
+    )
+
+    assert "ICLA-9: successor CKC is not linked to its authorizing decision" in errors
+
+
+@pytest.mark.skipif(
+    not TRACE.is_dir(), reason="oauth-042 reference artifacts are not published yet"
+)
 def test_oauth_042_end_to_end_governed_successor(tmp_path):
     validator = ArtifactValidator()
     artifacts = {path.stem: validator.validate_file(path) for path in sorted(TRACE.glob("*.yaml"))}
@@ -127,7 +142,10 @@ def test_oauth_042_end_to_end_governed_successor(tmp_path):
     decision = GovernanceDecision.model_validate(artifacts["governance-decision"])
     assert decision.activation["rollback_target"] == "CKC-VERIFY-v9"
     assert decision.impact_record["assessment_mode"] == "continuous-event-driven"
-    assert decision.capability_formation["proposal"]["id"] == "PROP-AUTH-EVOL-01"
+    proposals = decision.capability_formation["proposals"]
+    assert [proposal["id"] for proposal in proposals] == ["PROP-AUTH-EVOL-01"]
+    assert proposals[0]["stable_assembly_rules"]
+    assert proposals[0]["value_assessment"]
     GovernanceService(governance_repository).adjudicate(
         decision,
         reviewer="security-and-release-governance-review",

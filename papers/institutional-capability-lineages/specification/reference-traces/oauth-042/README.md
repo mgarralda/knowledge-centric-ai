@@ -66,7 +66,8 @@ CKC-VERIFY v10 (future resolutions)
    for future resolutions. The decision links its impact assessment to an
    identified change event, records `CKC-VERIFY v9` as the exact rollback
    target, and retains the separate `PROP-AUTH-EVOL-01` proposal with its
-   recurrence, outcome, ownership, overlap, and draft-CKC evidence.
+   recurrence, stable assembly rules, value assessment, comparable outcomes,
+   ownership, overlap, and draft-CKC evidence.
 7. [Successor CKC](./ckc-verify-v10.yaml) — the complete immutable
    `CKC-VERIFY v10` contract records its predecessor, scope, obligations,
    authorities, evidence and evaluation definitions, source bindings,
