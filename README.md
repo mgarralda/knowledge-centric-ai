@@ -20,7 +20,8 @@ The long-term objective is to establish architectural foundations where knowledg
 
 # Research Papers
 
-Peer-reviewed and preprint research introducing new architectural concepts, reference models, and engineering foundations for Knowledge-Centric AI.
+Scientific publications introducing original concepts, reference architectures, and research directions within Knowledge-Centric AI.
+
 
 | Paper | Focus | Contribution |
 |-------|-------|-------------|
@@ -32,7 +33,7 @@ Peer-reviewed and preprint research introducing new architectural concepts, refe
 ---
 # Technical Articles
 
-Engineering articles explaining the concepts, motivations, and practical implications behind the research.
+Engineering-oriented articles that explain the motivation, intuition, and practical implications behind the research.
 
 | Resource | Description |
 |----------|-------------|
