@@ -20,17 +20,26 @@ The long-term objective is to establish architectural foundations where knowledg
 
 # Research Papers
 
-Peer-reviewed and preprint research introducing new architectural concepts, reference models, and engineering foundations for Knowledge-Centric AI.
+Scientific publications introducing original concepts, reference architectures, and research directions within Knowledge-Centric AI.
+
 
 | Paper | Focus | Contribution |
 |-------|-------|-------------|
-| 📄 [Knowledge-Centric Information Systems](papers/knowledge-centric-information-systems/) | Knowledge Architecture | Introduces **Knowledge Architecture** and **Knowledge-Centric Information Systems** as an architectural discipline for operational knowledge. |
+| 📄 [Knowledge-Centric Information Systems](papers/%20knowledge-centric-information-systems/) | Knowledge Architecture | Introduces **Knowledge Architecture** and **Knowledge-Centric Information Systems** as an architectural discipline for operational knowledge. |
 | 📄 [Governed Evolution of Agent Runtimes through Executable Operational Cognition](papers/governed-evolution-agent-runtimes/) | Runtime Governance | Proposes a governance model for the controlled evolution of agent runtimes through **Executable Operational Cognition**. |
 | 📄 [From Task-Guided Conversational Graphs to Goal-Oriented Dialogue Runtimes](papers/goal-oriented-dialogue-runtimes/) | Goal-Oriented Agent Runtimes | Introduces the **Goal-Oriented Dialogue Runtime (GODR)** design pattern for long-lived conversational objectives. |
 | 📄 [Institutional Capability Lineages (ICLA)](papers/institutional-capability-lineages/) | Institutional Capability Engineering | Proposes a **registry-centered reference architecture** that transforms distributed organizational knowledge into **governed institutional capabilities** through canonical contracts, contextual assemblies, evidence-governed evolution, and persistent capability lineages. |
 
 ---
+# Technical Articles
 
+Engineering-oriented articles that explain the motivation, intuition, and practical implications behind the research.
+
+| Resource | Description |
+|----------|-------------|
+| 📝 [Why Agent Memory Isn't Organizational Memory](https://mgarralda.medium.com/why-agent-memory-isnt-organizational-memory-c0652ff20a88) | Explains why agent memory and RAG are insufficient to preserve institutional capability, introducing the architectural principles behind Institutional Capability Lineages (ICLA). |
+
+---
 # White Papers
 
 Applied perspectives connecting research contributions with engineering practice and emerging AI architectures.
