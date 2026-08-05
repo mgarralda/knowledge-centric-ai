@@ -1,4 +1,4 @@
-# Institutional Capability Lineages (ICLA)
+# Institutional Capability Lineage Architecture (ICLA)
 # Reference Specification
 #
 # Copyright (c) 2026 Mariano Garralda-Barrio
@@ -99,7 +99,22 @@ properties:
         id: {type: string}
         source: {type: string}
         version: {type: [integer, string]}
+        previous_version: {type: [integer, string]}
         authority: {type: string}
+        capability_refs:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+        change_event_ref: {type: string, minLength: 1}
+        authorized_interpretation: {type: string, minLength: 1}
+        temporal_validity:
+          type: object
+          required: [status, supersedes]
+          properties:
+            status: {enum: [active, superseded, expired, future]}
+            supersedes: {type: string, minLength: 1}
+          additionalProperties: true
         knowledge_roles:
           type: array
           minItems: 1
@@ -107,4 +122,156 @@ properties:
           items:
             enum: [semantic, procedural, episodic]
       additionalProperties: true
+  pre_resolution_history:
+    type: object
+    required:
+      - change_event
+      - impact_record
+      - governance_decision
+      - successor_delta
+      - successor_append
+      - activation
+      - historical_immutability
+    properties:
+      change_event:
+        type: object
+        required:
+          - id
+          - source_binding_ref
+          - source_ref
+          - from_version
+          - to_version
+          - change_dimensions
+        properties:
+          id: {type: string, pattern: "^CHG-[A-Z0-9-]+$"}
+          source_binding_ref: {type: string, minLength: 1}
+          source_ref: {type: string, minLength: 1}
+          from_version: {type: [integer, string]}
+          to_version: {type: [integer, string]}
+          change_dimensions:
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items:
+              enum:
+                - content
+                - meaning
+                - authorized-interpretation
+                - authority
+                - policy
+                - dependency
+                - temporal-validity
+        additionalProperties: true
+      impact_record:
+        type: object
+        required:
+          - id
+          - change_event_ref
+          - affected_bindings
+          - affected_capabilities
+          - affected_ckcs
+          - traversed_relations
+          - review_required
+        properties:
+          id: {type: string, pattern: "^IMP-[A-Z0-9-]+$"}
+          change_event_ref: {type: string, minLength: 1}
+          affected_bindings: {type: array, minItems: 1, uniqueItems: true}
+          affected_capabilities: {type: array, minItems: 1, uniqueItems: true}
+          affected_ckcs: {type: array, minItems: 1, uniqueItems: true}
+          traversed_relations:
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items:
+              type: object
+              required: [type, from, to]
+              additionalProperties: true
+          review_required: {const: true}
+        additionalProperties: true
+      governance_decision:
+        type: object
+        required: [id, status, authority, change_event_ref, impact_record_ref]
+        properties:
+          id: {type: string, pattern: "^DEC-[A-Z0-9-]+$"}
+          status: {const: approved}
+          authority: {type: string, minLength: 1}
+          change_event_ref: {type: string, minLength: 1}
+          impact_record_ref: {type: string, minLength: 1}
+        additionalProperties: true
+      successor_delta:
+        type: object
+        required:
+          - id
+          - predecessor_ref
+          - successor_ref
+          - changed_commitments
+          - authorization_decision_ref
+        properties:
+          id: {type: string, pattern: "^DELTA-[A-Z0-9-]+$"}
+          predecessor_ref: {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+          successor_ref: {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+          changed_commitments: {type: array, minItems: 1}
+          authorization_decision_ref: {type: string, pattern: "^DEC-[A-Z0-9-]+$"}
+        additionalProperties: true
+      successor_append:
+        type: object
+        required:
+          - id
+          - capability
+          - predecessor_ref
+          - successor_ref
+          - delta_ref
+          - authorization_decision_ref
+          - status
+        properties:
+          id: {type: string, pattern: "^APPEND-[A-Z0-9-]+$"}
+          capability: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+          predecessor_ref: {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+          successor_ref: {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+          delta_ref: {type: string, pattern: "^DELTA-[A-Z0-9-]+$"}
+          authorization_decision_ref: {type: string, pattern: "^DEC-[A-Z0-9-]+$"}
+          status: {const: inactive-successor}
+        additionalProperties: false
+      activation:
+        type: object
+        required:
+          - id
+          - capability
+          - ckc
+          - version
+          - successor_append_ref
+          - active_pointer_transition
+          - applies_to
+        properties:
+          id: {type: string, pattern: "^ACT-[A-Z0-9-]+$"}
+          capability: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+          ckc: {type: string, pattern: "^CKC-[A-Z0-9-]+$"}
+          version: {type: integer, minimum: 1}
+          successor_append_ref: {type: string, pattern: "^APPEND-[A-Z0-9-]+$"}
+          active_pointer_transition:
+            type: object
+            required: [from, to]
+            properties:
+              from: {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+              to: {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+            additionalProperties: false
+          applies_to: {const: future-resolutions-only}
+        additionalProperties: true
+      historical_immutability:
+        type: object
+        required: [retained_assemblies, retroactive_mutation]
+        properties:
+          retained_assemblies:
+            type: array
+            minItems: 1
+            items:
+              type: object
+              required: [assembly_ref, remains_linked_to]
+              properties:
+                assembly_ref: {type: string, pattern: "^ASM-[A-Z0-9-]+$"}
+                remains_linked_to: {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+              additionalProperties: false
+          retroactive_mutation: {const: false}
+        additionalProperties: true
+    additionalProperties: false
 additionalProperties: true

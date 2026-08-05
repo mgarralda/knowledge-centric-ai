@@ -1,4 +1,4 @@
-# Institutional Capability Lineages (ICLA)
+# Institutional Capability Lineage Architecture (ICLA)
 # Reference Specification
 #
 # Copyright (c) 2026 Mariano Garralda-Barrio
@@ -25,8 +25,6 @@ required:
   - review
   - dispositions
   - impact_record
-  - activation
-  - historical_immutability
   - capability_formation
   - resulting_lineage_edges
 properties:
@@ -74,9 +72,84 @@ properties:
       change_event_ref: {type: string, minLength: 1}
       assessment_mode: {enum: [event-driven, continuous-event-driven]}
     additionalProperties: true
+  successor_delta:
+    type: object
+    required:
+      - id
+      - predecessor_ref
+      - successor_ref
+      - changed_commitments
+      - rationale
+      - supporting_evidence_refs
+      - authorization_decision_ref
+      - rollback_ref
+      - successor_complete
+      - reconstruction_patch
+    properties:
+      id: {type: string, pattern: "^DELTA-[A-Z0-9-]+$"}
+      predecessor_ref: {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+      successor_ref: {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+      changed_commitments:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          required: [area, operation, subject]
+          properties:
+            area:
+              enum:
+                - knowledge_scope
+                - operational_relations
+                - evidence_contract
+                - evaluation_contract
+                - governance
+                - projection_rules
+            operation: {enum: [add, revise, remove]}
+            subject: {type: string, minLength: 1}
+          additionalProperties: false
+      rationale: {type: string, minLength: 1}
+      supporting_evidence_refs:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+      authorization_decision_ref: {type: string, pattern: "^DEC-[A-Z0-9-]+$"}
+      rollback_ref: {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+      successor_complete: {const: true}
+      reconstruction_patch: {const: false}
+    additionalProperties: false
+  successor_append:
+    type: object
+    required:
+      - id
+      - capability
+      - predecessor_ref
+      - successor_ref
+      - delta_ref
+      - authorization_decision_ref
+      - status
+    properties:
+      id: {type: string, pattern: "^APPEND-[A-Z0-9-]+$"}
+      capability: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+      predecessor_ref: {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+      successor_ref: {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+      delta_ref: {type: string, pattern: "^DELTA-[A-Z0-9-]+$"}
+      authorization_decision_ref: {type: string, pattern: "^DEC-[A-Z0-9-]+$"}
+      status: {const: inactive-successor}
+    additionalProperties: false
   activation:
     type: object
-    required: [id, capability, ckc, version, applies_to, active_pointer_transition, rollback_target]
+    required:
+      - id
+      - capability
+      - ckc
+      - version
+      - successor_append_ref
+      - applies_to
+      - active_pointer_transition
+      - rollback_target
+    properties:
+      successor_append_ref: {type: string, pattern: "^APPEND-[A-Z0-9-]+$"}
     additionalProperties: true
   historical_immutability:
     type: object
@@ -86,6 +159,8 @@ properties:
     type: object
     required: [new_capability_created_by_this_decision, rationale]
     properties:
+      new_capability_created_by_this_decision: {const: false}
+      rationale: {type: string, minLength: 1}
       proposals:
         type: array
         uniqueItems: true
@@ -103,7 +178,7 @@ properties:
             - draft_ckc_ref
           properties:
             id: {type: string, pattern: "^PROP-[A-Z0-9-]+$"}
-            status: {enum: [proposed, under-review, approved, rejected, promoted]}
+            status: {enum: [candidate, submitted]}
             recurrent_pattern_refs: {type: array, minItems: 1}
             stable_assembly_rules: {type: array, minItems: 1}
             value_assessment: {type: object, minProperties: 1}
@@ -129,4 +204,17 @@ $defs:
       to: {enum: [semantic, procedural, episodic]}
       mechanism: {enum: [successor-ckc, source-binding-refresh, retain-as-precedent]}
     additionalProperties: false
+allOf:
+  - if:
+      required: [successor_delta]
+    then:
+      required: [successor_append]
+      properties:
+        status: {const: approved}
+  - if:
+      required: [activation]
+    then:
+      required: [historical_immutability]
+      properties:
+        status: {const: approved}
 additionalProperties: true

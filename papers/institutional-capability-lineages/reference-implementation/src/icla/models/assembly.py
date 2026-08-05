@@ -1,5 +1,5 @@
 """
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 Reference Implementation
 
 Copyright (c) 2026 Mariano Garralda-Barrio
@@ -23,9 +23,7 @@ class OperationalMandate(ExtensibleModel):
     institutional_change_authority: Literal[False] = False
     local_autonomy: list[str] = Field(min_length=1)
     evidence_disclosure: Literal["evidence-contract-only"] = "evidence-contract-only"
-    registry_interaction: Literal["reresolution-or-evidence-only"] = (
-        "reresolution-or-evidence-only"
-    )
+    registry_interaction: Literal["reresolution-or-evidence-only"] = "reresolution-or-evidence-only"
     reresolution_triggers: list[str] = Field(min_length=1)
 
 

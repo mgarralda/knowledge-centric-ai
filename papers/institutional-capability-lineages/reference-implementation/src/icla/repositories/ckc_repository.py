@@ -1,5 +1,5 @@
 """
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 Reference Implementation
 
 Copyright (c) 2026 Mariano Garralda-Barrio
@@ -12,6 +12,7 @@ See the LICENSE file in the repository root for details.
 
 from ..exceptions import ArtifactNotFoundError
 from ..models.ckc import CapabilityKnowledgeContract
+from ..models.governance import SuccessorAppendReceipt
 from ..storage import AppendOnlyStore
 
 
@@ -42,6 +43,29 @@ class CKCRepository:
             self._key(ckc.id, ckc.version),
             ckc.model_dump(mode="json", by_alias=True, exclude_none=True),
         )
+
+    def get_latest_governed_version(self, ckc_id: str) -> CapabilityKnowledgeContract:
+        lineage = self.list_lineage(ckc_id)
+        if not lineage:
+            raise ArtifactNotFoundError(f"CKC lineage not found: {ckc_id}")
+        return lineage[-1]
+
+    def record_append_receipt(self, receipt: SuccessorAppendReceipt) -> None:
+        self.store.append(
+            "successor-append-receipts",
+            receipt.id,
+            receipt.model_dump(mode="json", by_alias=True, exclude_none=True),
+        )
+
+    def get_append_receipt(self, ckc_id: str, version: int) -> SuccessorAppendReceipt:
+        successor_ref = f"{ckc_id}@{version}"
+        for item in self.store.list("successor-append-receipts"):
+            if item.get("successor_ref") in {
+                successor_ref,
+                f"{ckc_id}-v{version}",
+            }:
+                return SuccessorAppendReceipt.model_validate(item)
+        raise ArtifactNotFoundError(f"Successor has not been appended: {ckc_id}@{version}")
 
     def list_lineage(self, ckc_id: str) -> list[CapabilityKnowledgeContract]:
         return sorted(

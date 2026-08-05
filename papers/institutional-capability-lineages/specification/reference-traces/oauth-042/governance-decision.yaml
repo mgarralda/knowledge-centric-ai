@@ -1,4 +1,4 @@
-# Institutional Capability Lineages (ICLA)
+# Institutional Capability Lineage Architecture (ICLA)
 # Reference Trace
 #
 # This artifact is part of the ICLA Reference Specification.
@@ -110,11 +110,43 @@ impact_record:
   review_required: true
   rationale: The compatibility pattern changes the future canonical CKC contract
 
+successor_delta:
+  id: DELTA-VERIFY-009-010
+  predecessor_ref: CKC-VERIFY-v9
+  successor_ref: CKC-VERIFY-v10
+  changed_commitments:
+    - area: knowledge_scope
+      operation: add
+      subject: reusable-compatibility-test-pattern
+    - area: evaluation_contract
+      operation: add
+      subject: api.client.compatibility
+  rationale: >-
+    Qualified OAuth evidence supports reuse of the compatibility-test pattern
+    within the existing CAP-VERIFY responsibility.
+  supporting_evidence_refs:
+    - EVD-OAUTH-042
+    - RCPT-OAUTH-042
+  authorization_decision_ref: DEC-OAUTH-042
+  rollback_ref: CKC-VERIFY-v9
+  successor_complete: true
+  reconstruction_patch: false
+
+successor_append:
+  id: APPEND-VERIFY-010
+  capability: CAP-VERIFY
+  predecessor_ref: CKC-VERIFY-v9
+  successor_ref: CKC-VERIFY-v10
+  delta_ref: DELTA-VERIFY-009-010
+  authorization_decision_ref: DEC-OAUTH-042
+  status: inactive-successor
+
 activation:
   id: ACT-VERIFY-010
   capability: CAP-VERIFY
   ckc: CKC-VERIFY
   version: 10
+  successor_append_ref: APPEND-VERIFY-010
   applies_to: future-resolutions-only
   active_pointer_transition:
     from: CKC-VERIFY-v9
@@ -131,7 +163,7 @@ capability_formation:
   rationale: The admitted pattern remains within CAP-VERIFY responsibility
   proposals:
     - id: PROP-AUTH-EVOL-01
-      status: proposed
+      status: submitted
       recurrent_pattern_refs:
         - SIG-TOKEN-ROTATION
         - SIG-PROVIDER-REPLACEMENT

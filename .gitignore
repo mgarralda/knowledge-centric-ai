@@ -68,6 +68,9 @@ Thumbs.db
 .icla-data/
 tmp/
 
+# Unpublished ICLA manuscript revisions (the public artifact is paper.pdf)
+papers/institutional-capability-lineages/ICLA_EMISAJ_v*.pdf
+
 # Local configuration and secrets
 .env
 .env.*

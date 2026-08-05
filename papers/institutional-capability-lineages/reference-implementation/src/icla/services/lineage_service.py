@@ -1,5 +1,5 @@
 """
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 Reference Implementation
 
 Copyright (c) 2026 Mariano Garralda-Barrio
@@ -67,6 +67,8 @@ class LineageService:
         }
         if document_type in extractors:
             return extractors[document_type](artifact)
+        if "successor_ref" in artifact and "delta_ref" in artifact:
+            return self.edges_from_successor_append(artifact)
         if "decision_ref" in artifact and "active_ckc" in artifact:
             return self.edges_from_activation(artifact)
         return []
@@ -120,6 +122,112 @@ class LineageService:
                 edges.append(
                     LineageEdge.model_validate(
                         {"from": capability_id, "type": "activates", "to": ckc_ref}
+                    )
+                )
+        history = artifact.get("pre_resolution_history", {})
+        if not history:
+            return edges
+
+        change = history.get("change_event", {})
+        impact = history.get("impact_record", {})
+        decision = history.get("governance_decision", {})
+        delta = history.get("successor_delta", {})
+        activation = history.get("activation", {})
+        change_id = change.get("id")
+        impact_id = impact.get("id")
+        decision_id = decision.get("id")
+        delta_id = delta.get("id")
+        activation_id = activation.get("id")
+        if change_id:
+            edges.append(
+                LineageEdge.model_validate(
+                    {"from": snapshot_id, "type": "records_change", "to": change_id}
+                )
+            )
+            if change.get("source_binding_ref"):
+                edges.append(
+                    LineageEdge.model_validate(
+                        {
+                            "from": change_id,
+                            "type": "changes",
+                            "to": change["source_binding_ref"],
+                        }
+                    )
+                )
+        if impact_id and change_id:
+            edges.append(
+                LineageEdge.model_validate(
+                    {"from": impact_id, "type": "triggered_by", "to": change_id}
+                )
+            )
+        if impact_id:
+            for capability_id in impact.get("affected_capabilities", []):
+                edges.append(
+                    LineageEdge.model_validate(
+                        {"from": impact_id, "type": "affects", "to": capability_id}
+                    )
+                )
+            for ckc_ref in impact.get("affected_ckcs", []):
+                edges.append(
+                    LineageEdge.model_validate(
+                        {
+                            "from": impact_id,
+                            "type": "affects",
+                            "to": LineageService._normalize_ckc_ref(str(ckc_ref)),
+                        }
+                    )
+                )
+        if decision_id and impact_id:
+            edges.append(
+                LineageEdge.model_validate(
+                    {"from": decision_id, "type": "adjudicates", "to": impact_id}
+                )
+            )
+        if decision_id and delta_id:
+            edges.append(
+                LineageEdge.model_validate(
+                    {"from": decision_id, "type": "authorizes", "to": delta_id}
+                )
+            )
+        predecessor = LineageService._normalize_ckc_ref(str(delta.get("predecessor_ref", "")))
+        successor = LineageService._normalize_ckc_ref(str(delta.get("successor_ref", "")))
+        if delta_id and predecessor:
+            edges.append(
+                LineageEdge.model_validate(
+                    {"from": delta_id, "type": "changes_from", "to": predecessor}
+                )
+            )
+        if delta_id and successor:
+            edges.append(
+                LineageEdge.model_validate({"from": delta_id, "type": "describes", "to": successor})
+            )
+        if activation_id and decision_id:
+            edges.append(
+                LineageEdge.model_validate(
+                    {"from": activation_id, "type": "authorized_by", "to": decision_id}
+                )
+            )
+        if activation_id and successor:
+            edges.append(
+                LineageEdge.model_validate(
+                    {"from": activation_id, "type": "activates", "to": successor}
+                )
+            )
+        if successor and predecessor:
+            edges.append(
+                LineageEdge.model_validate(
+                    {"from": successor, "type": "supersedes", "to": predecessor}
+                )
+            )
+        for retained in history.get("historical_immutability", {}).get("retained_assemblies", []):
+            if retained.get("assembly_ref") and retained.get("remains_linked_to"):
+                edges.append(
+                    LineageEdge.model_validate(
+                        {
+                            "from": retained["assembly_ref"],
+                            "type": "uses",
+                            "to": LineageService._normalize_ckc_ref(retained["remains_linked_to"]),
+                        }
                     )
                 )
         return edges
@@ -209,6 +317,17 @@ class LineageService:
                         {"from": execution_id, "type": "performed_by", "to": cee_ref}
                     )
                 )
+            cee_configuration_ref = artifact.get("execution", {}).get("cee_configuration_ref")
+            if cee_configuration_ref:
+                edges.append(
+                    LineageEdge.model_validate(
+                        {
+                            "from": execution_id,
+                            "type": "configured_as",
+                            "to": cee_configuration_ref,
+                        }
+                    )
+                )
             materialization_ref = artifact.get("execution", {}).get("materialization_ref")
             if materialization_ref:
                 edges.append(
@@ -284,6 +403,62 @@ class LineageService:
         edges.extend(
             LineageEdge.model_validate(edge) for edge in artifact.get("resulting_lineage_edges", [])
         )
+        delta = artifact.get("successor_delta", {})
+        if delta.get("id"):
+            edges.append(
+                LineageEdge.model_validate(
+                    {"from": decision_id, "type": "authorizes", "to": delta["id"]}
+                )
+            )
+            for field, relation in (
+                ("predecessor_ref", "changes_from"),
+                ("successor_ref", "describes"),
+                ("rollback_ref", "rolls_back_to"),
+            ):
+                if delta.get(field):
+                    edges.append(
+                        LineageEdge.model_validate(
+                            {"from": delta["id"], "type": relation, "to": delta[field]}
+                        )
+                    )
+            for evidence_ref in delta.get("supporting_evidence_refs", []):
+                edges.append(
+                    LineageEdge.model_validate(
+                        {
+                            "from": delta["id"],
+                            "type": "supported_by",
+                            "to": evidence_ref,
+                        }
+                    )
+                )
+        successor_append = artifact.get("successor_append", {})
+        if successor_append.get("id"):
+            edges.extend(LineageService.edges_from_successor_append(successor_append))
+        return edges
+
+    @staticmethod
+    def edges_from_successor_append(artifact: dict[str, Any]) -> list[LineageEdge]:
+        append_id = artifact["id"]
+        decision_ref = artifact.get("decision_ref") or artifact.get("authorization_decision_ref")
+        container = {
+            **artifact,
+            "decision_ref": decision_ref,
+            "capability_ref": artifact.get("capability_ref") or artifact.get("capability"),
+        }
+        for field in ("predecessor_ref", "successor_ref"):
+            if container.get(field):
+                container[field] = LineageService._normalize_ckc_ref(str(container[field]))
+        edges = LineageService._reference_edges(
+            append_id,
+            container,
+            {
+                "decision_ref": "authorized_by",
+                "capability_ref": "appends_for",
+                "predecessor_ref": "follows",
+                "successor_ref": "appends",
+                "delta_ref": "explained_by",
+            },
+        )
         return edges
 
     @staticmethod
@@ -295,6 +470,7 @@ class LineageService:
             {
                 "decision_ref": "authorized_by",
                 "capability_ref": "activates_for",
+                "successor_append_ref": "activates_append",
             },
         )
         previous = LineageService._versioned_ref(artifact.get("previous_ckc", {}))
@@ -357,6 +533,7 @@ class LineageService:
             "ADM-": "admission-decision",
             "ASM-": "contextual-assembly",
             "MAT-": "materialization",
+            "CEE-CONFIG-": "cee-configuration",
             "CEE-": "capability-execution-environment",
             "EXE-": "execution",
             "EVD-": "execution-evidence-bundle",
@@ -364,6 +541,8 @@ class LineageService:
             "CAND-": "candidate-knowledge",
             "RCPT-": "evidence-receipt",
             "DEC-": "governance-decision",
+            "DELTA-": "successor-delta",
+            "APPEND-": "successor-append-receipt",
             "ACT-": "activation-record",
             "CAP-": "institutional-capability",
             "CKC-": "capability-knowledge-contract",
@@ -382,6 +561,10 @@ class LineageService:
 
     def trace_from_evidence(self, evidence_id: str, lineage: InstitutionalCapabilityLineage):
         return self._reachable(evidence_id, lineage)
+
+    def trace_from_change(self, change_id: str, lineage: InstitutionalCapabilityLineage):
+        """Return the connected institutional path initiated by a governed change event."""
+        return self._reachable(change_id, lineage)
 
     @staticmethod
     def _reachable(start: str, lineage: InstitutionalCapabilityLineage) -> set[str]:

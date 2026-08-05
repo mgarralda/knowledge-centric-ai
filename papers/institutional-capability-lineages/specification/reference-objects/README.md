@@ -2,7 +2,7 @@
 # Reference Objects
 
 Reference objects are reusable, consumer-independent representations of the
-information types defined by Institutional Capability Lineages. They differ
+information types defined by Institutional Capability Lineage Architecture. They differ
 from [`reference-traces/`](../reference-traces/README.md), which serialize
 complete executions and their governed transitions.
 

@@ -1,5 +1,5 @@
 """
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 Reference Implementation
 
 Copyright (c) 2026 Mariano Garralda-Barrio
@@ -66,6 +66,7 @@ class ResolutionService:
                     }
                 )
         service = RegistryService(registry)
+        source_bindings = getattr(registry, "source_bindings", [])
         seed_ids = {item["capability"] for item in candidates}
         traversed, expanded = [], set(seed_ids)
         pending = list(seed_ids)
@@ -99,6 +100,20 @@ class ResolutionService:
             authorized, rationale = can_consume(intent.consumer, capability)
             active = capability.lifecycle.value == "active" and capability.active_ckc is not None
             fresh, freshness_rationale = is_fresh(getattr(capability, "expires_at", None))
+            applicable_bindings = [
+                binding
+                for binding in source_bindings
+                if capability_id in binding.get("capability_refs", [])
+            ]
+            temporally_valid = all(
+                binding.get("temporal_validity", {}).get("status", "active") == "active"
+                for binding in applicable_bindings
+            )
+            temporal_rationale = (
+                "all governed source bindings are temporally valid"
+                if temporally_valid
+                else "one or more governed source bindings are not temporally valid"
+            )
             offered_assurance = getattr(capability, "assurance", None)
             required_assurance = intent.assurance.get("level")
             assurance_ok, assurance_rationale = (
@@ -106,16 +121,22 @@ class ResolutionService:
                 if offered_assurance and required_assurance
                 else (True, "capability does not declare a separate assurance level")
             )
-            passed = authorized and active and fresh and assurance_ok
+            passed = authorized and active and fresh and temporally_valid and assurance_ok
             validations.append(
                 {
                     "capability": capability_id,
                     "authorized": authorized,
                     "active": active,
                     "fresh": fresh,
+                    "source_bindings_temporally_valid": temporally_valid,
                     "assurance_compatible": assurance_ok,
                     "passed": passed,
-                    "rationale": [rationale, freshness_rationale, assurance_rationale],
+                    "rationale": [
+                        rationale,
+                        freshness_rationale,
+                        temporal_rationale,
+                        assurance_rationale,
+                    ],
                 }
             )
             if passed:
@@ -137,6 +158,7 @@ class ResolutionService:
                                 (authorized, rationale),
                                 (active, "capability is not active"),
                                 (fresh, freshness_rationale),
+                                (temporally_valid, temporal_rationale),
                                 (assurance_ok, assurance_rationale),
                             )
                             if not condition
@@ -180,7 +202,8 @@ class ResolutionService:
             id=resolution_id,
             schema_ref="schemas/resolution.schema.yaml",
             generated_from={"intent": intent.id, "registry_snapshot": registry.id},
-            cee_ref=str(intent.cee["id"]),
+            cee_ref=intent.cee.id,
+            cee_configuration_ref=intent.cee.configuration.id,
             intent_ref=intent.id,
             registry_snapshot_ref=registry.id,
             candidate_generation={"candidates": candidates},

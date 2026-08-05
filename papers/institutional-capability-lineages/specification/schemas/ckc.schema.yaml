@@ -1,4 +1,4 @@
-# Institutional Capability Lineages (ICLA)
+# Institutional Capability Lineage Architecture (ICLA)
 # Reference Specification
 #
 # Copyright (c) 2026 Mariano Garralda-Barrio
@@ -82,6 +82,9 @@ properties:
     type: object
     minProperties: 1
     properties:
+      successor_delta_ref:
+        type: string
+        pattern: "^DELTA-[A-Z0-9-]+$"
       memory_role_delta:
         type: object
         required: [candidate_ref, from, to, rationale]
@@ -135,7 +138,7 @@ allOf:
     then:
       properties:
         generated_from:
-          required: [governance_decision, predecessor]
+          required: [governance_decision, predecessor, successor_delta]
         governance:
-          required: [admission_decision_ref]
+          required: [admission_decision_ref, successor_delta_ref]
 additionalProperties: true

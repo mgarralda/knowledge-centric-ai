@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 
-title: "Institutional Capability Lineages"
+title: "Institutional Capability Lineage Architecture"
 
 message: >
   If you use this repository, the accompanying paper, the specification,
@@ -16,8 +16,8 @@ authors:
 repository-code: "https://github.com/mgarralda/knowledge-centric-ai"
 
 abstract: >
-  Reference repository for the Institutional Capability Lineages (ICLA)
-  architecture, including the scientific paper, executable specification,
+  Reference repository for the Institutional Capability Lineage Architecture
+  (ICLA), including the scientific paper, executable specification,
   JSON Schemas, reference objects, end-to-end traces, deterministic reference
   implementation, and conformance tests for governed institutional capability
   evolution, bounded operational mandates, autonomous CEE execution, and
@@ -34,13 +34,11 @@ date-released: "2026-07-22"
 
 preferred-citation:
   type: article
-  title: "Institutional Capability Lineages: A Registry-Centered Reference Architecture for Governed and Evolving AI"
+  title: "Institutional Capability Lineages: A Registry-centered Reference Architecture for Governed and Evolving AI"
   authors:
     - family-names: "Garralda-Barrio"
       given-names: "Mariano"
-  journal: "XXX"
+  journal: "SSRN Electronic Journal"
   year: 2026
-  volume: "XXX"
-  issue: "XXX"
-  pages: "XXX"
-  doi: "XXX"
+  doi: "10.2139/ssrn.7172438"
+  url: "https://dx.doi.org/10.2139/ssrn.7172438"

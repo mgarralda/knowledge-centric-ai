@@ -1,28 +1,33 @@
 <p align="center">
   <img src="figures/icla-banner.png"
-       alt="Institutional Capability Lineages"
+       alt="Institutional Capability Lineage Architecture"
        width="100%">
 </p>
 
-# Institutional Capability Lineages (ICLA)
+# Institutional Capability Lineage Architecture (ICLA)
 
-**A Registry-Centered Conceptual Reference Architecture for Governed and Evolving AI**
+Companion repository for the paper:
+
+**_Institutional Capability Lineages: A Registry-centered Reference Architecture for Governed and Evolving AI_**
+
+[SSRN preprint — DOI: 10.2139/ssrn.7172438](https://dx.doi.org/10.2139/ssrn.7172438)
 
 **Author**
 
 Mariano Garralda-Barrio
 
-Institutional Capability Lineages (**ICLA**) is a reference architecture for preserving the continuity of recurring institutional capabilities across changing people, agents, models, workflows, systems, and infrastructures.
+Institutional Capability Lineage Architecture (**ICLA**) is a reference architecture for preserving the continuity of recurring institutional capabilities across changing people, agents, models, workflows, systems, and infrastructures.
 
-The bundled `paper.pdf` remains the current public SSRN preprint. The
-specification, reference trace, and executable companion track the refined
+The bundled `paper.pdf` is the repository copy of the public SSRN preprint,
+identified by [DOI 10.2139/ssrn.7172438](https://dx.doi.org/10.2139/ssrn.7172438).
+The specification, reference trace, and executable companion track the refined
 conceptual model and conformance boundaries being prepared for its successor.
 
 ICLA addresses a problem that sits above retrieval, memory, context engineering, and agent orchestration:
 
 > **How can an institution keep a capability authoritative, executable, traceable, and evolvable when knowledge and execution are distributed?**
 
-The architecture separates **distributed execution and knowledge production** from **institutional authority**. Humans, AI agents, workflows, software systems, and hybrid environments may reason and act locally, while capability identity, canonical contracts, evidence admission, and institutional evolution remain governed, traceable, and auditable.
+The architecture separates **distributed execution and knowledge production** from **institutional authority**. Humans, AI agents, workflows, software systems, and hybrid environments may reason and act locally, while capability identity, canonical contracts, evidence disposition, and institutional evolution remain governed, traceable, and auditable.
 
 ---
 
@@ -48,7 +53,7 @@ ICLA is designed to answer that institutional question. Rather than improving ex
 
 ---
 
-**Quick links:** [Paper](paper.pdf) · [Citation](citation.bib) · [Changelog](CHANGELOG.md) · [Schemas](specification/schemas/) · [Reference objects](specification/reference-objects/) · [Reference traces](specification/reference-traces/) · [Reference implementation](reference-implementation/)
+**Quick links:** [SSRN preprint](https://dx.doi.org/10.2139/ssrn.7172438) · [Repository PDF](paper.pdf) · [Citation](citation.bib) · [Changelog](CHANGELOG.md) · [Schemas](specification/schemas/) · [Reference objects](specification/reference-objects/) · [Reference traces](specification/reference-traces/) · [Reference implementation](reference-implementation/)
 
 ---
 
@@ -72,6 +77,11 @@ ICLA introduces an institutional architecture layer that connects these responsi
 ## Core Thesis
 
 ICLA makes the **institutional capability lineage** the primary architectural unit of continuity.
+
+In this repository, **ICLA** names the reference architecture, an
+**institutional capability lineage** is its modeled authority-preserving
+relational structure, and a **lineage trace** is one concrete retained
+instantiation for a capability and its executions.
 
 A lineage connects:
 
@@ -97,7 +107,7 @@ Neither a Registry nor a Capability Knowledge Contract preserves this continuity
 | **What is authoritative?** | The active, versioned Capability Knowledge Contract. |
 | **What is execution-specific?** | The contextual assembly and local CEE state. |
 | **Who may execute?** | Humans, agents, workflows, services, or hybrid environments. |
-| **What may change future institutional state?** | Qualified evidence admitted through governance. |
+| **What may justify future institutional change?** | Qualified evidence may inform governance; only an authorized activation changes the active institutional state. |
 | **How does the architecture evolve?** | Through explicit successor activation or capability crystallization. |
 
 ---
@@ -134,7 +144,7 @@ Those mechanisms primarily operate at execution time:
 - **Skills and tools** provide executable actions.
 - **Agent runtimes** reason, act, and coordinate.
 - **MCP and other protocols** provide interoperability.
-- **ICLA** governs which institutional capability is responsible, which contract is authoritative, how execution views are derived, and how evidence may legitimately change future institutional state.
+- **ICLA** governs which institutional capability is responsible, which contract is authoritative, how execution views are derived, and how qualified evidence may justify governed changes to future institutional state.
 
 ICLA therefore operates at the institutional architecture layer around heterogeneous human and machine execution. Retrieval, orchestration, planning, memory updates, and tool use may occur inside the assembly or CEE; ICLA is not part of their step-wise execution loop.
 
@@ -214,7 +224,7 @@ Materialization may deliver a bundle, payload, workspace, procedure, or governed
 
 ### Capability Execution Environment
 
-A **Capability Execution Environment (CEE)** is the situated boundary that performs an admitted capability instance.
+A **Capability Execution Environment (CEE)** is the situated, execution-scoped boundary that performs an admitted capability instance. Its record pins the configuration attributes needed for resolution, authorization, assurance, traceability, and evidence interpretation; stable institutional identity remains with the capability lineage.
 
 A CEE may be:
 
@@ -280,13 +290,29 @@ Supporting contributions include:
    CEEs may reason, act, and produce situated knowledge locally without gaining authority to mutate institutional state.
 
 3. **Evidence-governed evolution**  
-   Successor CKCs are explicit, immutable, decision-linked, and activated only for future resolutions.
+   Each decision links the predecessor, a complete immutable successor CKC, and an authorized delta containing the changed commitments, rationale, supporting evidence, authorizing decision, and rollback reference. Activation affects only future resolutions.
 
 4. **Succession–crystallization separation**  
    Incremental evolution of an existing capability is distinguished from the governed emergence of a new capability.
 
 5. **Executable architectural specification**  
    The paper is accompanied by schemas, reference objects, linked traces, conformance profiles, a deterministic implementation, and executable tests.
+
+### Research method and evidentiary boundary
+
+ICLA is developed as an iterative design-science artifact. The
+responsibility-oriented literature synthesis examines, refines, positions, and
+justifies the artifact's objectives and protected boundaries; it is not
+presented as a one-pass derivation from literature to implementation. The
+requirement-to-component mapping records traceability among the identified
+problem, relevant literature, architectural requirements, and the resulting
+artifact.
+
+The OAuth 2.1 trace is a constructed demonstration. Schemas, linked records,
+deterministic replay, negative tests, and invariant checks provide formative
+and summative artificial evaluation of structural consistency and technical
+feasibility within the declared scope. The comparative longitudinal protocol
+is prospective, and independent organizational validation remains future work.
 
 ---
 
@@ -301,8 +327,8 @@ Supporting contributions include:
 | [`figures/`](figures/) | README and publication figures. |
 | [`specification/schemas/`](specification/schemas/) | Machine-checkable JSON Schema contracts for the principal ICLA object types. |
 | [`specification/reference-objects/`](specification/reference-objects/) | Consumer-independent reference objects and schema mappings. |
-| [`specification/reference-traces/`](specification/reference-traces/) | Linked end-to-end reference traces for complete capability lifecycles. |
-| [`specification/reference-traces/oauth-042/`](specification/reference-traces/oauth-042/) | OAuth 2.1 trace covering resolution, assembly, evidence, governance, activation, and historical preservation. |
+| [`specification/reference-traces/`](specification/reference-traces/) | Linked reference traces for the implemented lifecycle scope and prospective governed branches. |
+| [`specification/reference-traces/oauth-042/`](specification/reference-traces/oauth-042/) | OAuth 2.1 trace covering pre-resolution source impact, resolution, assembly, evidence, governance, activation, and historical preservation. |
 | [`reference-implementation/`](reference-implementation/) | Deterministic, schema-driven implementation of resolution, conformance, evidence qualification, adjudication, CKC activation, and lineage preservation. |
 | [`reference-implementation/tests/`](reference-implementation/tests/) | Executable checks for trace consistency, conformance profiles, successor activation, historical immutability, and connected lineage. |
 
@@ -323,9 +349,10 @@ The companion artifact set is versioned as **`icla-spec 0.1.0`** and includes ma
 
 The paper defines the architecture and conformance requirements. The companion artifacts serve distinct scientific roles:
 
-- **Schemas** establish structural consistency.
-- **Reference objects and traces** establish representational and end-to-end consistency.
-- **Reference implementation and tests** establish executable consistency.
+- **Meta-model and invariants** establish structural consistency.
+- **Schemas and linked reference records** establish representational consistency.
+- **Reference traces** establish end-to-end traceability and reproducibility.
+- **Reference implementation and tests** establish executable consistency from resolution through successor activation.
 - **Claims C1–C3** define the comparative evaluation still required to assess effectiveness.
 
 The schemas, traces, and implementation do not introduce additional architectural requirements beyond the paper's conformance invariants.
@@ -334,10 +361,13 @@ The schemas, traces, and implementation do not introduce additional architectura
 
 ## OAuth 2.1 Reference Trace
 
-The [`oauth-042`](specification/reference-traces/oauth-042/) trace exercises the complete governed lifecycle described in the paper.
+The [`oauth-042`](specification/reference-traces/oauth-042/) trace exercises the implemented resolution-to-succession lifecycle and represents the separate crystallization proposal branch without promoting it.
 
 It includes:
 
+- the pre-resolution identity-policy impact path from
+  `CHG-IDENTITY-POLICY-008` through `CAP-IAM`, `DEC-IAM-008`, and
+  `ACT-IAM-008`, with a retained assembly still linked to `CKC-IAM v7`;
 - intent generation by a composite CEE;
 - Registry resolution and admissibility;
 - selection of six exact CKC versions;
@@ -349,7 +379,10 @@ It includes:
 - preservation of earlier executions linked to `v9`;
 - a separate capability-crystallization proposal path.
 
-The executable suite replays the same identifiers and verifies conformance, activation, historical immutability, and connected lineage.
+The executable suite replays the same identifiers and verifies the
+pre-resolution IAM impact path, conformance, activation, historical
+immutability, and connected lineage. It does not assign `CAP-AUTH-EVOL`, create
+its initial CKC, or validate promotion-origin links.
 
 ---
 
@@ -361,9 +394,9 @@ ICLA defines three cumulative profiles:
 |---|---|
 | **ICLA-Core** | Stable capability identity, Registry navigation, CKCs, contextual projection, CEE traceability, and reproducibility. |
 | **ICLA-Governed** | ICLA-Core plus governed evidence, measurement conformity, successor creation, and activation. |
-| **ICLA-Evolving** | ICLA-Governed plus impact analysis, rollback, candidate lifecycle, and capability crystallization. |
+| **ICLA-Evolving** | ICLA-Governed plus ICLA-11, continuous impact analysis, candidate lifecycle, rollback, and capability discovery. The current trace is assessed only over its represented resolution-to-succession scope; complete promotion remains prospective. |
 
-Conformance is behavioral and implementation-independent.
+Conformance is behavioral and implementation-independent. Every conformance result must state both the named profile and its assessment scope.
 
 ---
 
@@ -409,7 +442,7 @@ This repository demonstrates:
 - conformance validation;
 - governed successor activation;
 - preservation of historical state;
-- connected institutional capability lineage.
+- a connected lineage trace instantiating the institutional capability lineage.
 
 It does **not** yet demonstrate comparative effectiveness in production environments.
 
@@ -438,10 +471,18 @@ This repository is intended for:
 
 ## Citation
 
-When using this work in research, architecture analysis, or implementation, cite the accompanying BibTeX entry:
+When using this work in research, architecture analysis, or implementation,
+please cite the current preprint:
+
+> Garralda-Barrio, M. (2026). *Institutional Capability Lineages: A
+> Registry-centered Reference Architecture for Governed and Evolving AI*.
+> SSRN preprint. https://doi.org/10.2139/ssrn.7172438
+
+Machine-readable metadata is available in [`citation.bib`](citation.bib) and
+[`CITATION.cff`](CITATION.cff):
 
 ```bibtex
-# See citation.bib
+# See citation.bib or use GitHub's "Cite this repository" control
 ```
 
 ---
@@ -468,4 +509,5 @@ The reference implementation and executable code are licensed separately under t
 | Reference objects and trace | **Available** |
 | Deterministic reference implementation | **Available** |
 | Executable tests | **Available** |
+| Complete crystallization promotion | **Future companion work** |
 | Comparative longitudinal evaluation | **Future work** |

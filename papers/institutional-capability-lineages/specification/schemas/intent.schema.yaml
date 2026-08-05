@@ -1,4 +1,4 @@
-# Institutional Capability Lineages (ICLA)
+# Institutional Capability Lineage Architecture (ICLA)
 # Reference Specification
 #
 # Copyright (c) 2026 Mariano Garralda-Barrio
@@ -46,11 +46,22 @@ properties:
   context: {type: object}
   cee:
     type: object
-    required: [id, type, consumer_configuration_id]
+    required: [id, boundary_scope, type, configuration]
     properties:
       id: {type: string, pattern: "^CEE-[A-Z0-9-]+$"}
+      boundary_scope: {const: execution-scoped}
       type: {type: string}
-      consumer_configuration_id: {type: string}
+      configuration:
+        type: object
+        required: [id, resolution, authorization, assurance, traceability, evidence_interpretation]
+        properties:
+          id: {type: string, pattern: "^CEE-CONFIG-[A-Z0-9-]+$"}
+          resolution: {type: object, minProperties: 1}
+          authorization: {type: object, minProperties: 1}
+          assurance: {type: object, minProperties: 1}
+          traceability: {type: object, minProperties: 1}
+          evidence_interpretation: {type: object, minProperties: 1}
+        additionalProperties: true
     additionalProperties: true
   consumer:
     type: object

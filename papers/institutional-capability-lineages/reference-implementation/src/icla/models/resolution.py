@@ -1,5 +1,5 @@
 """
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 Reference Implementation
 
 Copyright (c) 2026 Mariano Garralda-Barrio
@@ -44,6 +44,7 @@ class AdmissionDecision(ExtensibleModel):
 class ResolutionResult(SpecificationMetadata):
     document_type: str = "capability-resolution"
     cee_ref: str
+    cee_configuration_ref: str
     intent_ref: str
     registry_snapshot_ref: str
     candidate_generation: dict[str, Any]

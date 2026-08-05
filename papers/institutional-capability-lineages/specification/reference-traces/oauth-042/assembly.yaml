@@ -1,4 +1,4 @@
-# Institutional Capability Lineages (ICLA)
+# Institutional Capability Lineage Architecture (ICLA)
 # Reference Trace
 #
 # This artifact is part of the ICLA Reference Specification.
@@ -27,6 +27,7 @@ generated_from:
 
 lineage:
   cee_ref: CEE-OAUTH-042
+  cee_configuration_ref: CEE-CONFIG-OAUTH-042
   intent_ref: INT-OAUTH-042
   registry_snapshot_ref: REG-SNAP-042
   resolution_ref: RES-OAUTH-042

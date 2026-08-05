@@ -1,4 +1,4 @@
-# Institutional Capability Lineages (ICLA)
+# Institutional Capability Lineage Architecture (ICLA)
 # Reference Trace
 #
 # This artifact is part of the ICLA Reference Specification.
@@ -22,6 +22,7 @@ generated_from:
   evidence_bundle: EVD-OAUTH-042
   governance_decision: DEC-OAUTH-042
   impact_record: IMP-VERIFY-010
+  successor_delta: DELTA-VERIFY-009-010
 capability_ref: CAP-VERIFY
 version: 10
 status: canonical-approved
@@ -88,6 +89,7 @@ governance:
   immutable: true
   admission_decision_ref: DEC-OAUTH-042
   impact_record_ref: IMP-VERIFY-010
+  successor_delta_ref: DELTA-VERIFY-009-010
   owner: security-assurance
   memory_role_delta:
     candidate_ref: CAND-COMPAT-PATTERN-042

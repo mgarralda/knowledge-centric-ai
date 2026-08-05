@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 [project]
 name = "icla-reference"
 version = "0.1.0"
-description = "Schema-driven reference implementation of Institutional Capability Lineages (ICLA)."
+description = "Schema-driven reference implementation of Institutional Capability Lineage Architecture (ICLA)."
 readme = "README.md"
 requires-python = ">=3.11"
 

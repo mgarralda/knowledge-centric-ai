@@ -1,5 +1,5 @@
 <!--
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 
 Reference Specification
 
@@ -10,7 +10,7 @@ Licensed under CC BY 4.0.
 
 <svg xmlns="http://www.w3.org/2000/svg" width="760" height="1270" viewBox="0 0 760 1270" role="img" aria-labelledby="title desc">
   <title id="title">OAuth 2.1 reference artifact lineage</title>
-  <desc id="desc">A vertical trace from the Registry snapshot through intent, resolution, a bounded assembly mandate, autonomous CEE execution, contract-selected evidence, governance decision, and result.</desc>
+  <desc id="desc">A vertical trace from the Registry snapshot and its pre-resolution IAM impact history through intent, resolution, a bounded assembly mandate, autonomous CEE execution, contract-selected evidence, governance decision, inactive successor append, and separate activation. The IAM history preserves an earlier assembly on CKC-IAM v7, and the separate capability proposal remains unpromoted.</desc>
   <defs>
     <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L0,6 L7,3 z" fill="#253858"/>
@@ -30,9 +30,9 @@ Licensed under CC BY 4.0.
 
   <g transform="translate(160 75)">
     <rect class="box" width="440" height="100" fill="#DCEBFF"/>
-    <text x="220" y="35" text-anchor="middle" class="label">Registry Snapshot</text>
+    <text x="220" y="35" text-anchor="middle" class="label">Registry Snapshot + IAM Impact History</text>
     <text x="220" y="62" text-anchor="middle" class="file">capability-registry.yaml</text>
-    <text x="220" y="84" text-anchor="middle" class="id">REG-SNAP-042</text>
+    <text x="220" y="84" text-anchor="middle" class="id">REG-SNAP-042 · IMP-IAM-008 · APPEND-IAM-008 · ACT-IAM-008</text>
   </g>
   <line x1="380" y1="175" x2="380" y2="215" class="arrow"/>
 
@@ -78,9 +78,9 @@ Licensed under CC BY 4.0.
 
   <g transform="translate(160 975)">
     <rect class="box" width="440" height="100" fill="#E8F3E8"/>
-    <text x="220" y="35" text-anchor="middle" class="label">Governance Decision</text>
+    <text x="220" y="35" text-anchor="middle" class="label">Governance, Append, and Activation</text>
     <text x="220" y="62" text-anchor="middle" class="file">governance-decision.yaml</text>
-    <text x="220" y="84" text-anchor="middle" class="id">DEC-OAUTH-042 / ACT-VERIFY-010</text>
+    <text x="220" y="84" text-anchor="middle" class="id">DEC-OAUTH-042 / APPEND-VERIFY-010 / ACT-VERIFY-010</text>
   </g>
   <line x1="380" y1="1075" x2="380" y2="1115" class="arrow"/>
 
@@ -89,6 +89,6 @@ Licensed under CC BY 4.0.
     <text x="260" y="33" text-anchor="middle" class="label">Governed Result</text>
     <text x="260" y="60" text-anchor="middle" class="id">CKC-VERIFY v10 applies to future resolutions</text>
     <text x="260" y="82" text-anchor="middle" class="id">ASM-OAUTH-042 remains linked to v9</text>
-    <text x="260" y="102" text-anchor="middle" class="id">No new capability is created by this decision</text>
+    <text x="260" y="102" text-anchor="middle" class="id">PROP-AUTH-EVOL-01 remains unpromoted</text>
   </g>
 </svg>

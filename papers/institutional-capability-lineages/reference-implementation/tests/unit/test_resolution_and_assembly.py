@@ -95,7 +95,19 @@ def intent(*outcomes):
         generated_from={"source": "test"},
         goal="change authentication",
         context={},
-        cee={"id": "CEE-TEST", "type": "agent", "consumer_configuration_id": "AGENT-1"},
+        cee={
+            "id": "CEE-TEST",
+            "boundary_scope": "execution-scoped",
+            "type": "agent",
+            "configuration": {
+                "id": "CEE-CONFIG-TEST",
+                "resolution": {"consumer_configuration_ref": "AGENT-1"},
+                "authorization": {"mandate_source": "contextual-assembly"},
+                "assurance": {"level": "standard"},
+                "traceability": {"execution_identifier_required": True},
+                "evidence_interpretation": {"governed_definitions_only": True},
+            },
+        },
         consumer={"type": "agent", "configuration_id": "AGENT-1"},
         risk={"level": "high"},
         budget={"max_capabilities": 5},
@@ -198,6 +210,15 @@ def test_assembly_checks_actual_required_outcome_coverage():
         AssemblyService().assemble(
             uncovered_intent,
             resolution,
+            snapshot,
+            contracts,
+        )
+
+    changed_boundary = resolution.model_copy(update={"cee_configuration_ref": "CEE-CONFIG-OTHER"})
+    with pytest.raises(AdmissionError, match="traceable"):
+        AssemblyService().assemble(
+            original_intent,
+            changed_boundary,
             snapshot,
             contracts,
         )

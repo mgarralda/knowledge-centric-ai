@@ -1,13 +1,13 @@
 # ICLA Reference Implementation
 
-Deterministic Python demonstrator for **Institutional Capability Lineages
-(ICLA)**, a registry-centered conceptual reference architecture for governed
-and evolving AI.
+Deterministic Python demonstrator for the **Institutional Capability Lineage
+Architecture (ICLA)**, a registry-centered architecture for governing
+capability evolution in AI-enabled organizations.
 
 This package provides an inspectable execution model for the companion ICLA
 specification. It demonstrates how stable capability identity, versioned
 Capability Knowledge Contracts (CKCs), contextual assembly, evidence,
-governance, activation, and lineage fit together without requiring a database,
+governance, successor append, activation, and lineage fit together without requiring a database,
 LLM, MCP server, or cloud infrastructure.
 
 The project is an architectural reference implementation, not a production
@@ -17,6 +17,9 @@ platform.
 
 - [Paper overview](../README.md) — concepts, invariants, lifecycle, and
   evaluation claims.
+- [Current SSRN preprint](https://dx.doi.org/10.2139/ssrn.7172438) —
+  *Institutional Capability Lineages: A Registry-centered Reference
+  Architecture for Governed and Evolving AI*.
 - [Reference schemas](../specification/schemas/README.md) — eight JSON Schema
   Draft 2020-12 contracts.
 - [OAuth 2.1 reference trace](../specification/reference-traces/oauth-042/README.md)
@@ -25,8 +28,13 @@ platform.
   paper and specification to Python modules and services.
 
 The paper defines the architecture. The sibling `../specification/` directory
-defines the reference artifact contracts. This package makes their principal
-behaviors executable and testable.
+defines the reference artifact contracts. This package makes the implemented
+resolution-to-succession path executable and testable.
+
+The paper develops ICLA as an iteratively refined design-science artifact. This
+implementation provides requirement-to-component traceability and artificial
+technical evaluation; it does not imply a linear derivation from literature or
+constitute organizational validation.
 
 ## Implemented scope
 
@@ -40,22 +48,33 @@ The implementation includes:
 - immutable contextual assembly with an execution-scoped operational mandate
   and exact CKC, source, policy, evaluation, and transformation versions;
 - bundle, payload, workspace, and governed-access-handle materialization;
-- explicit CEE consumption of authorized assemblies and production of
-  situated, non-authoritative candidate knowledge;
+- execution-scoped CEE boundaries whose relevant configuration is pinned from
+  intent through evidence, plus situated, non-authoritative candidate knowledge;
 - Evidence Gateway validation, metric qualification, and receipt generation;
 - explicit governance decisions and impact records;
-- ordered, event-identified impact analysis for continuous change streams;
-- authorized CKC active-pointer transitions for future resolutions and exact,
-  pre-authorized rollback targets;
-- connected institutional lineage and historical preservation;
+- ordered, event-identified impact analysis for continuous change streams,
+  including affected bindings, exact CKC versions, traversed Registry
+  relations, retained assemblies, and situated CEEs;
+- authorized append of complete successor CKCs as inactive lineage versions,
+  followed by separate active-pointer transitions for future resolutions and
+  exact, pre-authorized rollback targets;
+- a connected lineage trace and historical preservation;
 - episodic evidence records and governed transition of accepted precedents into
   semantic or procedural CKC commitments;
-- zero-to-many recurrence-based capability proposals, separately ranked, with
-  explicit proposed, review, decision, and governed-promotion states;
+- structural and scenario-level representation of the separate capability
+  proposal path, without executing crystallization promotion;
 - schema, artifact, profile, and cross-artifact conformance validation.
 
 YAML reference artifacts remain the source of truth for the worked trace.
 Runtime persistence uses local append-only YAML records.
+
+The OAuth fixture also records the pre-resolution identity-policy change from
+v7 to v8. Its Registry history links `CHG-IDENTITY-POLICY-008` to
+`BIND-IDENTITY-POLICY`, `IMP-IAM-008`, the affected `CAP-IAM` relation path,
+`DEC-IAM-008`, `DELTA-IAM-007-008`, inactive append `APPEND-IAM-008`, and
+`ACT-IAM-008`. The representative
+historical assembly `ASM-IAM-HIST-007` remains linked to `CKC-IAM v7`; the
+later OAuth assembly consumes the activated v8 contract.
 
 ## Executable differentiators
 
@@ -72,8 +91,10 @@ several architectural boundaries from the paper executable:
   authority, freshness, risk, or assurance invalidates it;
 - **learning without self-promotion**: candidate knowledge can affect canonical
   state only through Evidence Gateway qualification and governance.
-- **evolution without irreversible activation**: every successor activation
-  identifies its exact predecessor as the governed rollback target.
+- **evolution without reconstruction patches**: adjudication authorizes a
+  complete immutable successor CKC and an explanatory delta; append adds it to
+  the lineage without moving the active pointer, and a separate activation can
+  then make that exact appended version current for future resolutions.
 
 ## Requirements
 
@@ -97,7 +118,7 @@ The conformance commands should report:
 
 ```text
 Validated 8 schema(s)
-Validated 7 artifact(s); ICLA-Evolving conformance passed
+Validated 7 artifact(s); ICLA-Evolving trace conformance passed for the represented resolution-to-succession scope; crystallization promotion was not executed
 ```
 
 For the complete development verification:
@@ -124,13 +145,14 @@ The commands have distinct responsibilities:
 - `schemas` lists the eight available contracts;
 - `validate-schemas` validates the schema documents themselves;
 - `validate` validates one artifact or all artifacts in a directory;
-- `run-trace` validates the complete trace and applies the cumulative
-  `ICLA-Evolving` profile, including cross-artifact identity and version
-  continuity.
+- `run-trace` validates the represented trace and applies the cumulative
+  `ICLA-Evolving` checks within the stated resolution-to-succession scope,
+  including cross-artifact identity and version continuity.
 
 `run-trace` does not execute institutional transitions. The end-to-end pytest
 scenario additionally runs resolution, Evidence Gateway qualification,
-governance persistence, successor activation, historical snapshot checks, and
+governance persistence, inactive successor append, separate activation,
+historical snapshot checks, and
 connected-lineage verification. The Gateway generates `RCPT-OAUTH-042`; the
 test consumes, rather than synthesizes, the declared governance decision,
 activation identifier, and successor CKC.
@@ -177,9 +199,10 @@ reference-implementation/
 
 ## Design guarantees
 
-- CKC versions, assemblies, evidence, decisions, activations, and lineage
+- CKC versions, assemblies, evidence, decisions, successor-append receipts,
+  activations, and lineage
   records are append-only.
-- Approval and activation are separate operations.
+- Adjudication, successor append, and activation are separate operations.
 - Historical assemblies retain their exact CKC versions.
 - Evidence submissions do not contain receipts; the Evidence Gateway produces
   and persists them during qualification.
@@ -190,16 +213,24 @@ reference-implementation/
 - Re-resolution is event-driven; it is not required for each local CEE step.
 - Governed and non-standard measurements remain separate.
 - Materializations cannot silently become canonical CKCs.
-- Recurrence scores never assign identity; only an approved, traceable
-  promotion transition can do so.
+- The proposal scenario never assigns identity; complete crystallization
+  promotion remains outside the current executable scope.
 - Architecture decisions and validation failures carry machine-readable
   rationale.
 
-The crystallization service implements set-valued detection and an explicit
-proposal lifecycle. Detection may return zero, one, or several independent
-proposals. Ranking and top-candidate selection are separate views that retain
-the complete detected set. Institutional review must approve a proposal before
-a separate promotion transition may assign identity and an initial CKC.
+Crystallization belongs to the complete ICLA model. The current companion
+represents `PROP-AUTH-EVOL-01` and checks the authority boundary in ICLA-11,
+but it intentionally provides neither a standalone capability-proposal schema
+nor executable promotion, Registry identity assignment, initial CKC creation,
+or preserved promotion-origin links.
+
+The executable assessment therefore ends at append-backed successor activation. It does not
+claim complete crystallization promotion or organizational effectiveness.
+
+The next crystallization extension identified by the paper is a standalone
+capability-proposal contract with positive and negative proposal validation,
+retention without promotion, governed Registry identity assignment, initial
+immutable CKC creation, and preserved `derived_from` links.
 
 ## Non-goals
 

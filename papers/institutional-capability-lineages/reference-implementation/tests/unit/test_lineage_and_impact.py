@@ -34,6 +34,7 @@ def test_lineage_edges_are_extracted_from_each_artifact_type():
             "execution": {
                 "id": "EXE-1",
                 "cee_ref": "CEE-1",
+                "cee_configuration_ref": "CEE-CONFIG-1",
                 "materialization_ref": "MAT-1",
                 "mandate_ref": "ASM-1",
             },
@@ -64,6 +65,7 @@ def test_lineage_edges_are_extracted_from_each_artifact_type():
         "uses",
         "consumes",
         "performed_by",
+        "configured_as",
         "operates_under",
         "produced_during",
         "submitted_as",
@@ -118,7 +120,7 @@ def test_impact_analysis_uses_exact_structured_references():
     )
 
     assert accidental.affected_ckcs == ()
-    assert exact.affected_ckcs == ("CKC-1",)
+    assert exact.affected_ckcs == ("CKC-1-v1",)
 
     streamed = service.analyze_change_stream(
         [

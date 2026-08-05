@@ -1,5 +1,5 @@
 """
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 Reference Implementation
 
 Copyright (c) 2026 Mariano Garralda-Barrio
@@ -40,6 +40,10 @@ class AdmissionError(ICLAError):
 
 
 class ActivationError(ICLAError):
+    pass
+
+
+class SuccessionError(ICLAError):
     pass
 
 

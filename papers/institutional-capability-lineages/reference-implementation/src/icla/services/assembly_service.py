@@ -1,5 +1,5 @@
 """
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 Reference Implementation
 
 Copyright (c) 2026 Mariano Garralda-Barrio
@@ -77,7 +77,9 @@ class AssemblyService:
         resolution_conflicts = resolution.conflict_resolution.get("conflicts", [])
         correctness = {
             "traceable": resolution.intent_ref == intent.id
-            and resolution.registry_snapshot_ref == registry_snapshot.id,
+            and resolution.registry_snapshot_ref == registry_snapshot.id
+            and resolution.cee_ref == intent.cee.id
+            and resolution.cee_configuration_ref == intent.cee.configuration.id,
             "authorized": bool(admitted_validations)
             and all(item.get("authorized") for item in admitted_validations),
             "required_covered": not missing_outcomes,
@@ -99,11 +101,13 @@ class AssemblyService:
             generated_from={
                 "intent": intent.id,
                 "resolution": resolution.id,
+                "admission": resolution.admission.id,
                 "registry": registry_snapshot.id,
                 "algorithm": "icla-reference-deterministic-v1",
             },
             lineage={
-                "cee_ref": str(intent.cee["id"]),
+                "cee_ref": intent.cee.id,
+                "cee_configuration_ref": intent.cee.configuration.id,
                 "intent_ref": intent.id,
                 "registry_snapshot_ref": registry_snapshot.id,
                 "resolution_ref": resolution.id,
@@ -113,13 +117,9 @@ class AssemblyService:
                 {"capability": c.capability_ref, "ckc": c.id, "version": c.version} for c in ckcs
             ],
             source_snapshot=[binding for c in ckcs for binding in c.source_bindings],
-            policy_snapshot=[
-                {"id": policy_ref, "version": 1} for policy_ref in (policies or [])
-            ]
+            policy_snapshot=[{"id": policy_ref, "version": 1} for policy_ref in (policies or [])]
             or [{"id": "POL-ICLA-DEFAULT-ASSEMBLY", "version": 1}],
-            transformation_snapshot=[
-                {"id": "TRANSFORM-ICLA-REFERENCE-ASSEMBLY", "version": 1}
-            ],
+            transformation_snapshot=[{"id": "TRANSFORM-ICLA-REFERENCE-ASSEMBLY", "version": 1}],
             operational_mandate={
                 "authority_scope": "execution-scoped",
                 "institutional_change_authority": False,

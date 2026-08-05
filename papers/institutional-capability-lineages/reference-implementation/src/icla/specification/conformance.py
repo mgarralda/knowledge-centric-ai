@@ -1,5 +1,5 @@
 """
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 Reference Implementation
 
 Copyright (c) 2026 Mariano Garralda-Barrio
@@ -103,17 +103,35 @@ def check_icla_2_active_ckc(artifact: dict[str, Any]) -> list[str]:
             ),
         )
         if metric_missing:
-            errors.append(
-                f"ICLA-2: metric {metric.get('id', '<unknown>')} misses {metric_missing}"
-            )
+            errors.append(f"ICLA-2: metric {metric.get('id', '<unknown>')} misses {metric_missing}")
     if artifact.get("governance", {}).get("immutable") is not True:
         errors.append("ICLA-2: CKC version is not declared immutable")
     return errors
 
 
 def check_icla_3_distributed_authority(artifact: dict[str, Any]) -> list[str]:
-    """CEE contributions enter through identified source or evidence paths."""
+    """CEE boundaries are situated; their outputs gain authority only by adjudication."""
     document_type = artifact.get("document_type")
+    if document_type == "operational-intent":
+        cee = artifact.get("cee", {})
+        errors = []
+        if cee.get("boundary_scope") != "execution-scoped":
+            errors.append("ICLA-3: intent lacks an execution-scoped CEE boundary")
+        configuration = cee.get("configuration", {})
+        missing = _missing(
+            configuration,
+            (
+                "id",
+                "resolution",
+                "authorization",
+                "assurance",
+                "traceability",
+                "evidence_interpretation",
+            ),
+        )
+        if missing:
+            errors.append(f"ICLA-3: CEE boundary configuration misses {missing}")
+        return errors
     if document_type == "capability-knowledge-contract":
         errors = []
         if not artifact.get("source_bindings"):
@@ -139,8 +157,11 @@ def check_icla_3_distributed_authority(artifact: dict[str, Any]) -> list[str]:
     if document_type == "execution-evidence-bundle":
         errors = []
         execution = artifact.get("execution", {})
-        if _missing(execution, ("id", "cee_ref", "consumer")):
-            errors.append("ICLA-3: evidence has no originating execution and CEE consumer")
+        if _missing(execution, ("id", "cee_ref", "cee_configuration_ref", "consumer")):
+            errors.append(
+                "ICLA-3: evidence has no originating execution, CEE boundary configuration, "
+                "or consumer"
+            )
         if _missing(artifact.get("lineage", {}), ("assembly_ref", "source_versions")):
             errors.append("ICLA-3: evidence has no identified governed submission path")
         if artifact.get("canonical_mutation") is True:
@@ -180,6 +201,66 @@ def check_icla_4_registry_navigation(registry: dict[str, Any]) -> list[str]:
             errors.append("ICLA-4: Registry relation has no type")
         if source not in capability_ids or target not in capability_ids:
             errors.append(f"ICLA-4: relation {source!r} -> {target!r} has an unknown endpoint")
+    history = registry.get("pre_resolution_history")
+    if not history:
+        return errors
+
+    change = history.get("change_event", {})
+    impact = history.get("impact_record", {})
+    decision = history.get("governance_decision", {})
+    delta = history.get("successor_delta", {})
+    successor_append = history.get("successor_append", {})
+    activation = history.get("activation", {})
+    historical = history.get("historical_immutability", {})
+    if impact.get("change_event_ref") != change.get("id"):
+        errors.append("ICLA-4/9: pre-resolution impact is not linked to its change event")
+    if decision.get("change_event_ref") != change.get("id") or decision.get(
+        "impact_record_ref"
+    ) != impact.get("id"):
+        errors.append("ICLA-4/9: pre-resolution governance is not linked to change and impact")
+    if any(item not in capability_ids for item in impact.get("affected_capabilities", [])):
+        errors.append("ICLA-4/9: pre-resolution impact names an unknown capability")
+    registry_relations = {
+        (item.get("type"), item.get("from"), item.get("to"))
+        for item in registry.get("relations", [])
+    }
+    impact_relations = {
+        (item.get("type"), item.get("from"), item.get("to"))
+        for item in impact.get("traversed_relations", [])
+    }
+    if not impact_relations.issubset(registry_relations):
+        errors.append("ICLA-4/9: pre-resolution impact traverses an undeclared relation")
+    pointer = activation.get("active_pointer_transition", {})
+    capability = next(
+        (item for item in capabilities if item.get("id") == activation.get("capability")),
+        {},
+    )
+    active_ckc = capability.get("active_ckc", {})
+    expected_active_ref = (
+        f"{active_ckc.get('id')}-v{active_ckc.get('version')}" if active_ckc else None
+    )
+    if (
+        decision.get("status") != "approved"
+        or delta.get("authorization_decision_ref") != decision.get("id")
+        or successor_append.get("authorization_decision_ref") != decision.get("id")
+        or successor_append.get("delta_ref") != delta.get("id")
+        or successor_append.get("predecessor_ref") != delta.get("predecessor_ref")
+        or successor_append.get("successor_ref") != delta.get("successor_ref")
+        or successor_append.get("status") != "inactive-successor"
+        or activation.get("successor_append_ref") != successor_append.get("id")
+        or delta.get("predecessor_ref") != pointer.get("from")
+        or delta.get("successor_ref") != pointer.get("to")
+        or pointer.get("to") != expected_active_ref
+        or active_ckc.get("activation_record") != activation.get("id")
+    ):
+        errors.append("ICLA-4/9: pre-resolution successor activation is internally inconsistent")
+    if historical.get("retroactive_mutation") is not False or any(
+        item.get("remains_linked_to") != pointer.get("from")
+        for item in historical.get("retained_assemblies", [])
+    ):
+        errors.append(
+            "ICLA-4/9: pre-resolution activation does not preserve predecessor assemblies"
+        )
     return errors
 
 
@@ -189,7 +270,13 @@ def check_icla_5_intent_traceability(artifact: dict[str, Any]) -> list[str]:
         errors = []
         missing = _missing(
             artifact,
-            ("cee_ref", "intent_ref", "registry_snapshot_ref", "admission"),
+            (
+                "cee_ref",
+                "cee_configuration_ref",
+                "intent_ref",
+                "registry_snapshot_ref",
+                "admission",
+            ),
         )
         if missing:
             errors.append(f"ICLA-5: resolution misses trace fields {missing}")
@@ -206,7 +293,14 @@ def check_icla_5_intent_traceability(artifact: dict[str, Any]) -> list[str]:
         errors = []
         missing = _missing(
             artifact.get("lineage", {}),
-            ("cee_ref", "intent_ref", "registry_snapshot_ref", "resolution_ref", "admission_ref"),
+            (
+                "cee_ref",
+                "cee_configuration_ref",
+                "intent_ref",
+                "registry_snapshot_ref",
+                "resolution_ref",
+                "admission_ref",
+            ),
         )
         if missing:
             errors.append(f"ICLA-5: assembly misses execution trace fields {missing}")
@@ -225,7 +319,14 @@ def check_icla_6_assembly_lineage(artifact: dict[str, Any]) -> list[str]:
     errors = []
     lineage_missing = _missing(
         artifact.get("lineage", {}),
-        ("cee_ref", "intent_ref", "registry_snapshot_ref", "resolution_ref", "admission_ref"),
+        (
+            "cee_ref",
+            "cee_configuration_ref",
+            "intent_ref",
+            "registry_snapshot_ref",
+            "resolution_ref",
+            "admission_ref",
+        ),
     )
     if lineage_missing:
         errors.append(f"ICLA-6: assembly lineage misses {lineage_missing}")
@@ -293,28 +394,102 @@ def check_icla_9_governed_activation(artifact: dict[str, Any]) -> list[str]:
     if artifact.get("document_type") != "governance-decision":
         return []
     activation = artifact.get("activation", {})
-    if not activation:
+    delta = artifact.get("successor_delta", {})
+    successor_append = artifact.get("successor_append", {})
+    if not activation and not delta and not successor_append:
         return []
     errors = []
     if artifact.get("status") != "approved":
-        errors.append("ICLA-9: activation requires an approved governance decision")
+        errors.append("ICLA-9: succession and activation require approved decisions")
     if _missing(
         artifact.get("impact_record", {}),
         ("id", "affected_capabilities", "affected_ckcs"),
     ):
         errors.append("ICLA-9: canonical change has no impact record")
-    if _missing(
-        activation,
-        ("id", "capability", "ckc", "version", "active_pointer_transition", "rollback_target"),
-    ):
-        errors.append("ICLA-9: activation target is incomplete")
-    transition = activation.get("active_pointer_transition")
-    if not isinstance(transition, dict) or _missing(transition, ("from", "to")):
-        errors.append("ICLA-9: activation does not declare the exact pointer transition")
-    elif activation.get("rollback_target") != transition.get("from"):
-        errors.append("ICLA-9: activation rollback target is not the exact predecessor")
-    if artifact.get("historical_immutability", {}).get("retroactive_mutation") is not False:
-        errors.append("ICLA-9: activation does not preserve historical state")
+    if delta:
+        if _missing(
+            delta,
+            (
+                "id",
+                "predecessor_ref",
+                "successor_ref",
+                "changed_commitments",
+                "rationale",
+                "supporting_evidence_refs",
+                "authorization_decision_ref",
+                "rollback_ref",
+            ),
+        ):
+            errors.append(
+                "ICLA-9: canonical change has no complete decision-linked successor delta"
+            )
+        elif (
+            delta.get("authorization_decision_ref") != artifact.get("id")
+            or delta.get("rollback_ref") != delta.get("predecessor_ref")
+            or delta.get("successor_complete") is not True
+            or delta.get("reconstruction_patch") is not False
+        ):
+            errors.append(
+                "ICLA-9: successor delta is not an authorized complete-contract change record"
+            )
+        required_evidence_refs = {
+            artifact.get("inputs", {}).get("evidence_ref"),
+            artifact.get("inputs", {}).get("qualification_receipt_ref"),
+        } - {None, ""}
+        if not required_evidence_refs.issubset(set(delta.get("supporting_evidence_refs", []))):
+            errors.append("ICLA-9: successor delta omits its supporting evidence or receipt")
+        if not successor_append:
+            errors.append("ICLA-9: authorized successor has no distinct append record")
+
+    if successor_append:
+        append_missing = _missing(
+            successor_append,
+            (
+                "id",
+                "capability",
+                "predecessor_ref",
+                "successor_ref",
+                "delta_ref",
+                "authorization_decision_ref",
+                "status",
+            ),
+        )
+        if append_missing:
+            errors.append(f"ICLA-9: successor append misses {append_missing}")
+        elif (
+            successor_append.get("authorization_decision_ref") != artifact.get("id")
+            or successor_append.get("status") != "inactive-successor"
+            or successor_append.get("delta_ref") != delta.get("id")
+            or successor_append.get("predecessor_ref") != delta.get("predecessor_ref")
+            or successor_append.get("successor_ref") != delta.get("successor_ref")
+        ):
+            errors.append("ICLA-9: append is not the authorized inactive successor transition")
+
+    if activation:
+        if _missing(
+            activation,
+            (
+                "id",
+                "capability",
+                "ckc",
+                "version",
+                "successor_append_ref",
+                "active_pointer_transition",
+                "rollback_target",
+            ),
+        ):
+            errors.append("ICLA-9: activation target is incomplete")
+        transition = activation.get("active_pointer_transition")
+        if not isinstance(transition, dict) or _missing(transition, ("from", "to")):
+            errors.append("ICLA-9: activation does not declare the exact pointer transition")
+        elif activation.get("rollback_target") != transition.get("from"):
+            errors.append("ICLA-9: activation rollback target is not the exact predecessor")
+        if successor_append and activation.get("successor_append_ref") != successor_append.get(
+            "id"
+        ):
+            errors.append("ICLA-9: activation does not reference the appended successor")
+        if artifact.get("historical_immutability", {}).get("retroactive_mutation") is not False:
+            errors.append("ICLA-9: activation does not preserve historical state")
     return errors
 
 
@@ -332,9 +507,7 @@ def check_icla_10_reproducibility(artifact: dict[str, Any]) -> list[str]:
             errors.append(f"ICLA-10: assembly has no retained {field}")
     if _missing(artifact.get("evaluation_contract", {}), ("id", "version")):
         errors.append("ICLA-10: measurement interpretation contract is not version-pinned")
-    if not artifact.get("retention", {}).get("policy_ref") or not artifact.get(
-        "access_policy_ref"
-    ):
+    if not artifact.get("retention", {}).get("policy_ref") or not artifact.get("access_policy_ref"):
         errors.append("ICLA-10: assembly lacks retention or access policy metadata")
     return errors
 
@@ -343,18 +516,23 @@ def check_icla_11_discovery_authority(artifact: dict[str, Any]) -> list[str]:
     if artifact.get("document_type") != "governance-decision":
         return []
     formation = artifact.get("capability_formation", {})
+    errors = []
+    forbidden_identity_fields = {
+        "assigned_identity",
+        "institutional_capability_id",
+        "capability_ref",
+    }
+    for proposal in formation.get("proposals", []):
+        if proposal.get("status") not in {"candidate", "submitted"}:
+            errors.append("ICLA-11: pre-institutional proposal must be candidate or submitted")
+        if forbidden_identity_fields & proposal.keys():
+            errors.append("ICLA-11: proposal carries institutional identity before promotion")
     if formation.get("new_capability_created_by_this_decision") is not True:
-        return []
-    promotion = formation.get("governed_promotion", {})
-    missing = _missing(
-        promotion,
-        ("proposal_ref", "review_ref", "assigned_identity", "initial_ckc_ref"),
-    )
-    return (
-        [f"ICLA-11: capability identity lacks governed, traceable promotion fields {missing}"]
-        if missing
-        else []
-    )
+        return errors
+    return errors + [
+        "ICLA-11: complete crystallization promotion is outside the current companion "
+        "assessment scope"
+    ]
 
 
 def check_icla_evolving_controls(artifact: dict[str, Any]) -> list[str]:
@@ -417,6 +595,8 @@ def check_icla_evolving_controls(artifact: dict[str, Any]) -> list[str]:
         )
         if missing:
             errors.append(f"ICLA-Evolving: crystallization proposal misses {missing}")
+        if proposal.get("status") not in {"candidate", "submitted"}:
+            errors.append("ICLA-Evolving: proposal is not in a pre-institutional lifecycle state")
     return errors
 
 
@@ -474,23 +654,31 @@ class ConformanceChecker:
 
         if intent:
             cee_id = intent.get("cee", {}).get("id")
+            cee_configuration_id = intent.get("cee", {}).get("configuration", {}).get("id")
             downstream_cee_refs = {
                 resolution.get("cee_ref"),
                 assembly.get("lineage", {}).get("cee_ref"),
                 evidence.get("execution", {}).get("cee_ref"),
             }
             if downstream_cee_refs - {None, cee_id}:
-                errors.append("ICLA-5: CEE identity changes across the execution trace")
+                errors.append("ICLA-5: situated CEE boundary changes across the execution trace")
+            downstream_configuration_refs = {
+                resolution.get("cee_configuration_ref"),
+                assembly.get("lineage", {}).get("cee_configuration_ref"),
+                evidence.get("execution", {}).get("cee_configuration_ref"),
+            }
+            if downstream_configuration_refs - {None, cee_configuration_id}:
+                errors.append("ICLA-3/5: CEE configuration changes across the execution trace")
 
         if evidence:
             execution = evidence.get("execution", {})
             candidates = evidence.get("candidate_knowledge", [])
-            if candidates and execution.get("produced_knowledge", {}).get(
-                "institutional_authority"
-            ) is not False:
-                errors.append(
-                    "ICLA-3/8: CEE-produced knowledge must remain non-authoritative"
-                )
+            if (
+                candidates
+                and execution.get("produced_knowledge", {}).get("institutional_authority")
+                is not False
+            ):
+                errors.append("ICLA-3/8: CEE-produced knowledge must remain non-authoritative")
             for candidate in candidates:
                 if candidate.get("produced_by") != execution.get("cee_ref"):
                     errors.append("ICLA-3: candidate knowledge loses its CEE producer identity")
@@ -573,12 +761,11 @@ class ConformanceChecker:
                     )
                 lifecycle = disposition.get("candidate_lifecycle_transition", {})
                 if lifecycle.get("from") != candidate.get("lifecycle_status"):
-                    errors.append(
-                        "ICLA-Evolving: candidate lifecycle loses its submitted state"
-                    )
+                    errors.append("ICLA-Evolving: candidate lifecycle loses its submitted state")
 
         if decision:
             activation = decision.get("activation", {})
+            successor_append = decision.get("successor_append", {})
             matching_successor = any(
                 artifact.get("document_type") == "capability-knowledge-contract"
                 and artifact.get("id") == activation.get("ckc")
@@ -598,9 +785,11 @@ class ConformanceChecker:
                 ),
                 None,
             )
-            admitted_transition = decision.get("dispositions", {}).get(
-                "reusable_compatibility_pattern", {}
-            ).get("memory_transition")
+            admitted_transition = (
+                decision.get("dispositions", {})
+                .get("reusable_compatibility_pattern", {})
+                .get("memory_transition")
+            )
             successor_transition = (
                 successor.get("governance", {}).get("memory_role_delta") if successor else None
             )
@@ -608,27 +797,48 @@ class ConformanceChecker:
                 authorizing_decision = successor.get("generated_from", {}).get(
                     "governance_decision"
                 ) or successor.get("governance", {}).get("admission_decision_ref")
-                if authorizing_decision != decision.get("id"):
-                    errors.append(
-                        "ICLA-9: successor CKC is not linked to its authorizing decision"
-                    )
+                expected_construction_decision = successor_append.get(
+                    "authorization_decision_ref"
+                ) or decision.get("id")
+                if authorizing_decision != expected_construction_decision:
+                    errors.append("ICLA-9: successor CKC is not linked to its authorizing decision")
                 predecessor_refs = {
                     successor.get("predecessor"),
                     successor.get("generated_from", {}).get("predecessor"),
                 }
-                if activation.get("active_pointer_transition", {}).get(
-                    "from"
-                ) not in predecessor_refs:
+                declared_predecessor = successor_append.get("predecessor_ref") or activation.get(
+                    "active_pointer_transition", {}
+                ).get("from")
+                if declared_predecessor not in predecessor_refs:
                     errors.append(
                         "ICLA-9: successor CKC predecessor differs from the approved transition"
+                    )
+                delta = decision.get("successor_delta", {})
+                successor_delta_refs = {
+                    successor.get("generated_from", {}).get("successor_delta"),
+                    successor.get("governance", {}).get("successor_delta_ref"),
+                }
+                if delta and successor_delta_refs != {delta.get("id")}:
+                    errors.append(
+                        "ICLA-9: complete successor CKC is not linked to the decision "
+                        "successor delta"
+                    )
+                if successor_append and (
+                    successor_append.get("successor_ref")
+                    not in {
+                        f"{successor.get('id')}@{successor.get('version')}",
+                        f"{successor.get('id')}-v{successor.get('version')}",
+                    }
+                    or activation.get("successor_append_ref") != successor_append.get("id")
+                ):
+                    errors.append(
+                        "ICLA-9: activation is not linked through the exact successor append"
                     )
             if admitted_transition and successor_transition:
                 comparable_successor = {
                     key: successor_transition.get(key) for key in ("from", "to")
                 }
-                comparable_decision = {
-                    key: admitted_transition.get(key) for key in ("from", "to")
-                }
+                comparable_decision = {key: admitted_transition.get(key) for key in ("from", "to")}
                 if comparable_successor != comparable_decision:
                     errors.append(
                         "ICLA-9: successor CKC memory-role delta differs from adjudication"

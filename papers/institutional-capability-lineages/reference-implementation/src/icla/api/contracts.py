@@ -1,5 +1,5 @@
 """
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 Reference Implementation
 
 Copyright (c) 2026 Mariano Garralda-Barrio
@@ -17,7 +17,14 @@ from ..models import Assembly, EvidenceBundle, EvidenceReceipt, Intent, Resoluti
 
 
 class RegistryPort(Protocol):
-    def get_capability(self, capability_id: str) -> Any: ...
+    def get_capability(
+        self,
+        registry: Any,
+        capability_id: str,
+        *,
+        version_policy: str = "active",
+        exact_version: int | None = None,
+    ) -> Any: ...
 
 
 class ResolverPort(Protocol):
@@ -51,32 +58,35 @@ class GovernancePort(Protocol):
     def adjudicate(self, decision: Any, *, reviewer: str, policy_refs: list[str]) -> Any: ...
 
 
-class CapabilityProposalPort(Protocol):
-    def detect_capability_proposals(
+class SuccessionPort(Protocol):
+    def append_successor(
         self,
-        signatures: list[str],
+        capability: Any,
+        predecessor: Any,
+        successor: Any,
+        decision: Any,
         *,
-        candidates: dict[str, dict[str, Any]],
-        threshold: int = 3,
-    ) -> list[Any]: ...
+        actor: str,
+    ) -> Any: ...
 
-    def rank_capability_proposals(self, proposals: list[Any]) -> list[Any]: ...
 
-    def propose_capability(self, signatures: list[str], **proposal: Any) -> Any: ...
+class CapabilityProposalPort(Protocol):
+    """Prospective logical interface; complete promotion is not implemented."""
 
-    def submit_capability_proposal(self, proposal: Any, *, submitted_by: str) -> Any: ...
-
-    def decide_capability_proposal(self, proposal: Any, **decision: Any) -> Any: ...
-
-    def promote_capability_proposal(self, proposal: Any, **promotion: Any) -> Any: ...
+    def propose_capability(
+        self,
+        pattern: dict[str, Any],
+        *,
+        rationale: str,
+        owner_candidate: str,
+        draft_ckc_ref: str,
+    ) -> Any: ...
 
 
 class ImpactAnalysisPort(Protocol):
     def impact_analysis(self, change: dict[str, Any], **context: Any) -> Any: ...
 
-    def impact_analysis_stream(
-        self, changes: list[dict[str, Any]], **context: Any
-    ) -> Any: ...
+    def impact_analysis_stream(self, changes: list[dict[str, Any]], **context: Any) -> Any: ...
 
 
 class ActivationPort(Protocol):

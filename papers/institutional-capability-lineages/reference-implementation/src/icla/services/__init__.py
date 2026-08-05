@@ -1,5 +1,5 @@
 """
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 Reference Implementation
 
 Copyright (c) 2026 Mariano Garralda-Barrio
@@ -10,7 +10,6 @@ See the LICENSE file in the repository root for details.
 
 from .activation_service import ActivationService
 from .assembly_service import AssemblyService
-from .crystallization_service import CrystallizationService
 from .evidence_gateway import EvidenceGateway
 from .governance_service import GovernanceService
 from .impact_analysis_service import ImpactAnalysisService
@@ -22,18 +21,19 @@ from .materialization_service import (
 )
 from .registry_service import RegistryService
 from .resolution_service import ResolutionService
+from .succession_service import SuccessionService
 
 __all__ = [
     "ActivationService",
     "AccessHandleMaterializer",
     "AssemblyService",
-    "CrystallizationService",
     "EvidenceGateway",
     "GovernanceService",
     "ImpactAnalysisService",
     "LineageService",
     "RegistryService",
     "ResolutionService",
+    "SuccessionService",
     "WorkspaceMaterializer",
     "YamlBundleMaterializer",
 ]

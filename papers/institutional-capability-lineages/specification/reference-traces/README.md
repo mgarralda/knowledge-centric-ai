@@ -1,6 +1,7 @@
 # Reference Traces
 
-Reference traces serialize complete governed executions. Each trace connects
+Reference traces serialize governed executions within a stated assessment
+scope. Each trace connects
 Registry state, intent, resolution, assembly, execution evidence, governance,
 and resulting institutional change through stable identifiers.
 
@@ -12,7 +13,7 @@ artifact types or prescribe separate storage layers.
 Traces preserve the double role of a CEE: it consumes the governed memory
 selected into its assembly and may produce situated candidate knowledge. The
 trace must retain execution and producer identity while keeping production
-separate from institutional admission.
+separate from institutional adjudication.
 
 Between materialization and evidence submission, the CEE may run autonomously
 inside its bounded mandate. A conforming trace records the mandate, the exact
@@ -23,8 +24,10 @@ capture.
 ## Available traces
 
 - [OAuth 2.1 protocol evolution](./oauth-042/README.md) — a complete trace from
-  `REG-SNAP-042` and `INT-OAUTH-042` to `DEC-OAUTH-042` and the activation of
-  `CKC-VERIFY v10` for future resolutions.
+  the pre-resolution `CAP-IAM` source-impact history and `INT-OAUTH-042` to
+  `DEC-OAUTH-042`, inactive append of `CKC-VERIFY v10`, and its separate
+  activation for future
+  resolutions, plus an unpromoted capability proposal scenario.
 
 Reusable, consumer-independent object representations are catalogued separately
 under [`reference-objects/`](../reference-objects/README.md).

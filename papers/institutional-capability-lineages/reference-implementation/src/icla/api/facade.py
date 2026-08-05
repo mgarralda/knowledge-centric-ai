@@ -1,5 +1,5 @@
 """
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 Reference Implementation
 
 Copyright (c) 2026 Mariano Garralda-Barrio
@@ -17,19 +17,20 @@ from pathlib import Path
 from ..config import Settings
 from ..models import EvidenceBundle, GovernanceDecision, Intent, RegistrySnapshot
 from ..policies import assess_reresolution
-from ..repositories import EvidenceRepository, GovernanceRepository
+from ..repositories import CKCRepository, EvidenceRepository, GovernanceRepository
 from ..services import (
     AccessHandleMaterializer,
     ActivationService,
     AssemblyService,
-    CrystallizationService,
     EvidenceGateway,
     GovernanceService,
     ImpactAnalysisService,
     LineageService,
     ResolutionService,
+    SuccessionService,
     YamlBundleMaterializer,
 )
+from ..services.registry_service import RegistryService
 from ..specification import ArtifactValidator, SchemaLoader
 from ..storage import AppendOnlyStore
 
@@ -43,19 +44,66 @@ class ICLA:
         self.assembler = AssemblyService()
         self.evidence_repository = EvidenceRepository(self.store)
         self.governance_repository = GovernanceRepository(self.store)
+        self.ckc_repository = CKCRepository(self.store)
         self.evidence_gateway = EvidenceGateway(self.validator, self.evidence_repository)
         self.governance = GovernanceService(self.governance_repository)
-        self.activation = ActivationService()
+        self.succession = SuccessionService(self.ckc_repository)
+        self.activation = ActivationService(self.ckc_repository)
         self.lineage = LineageService()
-        self.crystallization = CrystallizationService()
         self.impact = ImpactAnalysisService()
 
     def resolve_intent(self, intent: Intent, registry: RegistrySnapshot):
         return self.resolver.resolve_intent(intent, registry)
 
-    @staticmethod
-    def get_capability(registry: RegistrySnapshot, capability_id: str):
-        return registry.capability(capability_id)
+    def get_capability(
+        self,
+        registry: RegistrySnapshot,
+        capability_id: str,
+        *,
+        version_policy: str = "active",
+        exact_version: int | None = None,
+    ):
+        capability = registry.capability(capability_id)
+        if capability is None:
+            return None
+        lineage = (
+            self.ckc_repository.list_lineage(capability.active_ckc.id)
+            if capability.active_ckc is not None
+            else []
+        )
+        active = next(
+            (
+                item
+                for item in lineage
+                if capability.active_ckc is not None
+                and item.id == capability.active_ckc.id
+                and item.version == capability.active_ckc.version
+            ),
+            None,
+        )
+        if version_policy == "active":
+            selected = active
+        elif version_policy == "latest-governed":
+            selected = lineage[-1] if lineage else None
+        elif version_policy == "exact":
+            if exact_version is None:
+                raise ValueError("The exact version policy requires exact_version")
+            selected = next(
+                (item for item in lineage if item.version == exact_version),
+                None,
+            )
+        else:
+            raise ValueError(f"Unsupported CKC version policy: {version_policy}")
+        registry_service = RegistryService(registry)
+        return {
+            "capability": capability,
+            "version_policy": version_policy,
+            "selected_ckc": selected,
+            "active_ckc": active,
+            "latest_governed_ckc": lineage[-1] if lineage else None,
+            "ckc_lineage": lineage,
+            "relations": registry_service.relations_from(capability_id),
+        }
 
     def assemble(self, intent, resolution, registry_snapshot, ckcs, policies=None):
         return self.assembler.assemble(intent, resolution, registry_snapshot, ckcs, policies)
@@ -88,23 +136,22 @@ class ICLA:
             policy_refs=policy_refs,
         )
 
-    def propose_capability(self, signatures, **proposal):
-        return self.crystallization.propose(signatures, **proposal)
-
-    def detect_capability_proposals(self, signatures, **detection):
-        return self.crystallization.detect_capability_proposals(signatures, **detection)
-
-    def rank_capability_proposals(self, proposals):
-        return self.crystallization.rank_capability_proposals(proposals)
-
-    def submit_capability_proposal(self, proposal, *, submitted_by: str):
-        return self.crystallization.submit_for_review(proposal, submitted_by=submitted_by)
-
-    def decide_capability_proposal(self, proposal, **decision):
-        return self.crystallization.decide(proposal, **decision)
-
-    def promote_capability_proposal(self, proposal, **promotion):
-        return self.crystallization.promote(proposal, **promotion)
+    def append_successor(
+        self,
+        capability,
+        predecessor,
+        successor,
+        decision,
+        *,
+        actor: str,
+    ):
+        return self.succession.append_successor(
+            capability,
+            predecessor,
+            successor,
+            decision,
+            actor=actor,
+        )
 
     def impact_analysis(self, change, **context):
         return self.impact.analyze(change, **context)

@@ -1,5 +1,5 @@
 """
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 Reference Implementation
 
 Copyright (c) 2026 Mariano Garralda-Barrio
@@ -13,9 +13,12 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class ImpactAnalysis:
+    affected_bindings: tuple[str, ...]
     affected_ckcs: tuple[str, ...]
     affected_capabilities: tuple[str, ...]
+    traversed_relations: tuple[dict[str, str], ...]
     retained_assemblies: tuple[str, ...]
+    affected_cees: tuple[str, ...]
     consumers: tuple[str, ...]
     review_required: bool
     rationale: tuple[str, ...]
@@ -31,8 +34,24 @@ class ImpactEventResult:
 class ImpactAnalysisService:
     def analyze(self, change: dict, *, registry, ckcs: list, assemblies: list) -> ImpactAnalysis:
         references = self._change_references(change)
-        affected_ckc_ids = {ckc.id for ckc in ckcs if self._ckc_is_affected(ckc, references)}
-        affected_capability_ids = {ckc.capability_ref for ckc in ckcs if ckc.id in affected_ckc_ids}
+        affected_bindings = {
+            str(binding["id"])
+            for binding in getattr(registry, "source_bindings", [])
+            if binding.get("id")
+            and references
+            & {
+                str(value)
+                for value in (
+                    binding.get("id"),
+                    binding.get("source"),
+                    self._versioned_ref(binding.get("source"), binding.get("version")),
+                )
+                if value
+            }
+        }
+        affected_contracts = [ckc for ckc in ckcs if self._ckc_is_affected(ckc, references)]
+        affected_ckc_ids = {self._ckc_ref(ckc) for ckc in affected_contracts}
+        affected_capability_ids = {ckc.capability_ref for ckc in affected_contracts}
         affected_capability_ids.update(
             reference for reference in references if registry.capability(reference) is not None
         )
@@ -52,6 +71,7 @@ class ImpactAnalysisService:
             "composes_with",
             "replaces",
         }
+        traversed_relations: dict[tuple[str, str, str], dict[str, str]] = {}
         changed = True
         while changed:
             changed = False
@@ -62,6 +82,12 @@ class ImpactAnalysisService:
                     relation.source in affected_capability_ids
                     or relation.target in affected_capability_ids
                 ):
+                    key = (relation.relation_type, relation.source, relation.target)
+                    traversed_relations[key] = {
+                        "type": relation.relation_type,
+                        "from": relation.source,
+                        "to": relation.target,
+                    }
                     before = len(affected_capability_ids)
                     affected_capability_ids.update((relation.source, relation.target))
                     changed = changed or len(affected_capability_ids) > before
@@ -69,7 +95,9 @@ class ImpactAnalysisService:
         for capability_id in affected_capability_ids:
             capability = registry.capability(capability_id)
             if capability is not None:
-                affected_ckc_ids.add(capability.active_ckc.id)
+                affected_ckc_ids.add(
+                    self._versioned_ref(capability.active_ckc.id, capability.active_ckc.version)
+                )
 
         affected_ckcs = tuple(sorted(affected_ckc_ids))
         affected_capabilities = tuple(sorted(affected_capability_ids))
@@ -78,10 +106,18 @@ class ImpactAnalysisService:
                 a.id
                 for a in assemblies
                 if any(
-                    item.get("ckc") in affected_ckcs
-                    or item.get("capability") in affected_capabilities
+                    self._versioned_ref(item.get("ckc"), item.get("version")) in affected_ckcs
                     for item in a.ckc_snapshot
                 )
+            )
+        )
+        affected_cees = tuple(
+            sorted(
+                {
+                    str(a.lineage.get("cee_ref"))
+                    for a in assemblies
+                    if a.id in retained and a.lineage.get("cee_ref")
+                }
             )
         )
         consumers = tuple(
@@ -94,14 +130,17 @@ class ImpactAnalysisService:
             )
         )
         return ImpactAnalysis(
+            tuple(sorted(affected_bindings)),
             affected_ckcs,
             affected_capabilities,
+            tuple(traversed_relations[key] for key in sorted(traversed_relations)),
             retained,
+            affected_cees,
             consumers,
-            bool(affected_ckcs or affected_capabilities),
+            bool(affected_bindings or affected_ckcs or affected_capabilities),
             (
                 f"change references: {sorted(references)}",
-                "impact derived from explicit CKC fields and Registry relations",
+                "impact derived from exact source bindings, CKC versions, and Registry relations",
             ),
         )
 
@@ -147,7 +186,7 @@ class ImpactAnalysisService:
 
     @classmethod
     def _ckc_is_affected(cls, ckc, references: set[str]) -> bool:
-        direct = {ckc.id, ckc.capability_ref, ckc.predecessor}
+        direct = {ckc.id, cls._ckc_ref(ckc), ckc.capability_ref, ckc.predecessor}
         if references & {str(value) for value in direct if value}:
             return True
         structured_fields = (
@@ -158,6 +197,18 @@ class ImpactAnalysisService:
             ckc.evaluation_contract,
         )
         return any(cls._contains_exact(field, references) for field in structured_fields)
+
+    @classmethod
+    def _ckc_ref(cls, ckc) -> str:
+        return cls._versioned_ref(ckc.id, ckc.version)
+
+    @staticmethod
+    def _versioned_ref(identifier, version) -> str:
+        if identifier in (None, ""):
+            return ""
+        if version in (None, ""):
+            return str(identifier)
+        return f"{identifier}-v{version}"
 
     @classmethod
     def _contains_exact(cls, value, references: set[str]) -> bool:

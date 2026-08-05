@@ -14,6 +14,7 @@ def bundle():
         execution={
             "id": "EXE-1",
             "cee_ref": "CEE-1",
+            "cee_configuration_ref": "CEE-CONFIG-1",
             "consumer": "AGENT-1",
             "materialization_ref": "MAT-1",
             "mandate_ref": "ASM-1",

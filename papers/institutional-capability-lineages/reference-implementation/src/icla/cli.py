@@ -1,5 +1,5 @@
 """
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 Reference Implementation
 
 Copyright (c) 2026 Mariano Garralda-Barrio
@@ -90,7 +90,9 @@ def main(argv: list[str] | None = None) -> int:
             ConformanceChecker().require_trace(artifacts, ConformanceProfile.EVOLVING)
             print(
                 f"Validated {len(validated)} artifact(s); "
-                f"{ConformanceProfile.EVOLVING} conformance passed"
+                f"{ConformanceProfile.EVOLVING} trace conformance passed for the "
+                "represented resolution-to-succession scope; crystallization promotion "
+                "was not executed"
             )
         else:
             print(f"Validated {len(validated)} artifact(s)")

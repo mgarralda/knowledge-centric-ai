@@ -1,5 +1,5 @@
 """
-Institutional Capability Lineages (ICLA)
+Institutional Capability Lineage Architecture (ICLA)
 Reference Implementation
 
 Copyright (c) 2026 Mariano Garralda-Barrio
@@ -8,17 +8,30 @@ Licensed under the MIT License.
 See the LICENSE file in the repository root for details.
 """
 
-# Module purpose: Atomic active-pointer transition after, and separate from, approval.
+# Module purpose: Atomic active-pointer transition after a separately recorded successor append.
 
-from ..exceptions import ActivationError
+from ..exceptions import ActivationError, ArtifactNotFoundError
 from ..models.common import utc_now
 from ..models.governance import ActivationRecord, GovernanceDecision
+from ..repositories.ckc_repository import CKCRepository
 
 
 class ActivationService:
+    def __init__(self, repository: CKCRepository) -> None:
+        self.repository = repository
+
     def activate(self, snapshot, successor, decision: GovernanceDecision, *, actor: str):
         if decision.status != "approved":
             raise ActivationError("Only an approved decision can authorize activation")
+        try:
+            stored_successor = self.repository.get_version(successor.id, successor.version)
+            append_receipt = self.repository.get_append_receipt(successor.id, successor.version)
+        except ArtifactNotFoundError as error:
+            raise ActivationError(
+                "Only a previously appended successor can be activated"
+            ) from error
+        if stored_successor != successor:
+            raise ActivationError("Appended successor differs from the activation target")
         activation = decision.activation
         if (
             activation.get("capability") != successor.capability_ref
@@ -32,6 +45,12 @@ class ActivationService:
             raise ActivationError(f"Unknown capability {successor.capability_ref}")
         if capability.active_ckc is None:
             raise ActivationError("Only an active capability with an active CKC can be advanced")
+        if (
+            append_receipt.capability_ref != capability.id
+            or append_receipt.status != "inactive-successor"
+            or activation.get("successor_append_ref") != append_receipt.id
+        ):
+            raise ActivationError("Activation does not reference the exact successor append")
         previous = capability.active_ckc.model_dump()
         authorized_actor = successor.governance.get("activation_authority") or capability.owner
         if actor != authorized_actor:
@@ -49,11 +68,6 @@ class ActivationService:
             f"{successor.id}@{successor.version}",
             f"{successor.id}-v{successor.version}",
         }
-        authorizing_decision = successor.generated_from.get(
-            "governance_decision"
-        ) or successor.governance.get("admission_decision_ref")
-        if authorizing_decision != decision.id:
-            raise ActivationError("Successor CKC is not linked to the authorizing decision")
         predecessor_refs = {
             successor.predecessor,
             successor.generated_from.get("predecessor"),
@@ -75,6 +89,7 @@ class ActivationService:
             id=str(activation["id"]),
             decision_ref=decision.id,
             capability_ref=capability.id,
+            successor_append_ref=append_receipt.id,
             previous_ckc=previous,
             active_ckc=capability.active_ckc.model_dump(),
             rollback_target=previous,
@@ -87,6 +102,12 @@ class ActivationService:
         """Apply the rollback target pre-authorized by an approved activation decision."""
         if decision.status != "approved":
             raise ActivationError("Rollback requires an approved governance decision")
+        try:
+            stored_target = self.repository.get_version(target.id, target.version)
+        except ArtifactNotFoundError as error:
+            raise ActivationError("Rollback target is not in the governed CKC lineage") from error
+        if stored_target != target:
+            raise ActivationError("Stored rollback target differs from the requested CKC")
         activation = decision.activation
         capability = snapshot.capability(target.capability_ref)
         if capability is None or capability.active_ckc is None:
@@ -117,6 +138,7 @@ class ActivationService:
             id=f"RBK-{activation['id']}",
             decision_ref=decision.id,
             capability_ref=updated_capability.id,
+            successor_append_ref=str(activation.get("successor_append_ref", "rollback")),
             previous_ckc=previous,
             active_ckc=updated_capability.active_ckc.model_dump(),
             rollback_target=updated_capability.active_ckc.model_dump(),

@@ -1,4 +1,4 @@
-# Institutional Capability Lineages (ICLA)
+# Institutional Capability Lineage Architecture (ICLA)
 # Reference Trace
 #
 # This artifact is part of the ICLA Reference Specification.
@@ -178,17 +178,123 @@ source_bindings:
   - id: BIND-IDENTITY-POLICY
     source: SRC-IDENTITY-POLICY
     version: 8
+    previous_version: 7
     authority: identity-governance
+    capability_refs: [CAP-IAM]
+    change_event_ref: CHG-IDENTITY-POLICY-008
+    authorized_interpretation: OAuth 2.1 identity-policy interpretation approved for future use
+    temporal_validity:
+      status: active
+      supersedes: SRC-IDENTITY-POLICY-v7
     knowledge_roles: [semantic, procedural]
 
   - id: BIND-CLIENT-INVENTORY
     source: SRC-CLIENT-INVENTORY
     version: 42
     authority: api-governance
+    capability_refs: [CAP-API]
+    temporal_validity:
+      status: active
+      supersedes: SRC-CLIENT-INVENTORY-v41
     knowledge_roles: [semantic, episodic]
 
   - id: BIND-RELEASE-POLICY
     source: SRC-RELEASE-POLICY
     version: 4
     authority: release-governance
+    capability_refs: [CAP-RELEASE]
+    temporal_validity:
+      status: active
+      supersedes: SRC-RELEASE-POLICY-v3
     knowledge_roles: [semantic, procedural]
+
+pre_resolution_history:
+  change_event:
+    id: CHG-IDENTITY-POLICY-008
+    source_binding_ref: BIND-IDENTITY-POLICY
+    source_ref: SRC-IDENTITY-POLICY
+    from_version: 7
+    to_version: 8
+    change_dimensions: [authorized-interpretation, temporal-validity]
+    effect: The authorized interpretation and temporal applicability of the identity policy changed
+
+  impact_record:
+    id: IMP-IAM-008
+    change_event_ref: CHG-IDENTITY-POLICY-008
+    assessment_mode: continuous-event-driven
+    affected_bindings: [BIND-IDENTITY-POLICY]
+    affected_capabilities:
+      - CAP-IAM
+      - CAP-ARCH
+      - CAP-API
+      - CAP-VERIFY
+      - CAP-CHANGE
+      - CAP-RELEASE
+    affected_ckcs:
+      - CKC-IAM-v7
+      - CKC-ARCH-v5
+      - CKC-API-v6
+      - CKC-VERIFY-v9
+      - CKC-CHANGE-v11
+      - CKC-RELEASE-v4
+    traversed_relations:
+      - {type: depends_on, from: CAP-IAM, to: CAP-ARCH}
+      - {type: composes_with, from: CAP-IAM, to: CAP-API}
+      - {type: shares_knowledge, from: CAP-IAM, to: CAP-VERIFY}
+      - {type: shares_knowledge, from: CAP-API, to: CAP-VERIFY}
+      - {type: composes_with, from: CAP-CHANGE, to: CAP-VERIFY}
+      - {type: depends_on, from: CAP-CHANGE, to: CAP-RELEASE}
+    review_required: true
+    changed_capability: CAP-IAM
+    reviewed_unchanged_capabilities:
+      - CAP-ARCH
+      - CAP-API
+      - CAP-VERIFY
+      - CAP-CHANGE
+      - CAP-RELEASE
+
+  governance_decision:
+    id: DEC-IAM-008
+    status: approved
+    authority: identity-governance-review
+    change_event_ref: CHG-IDENTITY-POLICY-008
+    impact_record_ref: IMP-IAM-008
+
+  successor_delta:
+    id: DELTA-IAM-007-008
+    predecessor_ref: CKC-IAM-v7
+    successor_ref: CKC-IAM-v8
+    changed_commitments:
+      - area: knowledge_scope
+        operation: revise
+        subject: BIND-IDENTITY-POLICY
+      - area: governance
+        operation: revise
+        subject: authorized-interpretation-and-temporal-applicability
+    authorization_decision_ref: DEC-IAM-008
+
+  successor_append:
+    id: APPEND-IAM-008
+    capability: CAP-IAM
+    predecessor_ref: CKC-IAM-v7
+    successor_ref: CKC-IAM-v8
+    delta_ref: DELTA-IAM-007-008
+    authorization_decision_ref: DEC-IAM-008
+    status: inactive-successor
+
+  activation:
+    id: ACT-IAM-008
+    capability: CAP-IAM
+    ckc: CKC-IAM
+    version: 8
+    successor_append_ref: APPEND-IAM-008
+    active_pointer_transition:
+      from: CKC-IAM-v7
+      to: CKC-IAM-v8
+    applies_to: future-resolutions-only
+
+  historical_immutability:
+    retained_assemblies:
+      - assembly_ref: ASM-IAM-HIST-007
+        remains_linked_to: CKC-IAM-v7
+    retroactive_mutation: false

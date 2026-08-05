@@ -1,4 +1,4 @@
-# Institutional Capability Lineages (ICLA)
+# Institutional Capability Lineage Architecture (ICLA)
 # Reference Specification
 #
 # Copyright (c) 2026 Mariano Garralda-Barrio
@@ -51,7 +51,7 @@ properties:
   generated_from: {type: object, minProperties: 4}
   lineage:
     type: object
-    required: [cee_ref, intent_ref, registry_snapshot_ref, resolution_ref, admission_ref]
+    required: [cee_ref, cee_configuration_ref, intent_ref, registry_snapshot_ref, resolution_ref, admission_ref]
     additionalProperties: true
   ckc_snapshot:
     type: array

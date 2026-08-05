@@ -2,12 +2,15 @@ import pytest
 
 from icla.api.facade import ICLA
 from icla.config import Settings
-from icla.exceptions import ActivationError
+from icla.exceptions import ActivationError, SuccessionError
 from icla.models.capability import ActiveCKC, Capability
 from icla.models.ckc import CapabilityKnowledgeContract
 from icla.models.governance import GovernanceDecision
 from icla.models.registry import RegistrySnapshot
+from icla.repositories.ckc_repository import CKCRepository
 from icla.services.activation_service import ActivationService
+from icla.services.succession_service import SuccessionService
+from icla.storage import AppendOnlyStore
 
 
 def snapshot():
@@ -40,6 +43,7 @@ def successor():
         generated_from={
             "predecessor": "CKC-VERIFY@9",
             "governance_decision": "DEC-1",
+            "successor_delta": "DELTA-VERIFY-009-010",
         },
         capability_ref="CAP-VERIFY",
         version=10,
@@ -49,7 +53,10 @@ def successor():
         obligations=[],
         evidence_contract={},
         evaluation_contract={},
-        governance={"admission_decision_ref": "DEC-1"},
+        governance={
+            "admission_decision_ref": "DEC-1",
+            "successor_delta_ref": "DELTA-VERIFY-009-010",
+        },
         projection_rules={},
         source_bindings=[],
     )
@@ -62,6 +69,7 @@ def predecessor():
         capability_ref="CAP-VERIFY",
         version=9,
         status="superseded",
+        predecessor="CKC-VERIFY@8",
         knowledge_scope={},
         obligations=[],
         evidence_contract={},
@@ -87,11 +95,39 @@ def decision(status="approved"):
             "affected_ckcs": ["CKC-VERIFY@9", "CKC-VERIFY@10"],
             "review_required": True,
         },
+        successor_delta={
+            "id": "DELTA-VERIFY-009-010",
+            "predecessor_ref": "CKC-VERIFY@9",
+            "successor_ref": "CKC-VERIFY@10",
+            "changed_commitments": [
+                {
+                    "area": "evaluation_contract",
+                    "operation": "add",
+                    "subject": "governed compatibility validation",
+                }
+            ],
+            "rationale": "Qualified evidence supports reuse",
+            "supporting_evidence_refs": ["EVD-1"],
+            "authorization_decision_ref": "DEC-1",
+            "rollback_ref": "CKC-VERIFY@9",
+            "successor_complete": True,
+            "reconstruction_patch": False,
+        },
+        successor_append={
+            "id": "APPEND-VERIFY-010",
+            "capability": "CAP-VERIFY",
+            "predecessor_ref": "CKC-VERIFY@9",
+            "successor_ref": "CKC-VERIFY@10",
+            "delta_ref": "DELTA-VERIFY-009-010",
+            "authorization_decision_ref": "DEC-1",
+            "status": "inactive-successor",
+        },
         activation={
             "id": "ACT-1",
             "capability": "CAP-VERIFY",
             "ckc": "CKC-VERIFY",
             "version": 10,
+            "successor_append_ref": "APPEND-VERIFY-010",
             "applies_to": "future-resolutions-only",
             "active_pointer_transition": {
                 "from": "CKC-VERIFY@9",
@@ -105,18 +141,44 @@ def decision(status="approved"):
     )
 
 
-def test_approval_and_activation_are_separate_and_historical_snapshot_is_unchanged():
+def governed_services(tmp_path):
+    repository = CKCRepository(AppendOnlyStore(tmp_path))
+    repository.append_successor(predecessor())
+    return repository, SuccessionService(repository), ActivationService(repository)
+
+
+def append_governed_successor(tmp_path, declared=None):
+    declared = declared or decision()
+    repository, succession, activation = governed_services(tmp_path)
+    receipt = succession.append_successor(
+        snapshot().capability("CAP-VERIFY"),
+        predecessor(),
+        successor(),
+        declared,
+        actor="OWNER",
+    )
+    return repository, activation, receipt
+
+
+def test_append_and_activation_are_distinct_and_historical_snapshot_is_unchanged(tmp_path):
     old = snapshot()
-    updated, record = ActivationService().activate(old, successor(), decision(), actor="OWNER")
+    repository, activation_service, receipt = append_governed_successor(tmp_path)
+
+    assert old.capability("CAP-VERIFY").active_ckc.version == 9
+    assert repository.get_latest_governed_version("CKC-VERIFY").version == 10
+    assert receipt.status == "inactive-successor"
+
+    updated, record = activation_service.activate(old, successor(), decision(), actor="OWNER")
     assert old.capability("CAP-VERIFY").active_ckc.version == 9
     assert updated.capability("CAP-VERIFY").active_ckc.version == 10
     assert record.id == "ACT-1"
     assert record.previous_ckc["version"] == 9
     assert record.rollback_target["version"] == 9
+    assert record.successor_append_ref == receipt.id
 
 
-def test_approved_rollback_restores_the_exact_predecessor_without_mutating_history():
-    service = ActivationService()
+def test_approved_rollback_restores_the_exact_predecessor_without_mutating_history(tmp_path):
+    _, service, _ = append_governed_successor(tmp_path)
     original = snapshot()
     advanced, activation = service.activate(
         original,
@@ -140,22 +202,52 @@ def test_approved_rollback_restores_the_exact_predecessor_without_mutating_histo
     assert rollback.previous_ckc["version"] == 10
 
 
-def test_rejected_decision_cannot_activate():
+def test_rejected_decision_cannot_activate(tmp_path):
+    _, service, _ = append_governed_successor(tmp_path)
     with pytest.raises(ActivationError):
-        ActivationService().activate(snapshot(), successor(), decision("rejected"), actor="OWNER")
+        service.activate(snapshot(), successor(), decision("rejected"), actor="OWNER")
 
 
-def test_successor_from_another_decision_cannot_activate():
-    unrelated = successor().model_copy(
-        update={"generated_from": {"predecessor": "CKC-VERIFY@9", "governance_decision": "DEC-2"}}
-    )
-    with pytest.raises(ActivationError, match="authorizing decision"):
-        ActivationService().activate(snapshot(), unrelated, decision(), actor="OWNER")
+def test_unappended_successor_cannot_activate(tmp_path):
+    repository, _, service = governed_services(tmp_path)
+    assert repository.get_latest_governed_version("CKC-VERIFY").version == 9
+    with pytest.raises(ActivationError, match="previously appended"):
+        service.activate(snapshot(), successor(), decision(), actor="OWNER")
 
 
-def test_activation_rejects_an_undeclared_authority():
+def test_append_rejects_a_delta_that_does_not_describe_the_complete_successor(tmp_path):
+    _, succession, _ = governed_services(tmp_path)
+    incomplete = decision().model_copy(deep=True)
+    incomplete.successor_delta["successor_complete"] = False
+
+    with pytest.raises(SuccessionError, match="complete successor"):
+        succession.append_successor(
+            snapshot().capability("CAP-VERIFY"),
+            predecessor(),
+            successor(),
+            incomplete,
+            actor="OWNER",
+        )
+
+
+def test_activation_rejects_an_undeclared_authority(tmp_path):
+    _, service, _ = append_governed_successor(tmp_path)
     with pytest.raises(ActivationError, match="activation authority"):
-        ActivationService().activate(snapshot(), successor(), decision(), actor="OTHER")
+        service.activate(snapshot(), successor(), decision(), actor="OTHER")
+
+
+def test_activation_decision_may_be_separate_from_construction_decision(tmp_path):
+    _, service, receipt = append_governed_successor(tmp_path)
+    activation_decision = decision().model_copy(deep=True)
+    activation_decision.id = "DEC-ACT-1"
+    activation_decision.successor_delta = {}
+    activation_decision.successor_append = {}
+    activation_decision.activation["successor_append_ref"] = receipt.id
+
+    updated, record = service.activate(snapshot(), successor(), activation_decision, actor="OWNER")
+
+    assert updated.capability("CAP-VERIFY").active_ckc.version == 10
+    assert record.decision_ref == "DEC-ACT-1"
 
 
 def test_facade_owns_and_persists_governance_service(tmp_path):
@@ -170,3 +262,30 @@ def test_facade_owns_and_persists_governance_service(tmp_path):
 
     assert result == declared
     assert facade.governance_repository.get_decision(declared.id) == declared
+
+
+def test_facade_distinguishes_active_from_latest_governed_ckc(tmp_path):
+    facade = ICLA(Settings(data_dir=tmp_path))
+    facade.ckc_repository.append_successor(predecessor())
+    receipt = facade.append_successor(
+        snapshot().capability("CAP-VERIFY"),
+        predecessor(),
+        successor(),
+        decision(),
+        actor="OWNER",
+    )
+
+    view = facade.get_capability(snapshot(), "CAP-VERIFY")
+
+    assert receipt.status == "inactive-successor"
+    assert view["selected_ckc"].version == 9
+    assert view["active_ckc"].version == 9
+    assert view["latest_governed_ckc"].version == 10
+    assert [item.version for item in view["ckc_lineage"]] == [9, 10]
+
+    latest = facade.get_capability(snapshot(), "CAP-VERIFY", version_policy="latest-governed")
+    exact = facade.get_capability(
+        snapshot(), "CAP-VERIFY", version_policy="exact", exact_version=10
+    )
+    assert latest["selected_ckc"].version == 10
+    assert exact["selected_ckc"].version == 10

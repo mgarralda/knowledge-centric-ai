@@ -1,4 +1,4 @@
-# Institutional Capability Lineages (ICLA)
+# Institutional Capability Lineage Architecture (ICLA)
 # Reference Trace
 #
 # This artifact is part of the ICLA Reference Specification.
@@ -41,8 +41,25 @@ context:
 
 cee:
   id: CEE-OAUTH-042
+  boundary_scope: execution-scoped
   type: composite-agent-validation-and-human-review
-  consumer_configuration_id: CONSUMER-OAUTH-AGENT-01
+  configuration:
+    id: CEE-CONFIG-OAUTH-042
+    resolution:
+      consumer_configuration_ref: CONSUMER-OAUTH-AGENT-01
+      situated_context_ref: INT-OAUTH-042
+    authorization:
+      mandate_source: contextual-assembly
+      institutional_change_authority: false
+    assurance:
+      required_level: high
+      human_review_required: true
+    traceability:
+      execution_identifier_required: true
+      exact_lineage_required: true
+    evidence_interpretation:
+      governed_definitions_only_for_comparison: true
+      nonstandard_measurements_excluded: true
 
 consumer:
   type: coding-agent-with-human-review
