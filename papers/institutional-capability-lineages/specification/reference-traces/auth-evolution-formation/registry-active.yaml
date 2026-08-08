@@ -1,0 +1,40 @@
+# Institutional Capability Lineage Architecture (ICLA)
+# Reference Trace - state after separate initial activation
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+# Licensed under CC BY 4.0.
+
+document_type: institutional-capability-registry-snapshot
+format_version: "icla-artifact/0.1-draft"
+specification_version: {icla-spec: "0.1.0"}
+id: REG-SNAP-AUTH-EVOL-ACTIVE
+artifact_status: reference
+normative: false
+schema_ref: ../../schemas/capability-registry.schema.yaml
+generated_from:
+  previous_registry_snapshot: REG-SNAP-AUTH-EVOL-FORMED
+  governance_decision: DEC-AUTH-EVOL-FORMATION-001
+  formation_append: FORM-AUTH-EVOL-001
+  activation: ACT-AUTH-EVOL-001
+registry:
+  logical_registry_id: REG-ICLA
+  snapshot_status: immutable
+  capability_count: 4
+  active_pointer_policy: governed-activation-only
+  last_transition: ACT-AUTH-EVOL-001
+capabilities:
+  - {id: CAP-IAM, name: Identity and Access Management, outcome: Govern identity and access policy, owner: identity-governance, domain: identity, lifecycle: active, active_ckc: {id: CKC-IAM, version: 8}, policy_refs: [POL-IDENTITY], conditions: {environment: governed}}
+  - {id: CAP-API, name: API Evolution, outcome: Evolve APIs without unmanaged compatibility loss, owner: api-governance, domain: api, lifecycle: active, active_ckc: {id: CKC-API, version: 6}, policy_refs: [POL-API], conditions: {environment: governed}}
+  - {id: CAP-VERIFY, name: Security Validation, outcome: Validate governed releases, owner: security-assurance, domain: security, lifecycle: active, active_ckc: {id: CKC-VERIFY, version: 10}, policy_refs: [POL-ASSURANCE], conditions: {environment: governed}}
+  - id: CAP-AUTH-EVOL
+    name: Authentication Protocol Evolution
+    outcome: Govern recurrent authentication protocol evolution across dependent capabilities
+    owner: identity-and-api-governance-review
+    domain: identity-and-api-governance
+    lifecycle: active
+    active_ckc: {id: CKC-AUTH-EVOL, version: 1}
+    policy_refs: [POL-CAPABILITY-FORMATION]
+    conditions: {recurrence: established}
+relations:
+  - {type: depends_on, from: CAP-API, to: CAP-IAM}
+  - {type: validated_by, from: CAP-API, to: CAP-VERIFY}

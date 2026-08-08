@@ -10,6 +10,7 @@ See the LICENSE file in the repository root for details.
 
 from .activation_service import ActivationService
 from .assembly_service import AssemblyService
+from .capability_formation_service import CapabilityFormationService
 from .evidence_gateway import EvidenceGateway
 from .governance_service import GovernanceService
 from .impact_analysis_service import ImpactAnalysisService
@@ -27,6 +28,7 @@ __all__ = [
     "ActivationService",
     "AccessHandleMaterializer",
     "AssemblyService",
+    "CapabilityFormationService",
     "EvidenceGateway",
     "GovernanceService",
     "ImpactAnalysisService",

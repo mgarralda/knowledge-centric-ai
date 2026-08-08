@@ -30,6 +30,15 @@ Peer-reviewed and preprint research introducing new architectural concepts, refe
 | 📄 [Institutional Capability Lineages (ICLA)](papers/institutional-capability-lineages/) | Institutional Capability Engineering | Proposes a **registry-centered reference architecture** that transforms distributed organizational knowledge into **governed institutional capabilities** through canonical contracts, contextual assemblies, evidence-governed evolution, and persistent capability lineages. |
 
 ---
+# Technical Articles
+
+Engineering articles explaining the concepts, motivations, and practical implications behind the research.
+
+| Resource | Description |
+|----------|-------------|
+| 📝 [Why Agent Memory Isn't Organizational Memory](https://mgarralda.medium.com/why-agent-memory-isnt-organizational-memory-c0652ff20a88) | Explains why agent memory and RAG are insufficient to preserve institutional capability, introducing the architectural principles behind Institutional Capability Lineages (ICLA). |
+
+---
 
 # White Papers
 

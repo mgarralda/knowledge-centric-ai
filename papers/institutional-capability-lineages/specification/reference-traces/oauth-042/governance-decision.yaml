@@ -143,6 +143,7 @@ successor_append:
 
 activation:
   id: ACT-VERIFY-010
+  activation_kind: successor
   capability: CAP-VERIFY
   ckc: CKC-VERIFY
   version: 10
@@ -161,29 +162,8 @@ historical_immutability:
 capability_formation:
   new_capability_created_by_this_decision: false
   rationale: The admitted pattern remains within CAP-VERIFY responsibility
-  proposals:
-    - id: PROP-AUTH-EVOL-01
-      status: submitted
-      recurrent_pattern_refs:
-        - SIG-TOKEN-ROTATION
-        - SIG-PROVIDER-REPLACEMENT
-        - SIG-SCOPE-REDESIGN
-        - SIG-CLIENT-MIGRATION
-        - SIG-PROTOCOL-UPGRADE
-      stable_assembly_rules:
-        - compose CAP-IAM, CAP-API, and CAP-VERIFY for cross-intent authentication evolution
-        - preserve client-compatibility and assurance metric bindings
-      value_assessment:
-        basis: comparable governed outcomes across recurrent authentication changes
-        expected_value: reduce repeated assembly design and compatibility risk
-        authority: institutional-governance-review
-      comparable_outcome_refs:
-        - OUT-AUTH-EVOL-COMPATIBILITY
-        - OUT-AUTH-EVOL-ASSURANCE
-      candidate_owner: identity-and-api-governance-review
-      overlap_analysis:
-        - Review overlap with CAP-IAM, CAP-API, and CAP-VERIFY
-      draft_ckc_ref: CKC-AUTH-EVOL-v1-draft
+  proposal_refs:
+    - PROP-AUTH-EVOL-01
   later_recurrence_may_support:
     proposal: PROP-AUTH-EVOL-01
     candidate_name: Authentication Protocol Evolution

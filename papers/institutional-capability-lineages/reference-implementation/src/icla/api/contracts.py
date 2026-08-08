@@ -71,15 +71,27 @@ class SuccessionPort(Protocol):
 
 
 class CapabilityProposalPort(Protocol):
-    """Prospective logical interface; complete promotion is not implemented."""
-
     def propose_capability(
         self,
         pattern: dict[str, Any],
         *,
         rationale: str,
         owner_candidate: str,
-        draft_ckc_ref: str,
+        proposal_scoped_ckc_draft_ref: str,
+    ) -> Any: ...
+
+
+class CapabilityFormationPort(Protocol):
+    """Governed transition from a submitted proposal to identity plus initial CKC."""
+
+    def promote_capability(
+        self,
+        snapshot: Any,
+        proposal: Any,
+        initial_ckc: Any,
+        decision: Any,
+        *,
+        actor: str,
     ) -> Any: ...
 
 
@@ -93,7 +105,7 @@ class ActivationPort(Protocol):
     def activate_ckc(
         self,
         snapshot: Any,
-        successor: Any,
+        appended_lineage_ckc: Any,
         decision: Any,
         *,
         actor: str,

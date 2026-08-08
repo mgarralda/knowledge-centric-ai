@@ -15,9 +15,15 @@ from .capability import Capability, InstitutionalCapability
 from .ckc import CapabilityKnowledgeContract
 from .common import KnowledgeRole
 from .evidence import EvidenceBundle, EvidenceReceipt
-from .governance import ActivationRecord, GovernanceDecision, SuccessorAppendReceipt
+from .governance import (
+    ActivationRecord,
+    FormationAppendReceipt,
+    GovernanceDecision,
+    SuccessorAppendReceipt,
+)
 from .intent import Intent
 from .lineage import InstitutionalCapabilityLineage, LineageEdge, LineageNode
+from .proposal import CapabilityProposal, ProposalStatus
 from .registry import RegistryRelation, RegistrySnapshot
 from .resolution import AdmissionDecision, CandidateCapability, ResolutionResult
 
@@ -27,9 +33,11 @@ __all__ = [
     "Assembly",
     "CandidateCapability",
     "Capability",
+    "CapabilityProposal",
     "CapabilityKnowledgeContract",
     "EvidenceBundle",
     "EvidenceReceipt",
+    "FormationAppendReceipt",
     "GovernanceDecision",
     "InstitutionalCapabilityLineage",
     "InstitutionalCapability",
@@ -39,6 +47,7 @@ __all__ = [
     "LineageNode",
     "Materialization",
     "OperationalMandate",
+    "ProposalStatus",
     "RegistryRelation",
     "RegistrySnapshot",
     "ResolutionResult",

@@ -8,7 +8,7 @@ complete executions and their governed transitions.
 
 Organizational-memory roles are represented as overlapping annotations within
 CKC bindings, assemblies, and evidence rather than as additional principal
-object types. This preserves the eight-object contract model while making
+object types. This preserves the compact object contract model while making
 semantic, procedural, and episodic knowledge functions inspectable.
 
 The evidence bundle also preserves the other direction of the memory loop:
@@ -27,6 +27,7 @@ The initial object catalog is defined through the schemas:
 | Object | Structural contract |
 |---|---|
 | Institutional capability | [`capability.schema.yaml`](../schemas/capability.schema.yaml) |
+| Capability proposal | [`capability-proposal.schema.yaml`](../schemas/capability-proposal.schema.yaml) |
 | Capability Knowledge Contract | [`ckc.schema.yaml`](../schemas/ckc.schema.yaml) |
 | Registry snapshot | [`capability-registry.schema.yaml`](../schemas/capability-registry.schema.yaml) |
 | Operational intent | [`intent.schema.yaml`](../schemas/intent.schema.yaml) |

@@ -28,3 +28,6 @@ class GovernanceRepository:
 
     def append_activation(self, record: ActivationRecord) -> None:
         self.store.append("activations", record.id, record.model_dump(mode="json", by_alias=True))
+
+    def get_activation(self, activation_id: str) -> ActivationRecord:
+        return ActivationRecord.model_validate(self.store.read("activations", activation_id))

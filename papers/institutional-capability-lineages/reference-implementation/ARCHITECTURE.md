@@ -26,6 +26,7 @@ flowchart TD
     EVD["Evidence Gateway<br/>qualification and receipt"]
     GOV["Governance Service<br/>declared adjudication"]
     SUC["Succession Service<br/>append complete inactive successor"]
+    FORM["Formation Service<br/>assign identity + append initial CKC"]
     ACT["Activation Service<br/>atomic active-pointer transition"]
     LIN["Lineage Service<br/>connected typed trace"]
 
@@ -38,6 +39,8 @@ flowchart TD
     EVD --> GOV
     GOV --> SUC
     SUC --> ACT
+    GOV --> FORM
+    FORM --> ACT
     ACT --> LIN
 
     ASM -. "exact versions" .-> LIN
@@ -74,10 +77,10 @@ linearly derived from the literature.
 | Execution Evidence | Separate governed from non-standard measurements, check schema and provenance, and issue a qualification receipt | [`evidence_gateway.py`](src/icla/services/evidence_gateway.py) |
 | Governance | Persist an explicit institutional decision without synthesizing human approval | [`governance_service.py`](src/icla/services/governance_service.py) |
 | CKC Succession | Verify the decision-linked delta and append the complete successor as an inactive lineage version without moving the Registry pointer | [`succession_service.py`](src/icla/services/succession_service.py), [`ckc_repository.py`](src/icla/repositories/ckc_repository.py) |
-| Governed Activation | Verify an approved decision, atomically move the active CKC pointer, and support an exact pre-authorized rollback while preserving history | [`activation_service.py`](src/icla/services/activation_service.py) |
+| Governed Activation | Activate an already appended successor or initial CKC through a separately identifiable pointer transition; preserve rollback for succession and the explicit no-predecessor boundary for initial activation | [`activation_service.py`](src/icla/services/activation_service.py) |
 | Lineage trace | Build and validate a concrete connected, typed instantiation of the institutional capability lineage across artifacts and transitions | [`lineage_service.py`](src/icla/services/lineage_service.py) |
 | Impact Analysis | Identify source bindings, exact CKC versions, relation paths, retained assemblies, situated CEEs, and consumers affected by individual changes or ordered change-event streams | [`impact_analysis_service.py`](src/icla/services/impact_analysis_service.py) |
-| Capability Crystallization | Represent the governed proposal boundary without executing promotion; new Registry identity, initial CKC creation, and promotion-origin links remain prospective | [`conformance.py`](src/icla/specification/conformance.py), [`governance-decision.yaml`](../specification/reference-traces/oauth-042/governance-decision.yaml) |
+| Capability Crystallization | Validate a common pre-institutional proposal type; execute governed identity assignment and initial CKC append from a submitted proposal; activate the formed capability separately; preserve formation-origin links | [`proposal.py`](src/icla/models/proposal.py), [`capability_formation_service.py`](src/icla/services/capability_formation_service.py), [`auth-evolution-formation/`](../specification/reference-traces/auth-evolution-formation/) |
 
 ## Artifact flow
 
@@ -99,6 +102,19 @@ Operational Intent
         -> separate Activation Record
         -> successor Registry Snapshot
         -> connected lineage trace
+```
+
+The complementary formation path is deliberately shorter because discovery
+and institutional review are declared inputs rather than synthesized behavior:
+
+```text
+retained pattern signals
+        -> candidate proposal (no identity)
+        -> submitted proposal
+        -> authorized governance decision
+        -> capability identity + complete initial CKC v1 (inactive)
+        -> separate initial activation
+        -> active Registry snapshot
 ```
 
 An assembly records the exact Registry snapshot and CKC versions used to build
@@ -214,9 +230,13 @@ verifies the target capability, exact predecessor, decision status, and delta
 recording changed CKC commitments, supporting evidence, rationale, authorizing
 decision, and rollback. It appends the complete immutable successor—not a
 reconstruction patch—and emits an inactive-successor receipt while leaving the
-active pointer unchanged. Activation accepts only that previously appended
-successor, verifies the exact append reference and pointer transition, then
-returns a new Registry snapshot and a separate activation record.
+active pointer unchanged. The logical `activate_ckc` port accepts an appended
+lineage CKC for either succession or formation. Activation verifies the exact
+append reference and pointer transition, then returns a new Registry snapshot
+and a separate activation record. For an initial CKC, the transition is
+explicitly `no pointer -> CKC v1`; there is no invented predecessor or rollback
+target. Formation and activation use separate service calls even when one
+governance transaction authorizes both effects.
 
 ### Lineage Service
 
@@ -271,18 +291,24 @@ The conformance layer and tests make the main paper invariants executable:
 | ICLA-8 | Governed and non-standard measurements remain separate and receipts originate at the Evidence Gateway |
 | ICLA-9 | Canonical change records impact, approval, a complete immutable successor CKC, its decision-linked delta, inactive append, exact later pointer transition, rollback target, and historical immutability |
 | ICLA-10 | Retained assemblies include version and policy metadata needed for reproduction and interpretation |
-| ICLA-11 | Only governed, traceable promotion may assign a new identity; the current companion represents this boundary but does not execute promotion |
+| ICLA-11 | Candidate and submitted proposals remain identity-free; governed promotion creates one new identity and complete initial CKC v1 with retained origins; the formed state has no active pointer; initial activation is executed separately |
 
 The corresponding tests live in [`tests/conformance/`](tests/conformance/).
 The end-to-end [`oauth-042` test](tests/traces/test_oauth_042.py) loads the
-published sibling artifacts, applies Evolving checks to the represented
+published sibling artifacts, applies ICLA-Governed checks to the implemented
 resolution-to-succession scope, verifies event-linked impact analysis and the
-unpromoted proposal boundary,
+separate ICLA-11 candidate-proposal boundary,
 generates the declared evidence receipt, records adjudication, appends the
 published successor CKC without activating it, then performs the separately
 authorized activation with its exact rollback target, preserves the historical
 assembly snapshot, and verifies connected lineage without creating a new
 capability.
+
+The end-to-end [`auth-evolution-formation` test](tests/traces/test_auth_evolution_formation.py)
+replays the published `before -> formed -> active` snapshots, verifies exact
+proposal/decision/CKC/history lineage, and rejects candidate, unauthorized,
+duplicate, incomplete, unappended, and repeated promotion attempts without
+partial state.
 
 ## Scope boundary
 
@@ -291,7 +317,8 @@ architectural behavior; it does not prove organizational effectiveness or
 production readiness.
 The linked OAuth trace is a constructed demonstration. Schema validation,
 deterministic replay, negative cases, and invariant checks provide artificial
-technical evaluation within the stated resolution-to-succession scope.
+technical evaluation within the stated succession and governed capability-
+formation paths.
 Comparative longitudinal evaluation is prospective, and independent
 organizational validation remains future work.
 Authentication infrastructure, distributed transactions, databases, REST or

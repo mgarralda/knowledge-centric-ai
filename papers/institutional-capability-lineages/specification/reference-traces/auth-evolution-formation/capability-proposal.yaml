@@ -1,0 +1,64 @@
+# Institutional Capability Lineage Architecture (ICLA)
+# Reference Trace - governed capability formation
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+# Licensed under CC BY 4.0.
+
+document_type: capability-proposal
+format_version: "icla-artifact/0.1-draft"
+specification_version:
+  icla-spec: "0.1.0"
+id: PROP-AUTH-EVOL-01
+artifact_status: reference
+normative: false
+schema_ref: ../../schemas/capability-proposal.schema.yaml
+status: submitted
+
+generated_from:
+  recurrence_review: REVIEW-AUTH-EVOL-01
+  retained_history:
+    - ASM-OAUTH-042
+    - EVD-OAUTH-042
+    - ASM-AUTH-ROTATION-017
+    - EVD-AUTH-ROTATION-017
+    - ASM-AUTH-PROVIDER-023
+    - EVD-AUTH-PROVIDER-023
+
+proposed_responsibility:
+  name: Authentication Protocol Evolution
+  outcome: Govern recurrent cross-capability authentication protocol changes
+  domain: identity-and-api-governance
+
+pattern_signal_refs:
+  - ASM-OAUTH-042
+  - EVD-OAUTH-042
+  - ASM-AUTH-ROTATION-017
+  - EVD-AUTH-ROTATION-017
+  - ASM-AUTH-PROVIDER-023
+  - EVD-AUTH-PROVIDER-023
+
+recurrence_assessment:
+  established: true
+  current_trace_sufficient: true
+  declared_horizon: Three independent authentication-change intents over twelve months
+  assessment_basis: Repeated responsibility, assembly rules, and comparable outcomes
+
+stable_assembly_rules:
+  - Compose identity, API evolution, and validation capabilities
+  - Preserve compatibility and security metric bindings across intents
+
+value_assessment:
+  result: passed
+  basis: Reduced repeated assembly design and cross-capability coordination risk
+
+comparable_outcome_refs:
+  - OUT-AUTH-EVOL-COMPATIBILITY
+  - OUT-AUTH-EVOL-ASSURANCE
+
+candidate_owner: identity-and-api-governance-review
+
+overlap_analysis:
+  - capability_refs: [CAP-IAM, CAP-API, CAP-VERIFY]
+    result: distinct-cross-capability-responsibility
+
+proposal_scoped_ckc_draft_ref: PROP-AUTH-EVOL-01-CKC-DRAFT

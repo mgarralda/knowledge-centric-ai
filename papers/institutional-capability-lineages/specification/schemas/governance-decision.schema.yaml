@@ -23,8 +23,6 @@ required:
   - generated_from
   - inputs
   - review
-  - dispositions
-  - impact_record
   - capability_formation
   - resulting_lineage_edges
 properties:
@@ -44,7 +42,6 @@ properties:
   generated_from: {type: object, minProperties: 3}
   inputs:
     type: object
-    required: [evidence_ref, qualification_receipt_ref, assembly_ref, registry_snapshot_ref]
     additionalProperties: true
   review: {type: object}
   dispositions:
@@ -141,52 +138,157 @@ properties:
     type: object
     required:
       - id
+      - activation_kind
       - capability
       - ckc
       - version
-      - successor_append_ref
       - applies_to
       - active_pointer_transition
       - rollback_target
     properties:
+      id: {type: string, pattern: "^ACT-[A-Z0-9-]+$"}
+      activation_kind: {enum: [successor, initial]}
+      capability: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+      ckc: {type: string, pattern: "^CKC-[A-Z0-9-]+$"}
+      version: {type: integer, minimum: 1}
       successor_append_ref: {type: string, pattern: "^APPEND-[A-Z0-9-]+$"}
-    additionalProperties: true
+      formation_append_ref: {type: string, pattern: "^FORM-[A-Z0-9-]+$"}
+      applies_to: {const: future-resolutions-only}
+      active_pointer_transition:
+        type: object
+        required: [from, to]
+        properties:
+          from:
+            anyOf:
+              - {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+              - {type: "null"}
+          to: {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+        additionalProperties: false
+      rollback_target:
+        anyOf:
+          - {type: string, pattern: "^CKC-[A-Z0-9-]+-v[0-9]+$"}
+          - {type: "null"}
+      resulting_registry_snapshot_ref:
+        type: string
+        pattern: "^REG-SNAP-[A-Z0-9-]+$"
+    oneOf:
+      - properties:
+          activation_kind: {const: successor}
+          active_pointer_transition:
+            properties:
+              from: {type: string}
+          rollback_target: {type: string}
+        required: [successor_append_ref]
+        not:
+          required: [formation_append_ref]
+      - properties:
+          activation_kind: {const: initial}
+          version: {const: 1}
+          active_pointer_transition:
+            properties:
+              from: {type: "null"}
+          rollback_target: {type: "null"}
+        required: [formation_append_ref, resulting_registry_snapshot_ref]
+        not:
+          required: [successor_append_ref]
+    additionalProperties: false
   historical_immutability:
     type: object
-    required: [assembly_ref, remains_linked_to, retroactive_mutation]
+    required: [retroactive_mutation]
+    properties:
+      assembly_ref: {type: string}
+      remains_linked_to: {type: string}
+      retained_history_refs:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+      retroactive_mutation: {const: false}
+    anyOf:
+      - required: [assembly_ref, remains_linked_to]
+      - required: [retained_history_refs]
     additionalProperties: true
   capability_formation:
     type: object
     required: [new_capability_created_by_this_decision, rationale]
     properties:
-      new_capability_created_by_this_decision: {const: false}
+      new_capability_created_by_this_decision: {type: boolean}
       rationale: {type: string, minLength: 1}
-      proposals:
+      proposal_refs:
         type: array
+        minItems: 1
         uniqueItems: true
-        items:
-          type: object
-          required:
-            - id
-            - status
-            - recurrent_pattern_refs
-            - stable_assembly_rules
-            - value_assessment
-            - comparable_outcome_refs
-            - candidate_owner
-            - overlap_analysis
-            - draft_ckc_ref
+        items: {type: string, pattern: "^PROP-[A-Z0-9-]+$"}
+      governed_promotion:
+        type: object
+        required:
+          - proposal_ref
+          - review_decision_ref
+          - formation_authority
+          - assigned_capability
+          - initial_ckc_ref
+        properties:
+          proposal_ref: {type: string, pattern: "^PROP-[A-Z0-9-]+$"}
+          review_decision_ref: {type: string, pattern: "^DEC-[A-Z0-9-]+$"}
+          formation_authority: {type: string, minLength: 1}
+          assigned_capability:
+            type: object
+            required: [id, name, outcome, owner, domain, lifecycle, policy_refs, conditions]
+            properties:
+              id: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+              name: {type: string, minLength: 1}
+              outcome: {type: string, minLength: 1}
+              owner: {type: string, minLength: 1}
+              domain: {type: string, minLength: 1}
+              lifecycle: {const: approved}
+              policy_refs:
+                type: array
+                minItems: 1
+                items: {type: string, minLength: 1}
+              conditions: {type: object, minProperties: 1}
+            not:
+              required: [active_ckc]
+            additionalProperties: true
+          initial_ckc_ref: {type: string, pattern: "^CKC-[A-Z0-9-]+-v1$"}
+        additionalProperties: false
+      formation_append:
+        type: object
+        required:
+          - id
+          - proposal_ref
+          - capability_ref
+          - initial_ckc_ref
+          - authorization_decision_ref
+          - status
+        properties:
+          id: {type: string, pattern: "^FORM-[A-Z0-9-]+$"}
+          proposal_ref: {type: string, pattern: "^PROP-[A-Z0-9-]+$"}
+          capability_ref: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+          initial_ckc_ref: {type: string, pattern: "^CKC-[A-Z0-9-]+-v1$"}
+          authorization_decision_ref: {type: string, pattern: "^DEC-[A-Z0-9-]+$"}
+          status: {const: inactive-initial-ckc}
+        additionalProperties: false
+      formed_registry_snapshot_ref:
+        type: string
+        pattern: "^REG-SNAP-[A-Z0-9-]+$"
+    allOf:
+      - if:
           properties:
-            id: {type: string, pattern: "^PROP-[A-Z0-9-]+$"}
-            status: {enum: [candidate, submitted]}
-            recurrent_pattern_refs: {type: array, minItems: 1}
-            stable_assembly_rules: {type: array, minItems: 1}
-            value_assessment: {type: object, minProperties: 1}
-            comparable_outcome_refs: {type: array, minItems: 1}
-            candidate_owner: {type: string, minLength: 1}
-            overlap_analysis: {type: array, minItems: 1}
-            draft_ckc_ref: {type: string, minLength: 1}
-          additionalProperties: true
+            new_capability_created_by_this_decision: {const: false}
+          required: [new_capability_created_by_this_decision]
+        then:
+          required: [proposal_refs]
+          not:
+            anyOf:
+              - required: [governed_promotion]
+              - required: [formation_append]
+              - required: [formed_registry_snapshot_ref]
+      - if:
+          properties:
+            new_capability_created_by_this_decision: {const: true}
+          required: [new_capability_created_by_this_decision]
+        then:
+          required: [governed_promotion, formation_append, formed_registry_snapshot_ref]
     additionalProperties: true
   resulting_lineage_edges:
     type: array
@@ -205,6 +307,34 @@ $defs:
       mechanism: {enum: [successor-ckc, source-binding-refresh, retain-as-precedent]}
     additionalProperties: false
 allOf:
+  - if:
+      properties:
+        capability_formation:
+          properties:
+            new_capability_created_by_this_decision: {const: false}
+          required: [new_capability_created_by_this_decision]
+      required: [capability_formation]
+    then:
+      required: [dispositions, impact_record]
+      properties:
+        inputs:
+          required: [evidence_ref, qualification_receipt_ref, assembly_ref, registry_snapshot_ref]
+  - if:
+      properties:
+        capability_formation:
+          properties:
+            new_capability_created_by_this_decision: {const: true}
+          required: [new_capability_created_by_this_decision]
+      required: [capability_formation]
+    then:
+      required: [historical_immutability]
+      properties:
+        status: {const: approved}
+        inputs:
+          required: [proposal_ref, registry_snapshot_ref, supporting_history_refs]
+        capability_formation:
+          properties:
+            new_capability_created_by_this_decision: {const: true}
   - if:
       required: [successor_delta]
     then:

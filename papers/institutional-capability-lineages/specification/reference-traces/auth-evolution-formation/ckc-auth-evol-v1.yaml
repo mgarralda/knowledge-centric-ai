@@ -1,0 +1,81 @@
+# Institutional Capability Lineage Architecture (ICLA)
+# Reference Trace - governed capability formation
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+# Licensed under CC BY 4.0.
+
+document_type: capability-knowledge-contract
+format_version: "icla-artifact/0.1-draft"
+specification_version:
+  icla-spec: "0.1.0"
+id: CKC-AUTH-EVOL
+artifact_status: reference
+normative: false
+schema_ref: ../../schemas/ckc.schema.yaml
+capability_ref: CAP-AUTH-EVOL
+version: 1
+status: canonical-approved
+
+generated_from:
+  capability_proposal: PROP-AUTH-EVOL-01
+  governance_decision: DEC-AUTH-EVOL-FORMATION-001
+  formation_append: FORM-AUTH-EVOL-001
+  recurrent_history:
+    - ASM-OAUTH-042
+    - EVD-OAUTH-042
+    - ASM-AUTH-ROTATION-017
+    - EVD-AUTH-ROTATION-017
+    - ASM-AUTH-PROVIDER-023
+    - EVD-AUTH-PROVIDER-023
+
+knowledge_scope:
+  outcome: Govern reusable authentication protocol evolution
+  operational_relations: [depends_on]
+  knowledge_roles: [semantic, procedural, episodic]
+
+obligations:
+  - id: OBL-AUTH-EVOL-COMPATIBILITY
+    requirement: Preserve approved-client compatibility or record an authorized exception
+  - id: OBL-AUTH-EVOL-ASSURANCE
+    requirement: Complete governed identity and security validation before release
+
+authorities:
+  owner: identity-and-api-governance-review
+  review_authority: institutional-capability-governance-board
+
+evidence_contract:
+  schema_refs: [EVIDENCE-AUTH-EVOL-v1]
+  submission_path: Evidence Gateway
+  required_artifact_types: [compatibility-test-report, security-validation-report]
+
+evaluation_contract:
+  metrics:
+    - id: auth_evolution.client_compatibility
+      unit: approved-clients-passing
+      collection_condition: all-approved-clients
+      threshold: 100-percent
+      interpretation_rule: Every approved client must pass or have an authorized exception
+      representative_case_basis: Governed authentication-change suite
+
+governance:
+  immutable: true
+  formation_origin: crystallization
+  proposal_ref: PROP-AUTH-EVOL-01
+  formation_decision_ref: DEC-AUTH-EVOL-FORMATION-001
+  formation_append_ref: FORM-AUTH-EVOL-001
+  activation_authority: identity-and-api-governance-review
+
+projection_rules:
+  knowledge_role_selection:
+    semantic: Include current identity and API policies
+    procedural: Include migration and validation practices
+    episodic: Include governed precedents relevant to the intent
+
+source_bindings:
+  - id: BIND-AUTH-EVOL-POLICY
+    source: SRC-AUTH-EVOL-POLICY
+    version: 1
+    authority: identity-and-api-governance-review
+    knowledge_roles: [semantic, procedural]
+    derived_from: PROP-AUTH-EVOL-01
+

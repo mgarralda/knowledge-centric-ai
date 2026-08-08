@@ -1,0 +1,100 @@
+# Institutional Capability Lineage Architecture (ICLA)
+# Reference Trace - governed capability formation
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+# Licensed under CC BY 4.0.
+
+document_type: governance-decision
+format_version: "icla-artifact/0.1-draft"
+specification_version:
+  icla-spec: "0.1.0"
+id: DEC-AUTH-EVOL-FORMATION-001
+artifact_status: reference
+normative: false
+schema_ref: ../../schemas/governance-decision.schema.yaml
+status: approved
+
+generated_from:
+  capability_proposal: PROP-AUTH-EVOL-01
+  registry_snapshot: REG-SNAP-AUTH-EVOL-BEFORE
+  recurrence_review: REVIEW-AUTH-EVOL-01
+
+inputs:
+  proposal_ref: PROP-AUTH-EVOL-01
+  registry_snapshot_ref: REG-SNAP-AUTH-EVOL-BEFORE
+  supporting_history_refs:
+    - ASM-OAUTH-042
+    - EVD-OAUTH-042
+    - ASM-AUTH-ROTATION-017
+    - EVD-AUTH-ROTATION-017
+    - ASM-AUTH-PROVIDER-023
+    - EVD-AUTH-PROVIDER-023
+
+review:
+  authority: institutional-capability-governance-board
+  ownership_review: passed
+  distinctiveness_review: passed
+  overlap_review: passed
+  value_review: passed
+  evidence_review: passed
+  institutional_judgment_recorded: true
+
+capability_formation:
+  new_capability_created_by_this_decision: true
+  rationale: Recurrent cross-capability authentication evolution warrants a stable responsibility
+  governed_promotion:
+    proposal_ref: PROP-AUTH-EVOL-01
+    review_decision_ref: DEC-AUTH-EVOL-FORMATION-001
+    formation_authority: institutional-capability-governance-board
+    assigned_capability:
+      id: CAP-AUTH-EVOL
+      name: Authentication Protocol Evolution
+      outcome: Govern recurrent authentication protocol evolution across dependent capabilities
+      owner: identity-and-api-governance-review
+      domain: identity-and-api-governance
+      lifecycle: approved
+      policy_refs: [POL-CAPABILITY-FORMATION]
+      conditions:
+        recurrence: established
+    initial_ckc_ref: CKC-AUTH-EVOL-v1
+  formation_append:
+    id: FORM-AUTH-EVOL-001
+    proposal_ref: PROP-AUTH-EVOL-01
+    capability_ref: CAP-AUTH-EVOL
+    initial_ckc_ref: CKC-AUTH-EVOL-v1
+    authorization_decision_ref: DEC-AUTH-EVOL-FORMATION-001
+    status: inactive-initial-ckc
+  formed_registry_snapshot_ref: REG-SNAP-AUTH-EVOL-FORMED
+
+activation:
+  id: ACT-AUTH-EVOL-001
+  activation_kind: initial
+  capability: CAP-AUTH-EVOL
+  ckc: CKC-AUTH-EVOL
+  version: 1
+  formation_append_ref: FORM-AUTH-EVOL-001
+  applies_to: future-resolutions-only
+  active_pointer_transition:
+    from: null
+    to: CKC-AUTH-EVOL-v1
+  rollback_target: null
+  resulting_registry_snapshot_ref: REG-SNAP-AUTH-EVOL-ACTIVE
+
+historical_immutability:
+  retained_history_refs:
+    - ASM-OAUTH-042
+    - EVD-OAUTH-042
+    - ASM-AUTH-ROTATION-017
+    - EVD-AUTH-ROTATION-017
+    - ASM-AUTH-PROVIDER-023
+    - EVD-AUTH-PROVIDER-023
+  retroactive_mutation: false
+
+resulting_lineage_edges:
+  - {type: promotes, from: DEC-AUTH-EVOL-FORMATION-001, to: PROP-AUTH-EVOL-01}
+  - {type: authorized_by, from: FORM-AUTH-EVOL-001, to: DEC-AUTH-EVOL-FORMATION-001}
+  - {type: forms, from: FORM-AUTH-EVOL-001, to: CAP-AUTH-EVOL}
+  - {type: appends, from: FORM-AUTH-EVOL-001, to: CKC-AUTH-EVOL@1}
+  - {type: derived_from, from: CAP-AUTH-EVOL, to: PROP-AUTH-EVOL-01}
+  - {type: derived_from, from: CKC-AUTH-EVOL@1, to: PROP-AUTH-EVOL-01}
+  - {type: activates, from: ACT-AUTH-EVOL-001, to: CKC-AUTH-EVOL@1}

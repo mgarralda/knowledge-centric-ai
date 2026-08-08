@@ -7,6 +7,7 @@ from icla.models.ckc import CapabilityKnowledgeContract
 from icla.models.evidence import EvidenceBundle
 from icla.models.governance import GovernanceDecision
 from icla.models.intent import Intent
+from icla.models.proposal import CapabilityProposal
 from icla.models.registry import RegistrySnapshot
 from icla.repositories import CKCRepository, EvidenceRepository, GovernanceRepository
 from icla.services import (
@@ -23,6 +24,7 @@ from icla.specification import (
     ConformanceChecker,
     ConformanceProfile,
 )
+from icla.specification.conformance import check_icla_11_discovery_authority
 from icla.storage import AppendOnlyStore
 
 TRACE = Path(__file__).resolve().parents[3] / "specification" / "reference-traces" / "oauth-042"
@@ -43,7 +45,7 @@ def test_oauth_042_candidate_knowledge_cannot_claim_institutional_authority():
     artifacts = {path.stem: validator.validate_file(path) for path in sorted(TRACE.glob("*.yaml"))}
     artifacts["evidence-bundle"]["candidate_knowledge"][0]["institutional_authority"] = "admitted"
 
-    errors = ConformanceChecker().check_trace(artifacts.values(), ConformanceProfile.EVOLVING)
+    errors = ConformanceChecker().check_trace(artifacts.values(), ConformanceProfile.GOVERNED)
 
     assert "ICLA-8: CEE-produced knowledge claims authority before adjudication" in errors
 
@@ -56,7 +58,7 @@ def test_oauth_042_successor_must_reference_the_authorizing_decision():
     artifacts = {path.stem: validator.validate_file(path) for path in sorted(TRACE.glob("*.yaml"))}
     artifacts["ckc-verify-v10"]["generated_from"]["governance_decision"] = "DEC-OTHER"
 
-    errors = ConformanceChecker().check_trace(artifacts.values(), ConformanceProfile.EVOLVING)
+    errors = ConformanceChecker().check_trace(artifacts.values(), ConformanceProfile.GOVERNED)
 
     assert "ICLA-9: successor CKC is not linked to its authorizing decision" in errors
 
@@ -69,7 +71,7 @@ def test_oauth_042_cee_configuration_is_stable_across_the_trace():
     artifacts = {path.stem: validator.validate_file(path) for path in sorted(TRACE.glob("*.yaml"))}
     artifacts["evidence-bundle"]["execution"]["cee_configuration_ref"] = "CEE-CONFIG-OTHER"
 
-    errors = ConformanceChecker().check_trace(artifacts.values(), ConformanceProfile.EVOLVING)
+    errors = ConformanceChecker().check_trace(artifacts.values(), ConformanceProfile.GOVERNED)
 
     assert "ICLA-3/5: CEE configuration changes across the execution trace" in errors
 
@@ -201,7 +203,7 @@ def test_oauth_042_successor_must_reference_the_decision_linked_delta():
     artifacts = {path.stem: validator.validate_file(path) for path in sorted(TRACE.glob("*.yaml"))}
     artifacts["ckc-verify-v10"]["governance"]["successor_delta_ref"] = "DELTA-OTHER"
 
-    errors = ConformanceChecker().check_trace(artifacts.values(), ConformanceProfile.EVOLVING)
+    errors = ConformanceChecker().check_trace(artifacts.values(), ConformanceProfile.GOVERNED)
 
     assert "ICLA-9: complete successor CKC is not linked to the decision successor delta" in errors
 
@@ -216,7 +218,7 @@ def test_oauth_042_successor_delta_must_retain_supporting_evidence():
         "EVD-OAUTH-042"
     ]
 
-    errors = ConformanceChecker().check_trace(artifacts.values(), ConformanceProfile.EVOLVING)
+    errors = ConformanceChecker().check_trace(artifacts.values(), ConformanceProfile.GOVERNED)
 
     assert "ICLA-9: successor delta omits its supporting evidence or receipt" in errors
 
@@ -228,7 +230,8 @@ def test_oauth_042_end_to_end_governed_successor(tmp_path):
     validator = ArtifactValidator()
     artifacts = {path.stem: validator.validate_file(path) for path in sorted(TRACE.glob("*.yaml"))}
     checker = ConformanceChecker()
-    checker.require_trace(artifacts.values(), ConformanceProfile.EVOLVING)
+    checker.require_trace(artifacts.values(), ConformanceProfile.GOVERNED)
+    assert not check_icla_11_discovery_authority(artifacts["governance-decision"])
 
     registry = RegistrySnapshot.model_validate(artifacts["capability-registry"])
     generated_resolution = ResolutionService().resolve_intent(
@@ -330,10 +333,27 @@ def test_oauth_042_end_to_end_governed_successor(tmp_path):
         "reconstruction_patch": False,
     }
     assert decision.impact_record["assessment_mode"] == "continuous-event-driven"
-    proposals = decision.capability_formation["proposals"]
-    assert [proposal["id"] for proposal in proposals] == ["PROP-AUTH-EVOL-01"]
-    assert proposals[0]["stable_assembly_rules"]
-    assert proposals[0]["value_assessment"]
+    proposal = CapabilityProposal.model_validate(artifacts["capability-proposal"])
+    assert decision.capability_formation["proposal_refs"] == [proposal.id]
+    assert proposal.status == "candidate"
+    assert proposal.recurrence_assessment == {
+        "established": False,
+        "current_trace_sufficient": False,
+        "declared_horizon": "Multiple independent authentication-change intents",
+        "required_future_execution_types": [
+            "token-rotation",
+            "provider-replacement",
+            "scope-redesign",
+            "client-migration",
+            "protocol-upgrade",
+        ],
+    }
+    assert (
+        proposal.proposal_scoped_ckc_draft_ref
+        == "PROP-AUTH-EVOL-01-CKC-DRAFT"
+    )
+    assert proposal.stable_assembly_rules
+    assert proposal.value_assessment
     GovernanceService(governance_repository).adjudicate(
         decision,
         reviewer="security-and-release-governance-review",

@@ -22,6 +22,7 @@ from ..services import (
     AccessHandleMaterializer,
     ActivationService,
     AssemblyService,
+    CapabilityFormationService,
     EvidenceGateway,
     GovernanceService,
     ImpactAnalysisService,
@@ -48,6 +49,7 @@ class ICLA:
         self.evidence_gateway = EvidenceGateway(self.validator, self.evidence_repository)
         self.governance = GovernanceService(self.governance_repository)
         self.succession = SuccessionService(self.ckc_repository)
+        self.formation = CapabilityFormationService(self.ckc_repository)
         self.activation = ActivationService(self.ckc_repository)
         self.lineage = LineageService()
         self.impact = ImpactAnalysisService()
@@ -156,11 +158,37 @@ class ICLA:
     def impact_analysis(self, change, **context):
         return self.impact.analyze(change, **context)
 
+    def promote_capability(
+        self,
+        snapshot,
+        proposal,
+        initial_ckc,
+        decision,
+        *,
+        actor: str,
+    ):
+        return self.formation.promote(
+            snapshot,
+            proposal,
+            initial_ckc,
+            decision,
+            actor=actor,
+        )
+
     def impact_analysis_stream(self, changes, **context):
         return self.impact.analyze_change_stream(changes, **context)
 
-    def activate_ckc(self, snapshot, successor, decision, *, actor: str):
-        return self.activation.activate(snapshot, successor, decision, actor=actor)
+    def activate_ckc(self, snapshot, appended_lineage_ckc, decision, *, actor: str):
+        updated, record = self.activation.activate(
+            snapshot,
+            appended_lineage_ckc,
+            decision,
+            actor=actor,
+        )
+        self.governance_repository.append_activation(record)
+        return updated, record
 
     def rollback_ckc(self, snapshot, target, decision, *, actor: str):
-        return self.activation.rollback(snapshot, target, decision, actor=actor)
+        updated, record = self.activation.rollback(snapshot, target, decision, actor=actor)
+        self.governance_repository.append_activation(record)
+        return updated, record

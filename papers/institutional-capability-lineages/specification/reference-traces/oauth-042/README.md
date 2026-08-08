@@ -100,11 +100,14 @@ CKC-VERIFY v10 (future resolutions)
    target. It links complete successor `CKC-VERIFY v10` to
    `DELTA-VERIFY-009-010`, which records the changed CKC commitments,
    rationale, supporting evidence, authorizing decision, and rollback without
-   acting as a reconstruction patch. The decision retains the separate
-   `PROP-AUTH-EVOL-01` proposal with its
-   recurrence, stable assembly rules, value assessment, comparable outcomes,
-   ownership, overlap, and draft-CKC evidence.
-7. [Successor CKC](./ckc-verify-v10.yaml) — the complete immutable
+   acting as a reconstruction patch. It references, but does not embed or
+   promote, `PROP-AUTH-EVOL-01`.
+7. [Capability Proposal](./capability-proposal.yaml) — the independent
+   pre-institutional candidate records current assembly and evidence signals,
+   the finding that recurrence is not established, future execution types
+   needed before submission, stable assembly rules, value basis, comparable
+   outcomes, candidate ownership, overlap input, and proposal-scoped CKC draft.
+8. [Successor CKC](./ckc-verify-v10.yaml) — the complete immutable
    `CKC-VERIFY v10` contract records its predecessor, scope, obligations,
    authorities, evidence and evaluation definitions, source bindings,
    projection rules, governing decision, and decision-linked successor delta.
@@ -127,11 +130,16 @@ commitment in `CKC-VERIFY v10`.
 - The approved activation can be rolled back only to its declared
   `CKC-VERIFY v9` target.
 - No new institutional capability is created by this decision.
-- Later recurrent executions may support `PROP-AUTH-EVOL-01`, which remains an
-  unpromoted scenario record. The current companion does not assign
+- The current OAuth trace does not by itself establish recurrence, so
+  `PROP-AUTH-EVOL-01` remains a pre-institutional `candidate`. Later recurrent
+  executions may provide the evidence required for submission. The current
+  companion does not assign
   `CAP-AUTH-EVOL`, create `CKC-AUTH-EVOL v1`, or validate promotion-origin
   links.
 
 The trace executes successor evolution within an existing capability and
-represents the separately governed crystallization boundary without executing
-complete promotion.
+represents the separately governed crystallization boundary without promoting
+its candidate. The independent
+[`auth-evolution-formation`](../auth-evolution-formation/README.md) trace exercises
+the later submitted-proposal formation path without changing the scientific
+meaning of this single-execution example.

@@ -4,9 +4,9 @@ These YAML documents express JSON Schema Draft 2020-12 contracts for
 `icla-spec: 0.1.0`. They validate the stable envelope, identity, provenance,
 and principal relations of each reference object while permitting extensions.
 
-The schemas are intentionally minimal at this stage. `additionalProperties` is
-enabled so the specification can evolve without invalidating the OAuth 2.1
-reference trace.
+The schemas are intentionally limited to the implemented conformance claims
+while permitting non-normative extensions. `additionalProperties` is enabled
+so the specification can evolve without invalidating the reference traces.
 
 Where relevant, contracts expose `semantic`, `procedural`, and `episodic` as
 overlapping knowledge-role annotations. They describe how governed knowledge
@@ -39,18 +39,26 @@ to its CKC lineage with inactive status and does not move the Registry pointer.
 Activation must reference that exact append. The delta explains change and is
 not a reconstruction patch.
 
-The governance-decision schema can represent the unpromoted discovery proposal
-in the worked scenario, but the eight-schema set has no standalone
-capability-proposal contract. Complete promotion, new Registry identity
-assignment, initial CKC creation, and preserved promotion-origin links are not
-machine-validated by this version of the companion. The paper identifies a
-standalone proposal contract, positive and negative proposal validation,
-retention without promotion, governed identity assignment, initial immutable
-CKC creation, and preserved `derived_from` links as future companion work.
+The standalone capability-proposal schema represents the same pre-institutional
+object in `candidate` and `submitted` states. It never carries an assigned
+capability identity or institutional CKC identifier. OAuth keeps the proposal
+as a candidate because one execution does not establish recurrence. The
+formation trace submits the same proposed responsibility only after multiple
+retained signals are declared.
+
+The governance-decision schema uses its existing `capability_formation` boundary
+to distinguish an unpromoted proposal reference from governed formation. A
+positive formation records the submitted proposal, authorized review, assigned
+identity, initial CKC v1, and inactive formation append. Initial activation is
+optional at formation time and, when present, must remain a separate effect that
+references the exact formation append. The CKC schema conditionally requires
+proposal, decision, formation, and recurrent-history origins when CKC v1 declares
+`formation_origin: crystallization`.
 
 | Schema | Applies to |
 |---|---|
 | [`capability.schema.yaml`](./capability.schema.yaml) | Standalone institutional capability |
+| [`capability-proposal.schema.yaml`](./capability-proposal.schema.yaml) | Pre-institutional capability proposal |
 | [`ckc.schema.yaml`](./ckc.schema.yaml) | Standalone Capability Knowledge Contract |
 | [`capability-registry.schema.yaml`](./capability-registry.schema.yaml) | Registry snapshot |
 | [`intent.schema.yaml`](./intent.schema.yaml) | Operational intent |

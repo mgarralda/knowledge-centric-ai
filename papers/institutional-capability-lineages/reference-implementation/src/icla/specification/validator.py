@@ -30,6 +30,7 @@ DOCUMENT_SCHEMAS = {
     "contextual-assembly": "assembly",
     "execution-evidence-bundle": "evidence-bundle",
     "governance-decision": "governance-decision",
+    "capability-proposal": "capability-proposal",
 }
 
 

@@ -47,5 +47,9 @@ class SuccessionError(ICLAError):
     pass
 
 
+class FormationError(ICLAError):
+    pass
+
+
 class LineageError(ICLAError):
     pass

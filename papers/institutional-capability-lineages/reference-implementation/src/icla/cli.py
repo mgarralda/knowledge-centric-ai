@@ -19,13 +19,14 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 
 from .config import Settings
-from .exceptions import ICLAError
+from .exceptions import ConformanceError, ICLAError
 from .specification import (
     ArtifactValidator,
     ConformanceChecker,
     ConformanceProfile,
     SchemaLoader,
 )
+from .specification.conformance import check_icla_11_discovery_authority
 
 
 def _validator(specification_dir: str | None) -> ArtifactValidator:
@@ -46,6 +47,12 @@ def build_parser() -> argparse.ArgumentParser:
     trace = commands.add_parser("run-trace", help="validate every artifact in a reference trace")
     trace.add_argument("name")
     trace.add_argument("--trace-dir")
+    trace.add_argument(
+        "--profile",
+        choices=("auto", "core", "governed", "evolving"),
+        default="auto",
+        help="conformance profile; auto selects evolving for a positive formation trace",
+    )
     commands.add_parser("schemas", help="list available specification schemas")
     commands.add_parser("validate-schemas", help="validate all published Draft 2020-12 schemas")
     return parser
@@ -87,13 +94,46 @@ def main(argv: list[str] | None = None) -> int:
         )
         if arguments.command == "run-trace":
             artifacts = [validator.validate_file(artifact_path) for artifact_path in validated]
-            ConformanceChecker().require_trace(artifacts, ConformanceProfile.EVOLVING)
-            print(
-                f"Validated {len(validated)} artifact(s); "
-                f"{ConformanceProfile.EVOLVING} trace conformance passed for the "
-                "represented resolution-to-succession scope; crystallization promotion "
-                "was not executed"
+            positive_formation = any(
+                artifact.get("document_type") == "governance-decision"
+                and artifact.get("capability_formation", {}).get(
+                    "new_capability_created_by_this_decision"
+                )
+                is True
+                for artifact in artifacts
             )
+            requested = arguments.profile
+            profile = (
+                ConformanceProfile.EVOLVING
+                if requested == "auto" and positive_formation
+                else ConformanceProfile.GOVERNED
+                if requested == "auto"
+                else {
+                    "core": ConformanceProfile.CORE,
+                    "governed": ConformanceProfile.GOVERNED,
+                    "evolving": ConformanceProfile.EVOLVING,
+                }[requested]
+            )
+            ConformanceChecker().require_trace(artifacts, profile)
+            proposal_boundary_errors = [
+                error
+                for artifact in artifacts
+                for error in check_icla_11_discovery_authority(artifact)
+            ]
+            if proposal_boundary_errors:
+                raise ConformanceError("\n".join(proposal_boundary_errors))
+            if positive_formation:
+                print(
+                    f"Validated {len(validated)} artifact(s); {profile} trace conformance "
+                    "passed; governed capability formation and separate initial activation "
+                    "are represented; discovery effectiveness and institutional judgment "
+                    "were not assessed"
+                )
+            else:
+                print(
+                    f"Validated {len(validated)} artifact(s); {profile} trace conformance "
+                    "passed; ICLA-11 pre-institutional proposal boundaries passed"
+                )
         else:
             print(f"Validated {len(validated)} artifact(s)")
         return 0

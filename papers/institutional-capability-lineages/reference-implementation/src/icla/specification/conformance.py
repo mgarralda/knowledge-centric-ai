@@ -185,10 +185,10 @@ def check_icla_4_registry_navigation(registry: dict[str, Any]) -> list[str]:
     capability_ids = {item.get("id") for item in capabilities}
     errors = []
     for item in capabilities:
-        missing = _missing(
-            item,
-            ("id", "domain", "lifecycle", "owner", "active_ckc", "policy_refs", "conditions"),
-        )
+        required = ("id", "domain", "lifecycle", "owner", "policy_refs", "conditions")
+        missing = _missing(item, required)
+        if item.get("lifecycle") == "active":
+            missing.extend(_missing(item, ("active_ckc",)))
         if missing:
             errors.append(
                 f"ICLA-4: capability {item.get('id', '<unknown>')} is not filterable by {missing}"
@@ -393,6 +393,10 @@ def check_icla_8_evidence_separation(artifact: dict[str, Any]) -> list[str]:
 def check_icla_9_governed_activation(artifact: dict[str, Any]) -> list[str]:
     if artifact.get("document_type") != "governance-decision":
         return []
+    if artifact.get("capability_formation", {}).get(
+        "new_capability_created_by_this_decision"
+    ) is True:
+        return []
     activation = artifact.get("activation", {})
     delta = artifact.get("successor_delta", {})
     successor_append = artifact.get("successor_append", {})
@@ -513,26 +517,81 @@ def check_icla_10_reproducibility(artifact: dict[str, Any]) -> list[str]:
 
 
 def check_icla_11_discovery_authority(artifact: dict[str, Any]) -> list[str]:
-    if artifact.get("document_type") != "governance-decision":
-        return []
-    formation = artifact.get("capability_formation", {})
+    document_type = artifact.get("document_type")
     errors = []
     forbidden_identity_fields = {
         "assigned_identity",
         "institutional_capability_id",
         "capability_ref",
     }
-    for proposal in formation.get("proposals", []):
-        if proposal.get("status") not in {"candidate", "submitted"}:
+    if document_type == "capability-proposal":
+        status = artifact.get("status")
+        if status not in {"candidate", "submitted"}:
             errors.append("ICLA-11: pre-institutional proposal must be candidate or submitted")
-        if forbidden_identity_fields & proposal.keys():
+        if forbidden_identity_fields & artifact.keys():
             errors.append("ICLA-11: proposal carries institutional identity before promotion")
+        draft_ref = artifact.get("proposal_scoped_ckc_draft_ref")
+        if isinstance(draft_ref, str) and draft_ref.startswith("CKC-"):
+            errors.append("ICLA-11: proposal draft anticipates an institutional CKC identity")
+        recurrence = artifact.get("recurrence_assessment", {})
+        if status == "submitted" and recurrence.get("established") is not True:
+            errors.append("ICLA-11: submitted proposal does not establish recurrence")
+        return errors
+    if document_type != "governance-decision":
+        return []
+
+    formation = artifact.get("capability_formation", {})
     if formation.get("new_capability_created_by_this_decision") is not True:
         return errors
-    return errors + [
-        "ICLA-11: complete crystallization promotion is outside the current companion "
-        "assessment scope"
-    ]
+    promotion = formation.get("governed_promotion", {})
+    if not promotion.get("proposal_ref"):
+        errors.append("ICLA-11: promotion must reference a submitted proposal")
+    review = artifact.get("review", {})
+    if (
+        artifact.get("status") != "approved"
+        or not review.get("authority")
+        or promotion.get("review_decision_ref") != artifact.get("id")
+    ):
+        errors.append("ICLA-11: promotion must reference an authorized review decision")
+    assigned = promotion.get("assigned_capability", {})
+    append = formation.get("formation_append", {})
+    if _missing(assigned, ("id", "name", "outcome", "owner", "domain", "lifecycle")):
+        errors.append("ICLA-11: promotion does not define the assigned capability identity")
+    if assigned.get("lifecycle") != "approved" or assigned.get("active_ckc"):
+        errors.append("ICLA-11: promotion must form an approved capability without activation")
+    if (
+        _missing(
+            append,
+            (
+                "id",
+                "proposal_ref",
+                "capability_ref",
+                "initial_ckc_ref",
+                "authorization_decision_ref",
+                "status",
+            ),
+        )
+        or append.get("proposal_ref") != promotion.get("proposal_ref")
+        or append.get("capability_ref") != assigned.get("id")
+        or append.get("initial_ckc_ref") != promotion.get("initial_ckc_ref")
+        or append.get("authorization_decision_ref") != artifact.get("id")
+        or append.get("status") != "inactive-initial-ckc"
+    ):
+        errors.append("ICLA-11: promotion lacks its exact identity-and-initial-CKC append")
+    activation = artifact.get("activation", {})
+    if activation:
+        transition = activation.get("active_pointer_transition", {})
+        if (
+            not activation.get("id")
+            or activation.get("activation_kind") != "initial"
+            or activation.get("formation_append_ref") != append.get("id")
+            or transition.get("from") is not None
+            or activation.get("rollback_target") is not None
+        ):
+            errors.append(
+                "ICLA-11: initial activation is not separately identifiable from promotion"
+            )
+    return errors
 
 
 def check_icla_evolving_controls(artifact: dict[str, Any]) -> list[str]:
@@ -544,10 +603,42 @@ def check_icla_evolving_controls(artifact: dict[str, Any]) -> list[str]:
             for candidate in artifact.get("candidate_knowledge", [])
             if candidate.get("lifecycle_status") != "submitted"
         ]
+    if document_type == "capability-proposal":
+        required = (
+            "id",
+            "status",
+            "proposed_responsibility",
+            "pattern_signal_refs",
+            "recurrence_assessment",
+            "stable_assembly_rules",
+            "value_assessment",
+            "comparable_outcome_refs",
+            "candidate_owner",
+            "overlap_analysis",
+            "proposal_scoped_ckc_draft_ref",
+        )
+        missing = _missing(artifact, required)
+        return [f"ICLA-Evolving: crystallization proposal misses {missing}"] if missing else []
     if document_type != "governance-decision":
         return []
 
     errors = []
+    if artifact.get("capability_formation", {}).get(
+        "new_capability_created_by_this_decision"
+    ) is True:
+        review = artifact.get("review", {})
+        for field in (
+            "ownership_review",
+            "distinctiveness_review",
+            "overlap_review",
+            "value_review",
+            "evidence_review",
+        ):
+            if not _passed(review.get(field)):
+                errors.append(f"ICLA-Evolving: capability formation lacks {field}")
+        if not artifact.get("inputs", {}).get("supporting_history_refs"):
+            errors.append("ICLA-Evolving: capability formation lacks recurrent history")
+        return errors
     impact = artifact.get("impact_record", {})
     if impact.get("assessment_mode") != "continuous-event-driven" or not impact.get(
         "change_event_ref"
@@ -574,29 +665,6 @@ def check_icla_evolving_controls(artifact: dict[str, Any]) -> list[str]:
         }:
             errors.append("ICLA-Evolving: candidate disposition has no governed lifecycle")
 
-    proposals = artifact.get("capability_formation", {}).get("proposals", [])
-    proposal_ids = [proposal.get("id") for proposal in proposals]
-    if len(proposal_ids) != len(set(proposal_ids)):
-        errors.append("ICLA-Evolving: crystallization proposal identifiers are not unique")
-    for proposal in proposals:
-        missing = _missing(
-            proposal,
-            (
-                "id",
-                "status",
-                "recurrent_pattern_refs",
-                "stable_assembly_rules",
-                "value_assessment",
-                "comparable_outcome_refs",
-                "candidate_owner",
-                "overlap_analysis",
-                "draft_ckc_ref",
-            ),
-        )
-        if missing:
-            errors.append(f"ICLA-Evolving: crystallization proposal misses {missing}")
-        if proposal.get("status") not in {"candidate", "submitted"}:
-            errors.append("ICLA-Evolving: proposal is not in a pre-institutional lifecycle state")
     return errors
 
 
@@ -645,6 +713,20 @@ class ConformanceChecker:
         """Check invariants plus cross-artifact identity and version continuity."""
         values = list(artifacts)
         errors = [error for artifact in values for error in self.check(artifact, profile)]
+        proposal_ids = [
+            artifact.get("id")
+            for artifact in values
+            if artifact.get("document_type") == "capability-proposal"
+        ]
+        if len(proposal_ids) != len(set(proposal_ids)):
+            errors.append("ICLA-11: crystallization proposal identifiers must be unique")
+        proposal_id_set = set(proposal_ids)
+        for artifact in values:
+            if artifact.get("document_type") != "governance-decision":
+                continue
+            referenced = set(artifact.get("capability_formation", {}).get("proposal_refs", []))
+            if not referenced.issubset(proposal_id_set):
+                errors.append("ICLA-11: governance decision references an unknown proposal")
         by_type = {artifact.get("document_type"): artifact for artifact in values}
         intent = by_type.get("operational-intent", {})
         resolution = by_type.get("capability-resolution", {})
@@ -763,7 +845,9 @@ class ConformanceChecker:
                 if lifecycle.get("from") != candidate.get("lifecycle_status"):
                     errors.append("ICLA-Evolving: candidate lifecycle loses its submitted state")
 
-        if decision:
+        if decision and decision.get("capability_formation", {}).get(
+            "new_capability_created_by_this_decision"
+        ) is not True:
             activation = decision.get("activation", {})
             successor_append = decision.get("successor_append", {})
             matching_successor = any(
@@ -843,6 +927,153 @@ class ConformanceChecker:
                     errors.append(
                         "ICLA-9: successor CKC memory-role delta differs from adjudication"
                     )
+        errors.extend(self._check_formation_trace(values))
+        return errors
+
+    @staticmethod
+    def _check_formation_trace(values: list[dict[str, Any]]) -> list[str]:
+        """Check the observable Eq. (14)/(17) formation path across retained artifacts."""
+        decisions = [
+            item
+            for item in values
+            if item.get("document_type") == "governance-decision"
+            and item.get("capability_formation", {}).get(
+                "new_capability_created_by_this_decision"
+            )
+            is True
+        ]
+        if not decisions:
+            return []
+        if len(decisions) != 1:
+            return ["ICLA-11: reference formation trace must contain one promotion decision"]
+
+        errors: list[str] = []
+        decision = decisions[0]
+        formation = decision.get("capability_formation", {})
+        promotion = formation.get("governed_promotion", {})
+        append = formation.get("formation_append", {})
+        activation = decision.get("activation", {})
+        proposal_ref = promotion.get("proposal_ref")
+        proposal = next(
+            (
+                item
+                for item in values
+                if item.get("document_type") == "capability-proposal"
+                and item.get("id") == proposal_ref
+            ),
+            None,
+        )
+        if proposal is None or proposal.get("status") != "submitted":
+            errors.append("ICLA-11: promotion has no matching submitted proposal artifact")
+            return errors
+
+        assigned = promotion.get("assigned_capability", {})
+        capability_id = assigned.get("id")
+        initial_ckc = next(
+            (
+                item
+                for item in values
+                if item.get("document_type") == "capability-knowledge-contract"
+                and item.get("capability_ref") == capability_id
+                and item.get("version") == 1
+            ),
+            None,
+        )
+        if initial_ckc is None:
+            errors.append("ICLA-11: promotion has no matching initial CKC v1 artifact")
+        else:
+            initial_refs = {
+                f"{initial_ckc.get('id')}@1",
+                f"{initial_ckc.get('id')}-v1",
+            }
+            provenance = initial_ckc.get("generated_from", {})
+            history = set(proposal.get("pattern_signal_refs", []))
+            if (
+                promotion.get("initial_ckc_ref") not in initial_refs
+                or append.get("initial_ckc_ref") not in initial_refs
+                or provenance.get("capability_proposal") != proposal_ref
+                or provenance.get("governance_decision") != decision.get("id")
+                or provenance.get("formation_append") != append.get("id")
+                or not history.issubset(set(provenance.get("recurrent_history", [])))
+            ):
+                errors.append(
+                    "ICLA-11: initial CKC loses its proposal, decision, or history origin"
+                )
+
+        registries = {
+            item.get("id"): item
+            for item in values
+            if item.get("document_type") == "institutional-capability-registry-snapshot"
+        }
+        before = registries.get(decision.get("inputs", {}).get("registry_snapshot_ref"))
+        formed = registries.get(formation.get("formed_registry_snapshot_ref"))
+        active = registries.get(activation.get("resulting_registry_snapshot_ref"))
+        if not before or not formed or not active:
+            errors.append("ICLA-11: formation trace lacks before, formed, or active Registry state")
+            return errors
+
+        def capability(snapshot: dict[str, Any]) -> dict[str, Any] | None:
+            return next(
+                (
+                    item
+                    for item in snapshot.get("capabilities", [])
+                    if item.get("id") == capability_id
+                ),
+                None,
+            )
+
+        before_capability = capability(before)
+        formed_capability = capability(formed)
+        active_capability = capability(active)
+        if before_capability is not None:
+            errors.append("ICLA-11: assigned identity exists before governed promotion")
+        if (
+            formed_capability is None
+            or formed_capability.get("lifecycle") != "approved"
+            or formed_capability.get("active_ckc")
+        ):
+            errors.append("ICLA-11: promotion does not preserve a formed, inactive state")
+        expected_active = {
+            "id": initial_ckc.get("id") if initial_ckc else None,
+            "version": 1,
+        }
+        if (
+            active_capability is None
+            or active_capability.get("lifecycle") != "active"
+            or active_capability.get("active_ckc") != expected_active
+        ):
+            errors.append("ICLA-11: separate activation does not publish the initial CKC v1")
+
+        before_by_id = {item.get("id"): item for item in before.get("capabilities", [])}
+        formed_by_id = {item.get("id"): item for item in formed.get("capabilities", [])}
+        active_by_id = {item.get("id"): item for item in active.get("capabilities", [])}
+        if any(formed_by_id.get(key) != value for key, value in before_by_id.items()):
+            errors.append("ICLA-11: promotion rewrites pre-existing Registry capabilities")
+        if any(active_by_id.get(key) != value for key, value in before_by_id.items()):
+            errors.append("ICLA-11: initial activation rewrites pre-existing capabilities")
+
+        history = set(proposal.get("pattern_signal_refs", []))
+        if not history.issubset(set(decision.get("inputs", {}).get("supporting_history_refs", []))):
+            errors.append("ICLA-11: review omits recurrent proposal history")
+        if not history.issubset(
+            set(decision.get("historical_immutability", {}).get("retained_history_refs", []))
+        ):
+            errors.append("ICLA-11: promotion does not preserve its recurrent history")
+
+        edges = {
+            (item.get("from"), item.get("type"), item.get("to"))
+            for item in decision.get("resulting_lineage_edges", [])
+        }
+        required_edges = {
+            (append.get("id"), "authorized_by", decision.get("id")),
+            (append.get("id"), "forms", capability_id),
+            (capability_id, "derived_from", proposal_ref),
+            (activation.get("id"), "activates", f"{initial_ckc.get('id')}@1")
+            if initial_ckc
+            else (None, None, None),
+        }
+        if not required_edges.issubset(edges):
+            errors.append("ICLA-11: capability formation lineage is incomplete")
         return errors
 
     def require_trace(

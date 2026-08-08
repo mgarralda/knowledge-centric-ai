@@ -64,6 +64,7 @@ class LineageService:
             "capability-knowledge-contract": self.edges_from_ckc,
             "execution-evidence-bundle": self.edges_from_evidence,
             "governance-decision": self.edges_from_governance_decision,
+            "capability-proposal": self.edges_from_capability_proposal,
         }
         if document_type in extractors:
             return extractors[document_type](artifact)
@@ -101,7 +102,34 @@ class LineageService:
                     {"from": ckc_ref, "type": "authorized_by", "to": str(decision)}
                 )
             )
+        generated = artifact.get("generated_from", {})
+        for field, relation in (
+            ("capability_proposal", "derived_from"),
+            ("formation_append", "appended_by"),
+        ):
+            if generated.get(field):
+                edges.append(
+                    LineageEdge.model_validate(
+                        {"from": ckc_ref, "type": relation, "to": str(generated[field])}
+                    )
+                )
+        for history_ref in generated.get("recurrent_history", []):
+            edges.append(
+                LineageEdge.model_validate(
+                    {"from": ckc_ref, "type": "derived_from", "to": history_ref}
+                )
+            )
         return edges
+
+    @staticmethod
+    def edges_from_capability_proposal(artifact: dict[str, Any]) -> list[LineageEdge]:
+        proposal_id = artifact["id"]
+        return [
+            LineageEdge.model_validate(
+                {"from": proposal_id, "type": "derived_from", "to": history_ref}
+            )
+            for history_ref in artifact.get("pattern_signal_refs", [])
+        ]
 
     @staticmethod
     def edges_from_registry_snapshot(artifact: dict[str, Any]) -> list[LineageEdge]:
@@ -398,8 +426,15 @@ class LineageService:
                 "qualification_receipt_ref": "adjudicates",
                 "assembly_ref": "adjudicates",
                 "registry_snapshot_ref": "uses_snapshot",
+                "proposal_ref": "reviews",
             },
         )
+        for history_ref in artifact.get("inputs", {}).get("supporting_history_refs", []):
+            edges.append(
+                LineageEdge.model_validate(
+                    {"from": decision_id, "type": "reviews_history", "to": history_ref}
+                )
+            )
         edges.extend(
             LineageEdge.model_validate(edge) for edge in artifact.get("resulting_lineage_edges", [])
         )
@@ -434,6 +469,47 @@ class LineageService:
         successor_append = artifact.get("successor_append", {})
         if successor_append.get("id"):
             edges.extend(LineageService.edges_from_successor_append(successor_append))
+        formation_append = artifact.get("capability_formation", {}).get("formation_append", {})
+        if formation_append.get("id"):
+            append_id = formation_append["id"]
+            formation_container = dict(formation_append)
+            formation_container["initial_ckc_ref"] = LineageService._normalize_ckc_ref(
+                str(formation_append.get("initial_ckc_ref", ""))
+            )
+            edges.extend(
+                LineageService._reference_edges(
+                    append_id,
+                    formation_container,
+                    {
+                        "proposal_ref": "promotes",
+                        "capability_ref": "forms",
+                        "initial_ckc_ref": "appends",
+                        "authorization_decision_ref": "authorized_by",
+                    },
+                )
+            )
+        activation = artifact.get("activation", {})
+        if activation.get("activation_kind") == "initial" and activation.get("id"):
+            edges.extend(
+                LineageService._reference_edges(
+                    activation["id"],
+                    activation,
+                    {
+                        "formation_append_ref": "activates_append",
+                        "capability": "activates_for",
+                    },
+                )
+            )
+            if activation.get("ckc") and activation.get("version"):
+                edges.append(
+                    LineageEdge.model_validate(
+                        {
+                            "from": activation["id"],
+                            "type": "activates",
+                            "to": f"{activation['ckc']}@{activation['version']}",
+                        }
+                    )
+                )
         return edges
 
     @staticmethod
@@ -539,10 +615,12 @@ class LineageService:
             "EVD-": "execution-evidence-bundle",
             "MEM-": "episodic-memory-record",
             "CAND-": "candidate-knowledge",
+            "PROP-": "capability-proposal",
             "RCPT-": "evidence-receipt",
             "DEC-": "governance-decision",
             "DELTA-": "successor-delta",
             "APPEND-": "successor-append-receipt",
+            "FORM-": "formation-append-receipt",
             "ACT-": "activation-record",
             "CAP-": "institutional-capability",
             "CKC-": "capability-knowledge-contract",

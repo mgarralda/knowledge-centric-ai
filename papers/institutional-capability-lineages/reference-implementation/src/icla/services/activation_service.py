@@ -8,10 +8,11 @@ Licensed under the MIT License.
 See the LICENSE file in the repository root for details.
 """
 
-# Module purpose: Atomic active-pointer transition after a separately recorded successor append.
+# Module purpose: Atomic pointer transition for an appended lineage CKC.
 
 from ..exceptions import ActivationError, ArtifactNotFoundError
-from ..models.common import utc_now
+from ..models.capability import ActiveCKC
+from ..models.common import LifecycleStatus, utc_now
 from ..models.governance import ActivationRecord, GovernanceDecision
 from ..repositories.ckc_repository import CKCRepository
 
@@ -20,31 +21,47 @@ class ActivationService:
     def __init__(self, repository: CKCRepository) -> None:
         self.repository = repository
 
-    def activate(self, snapshot, successor, decision: GovernanceDecision, *, actor: str):
+    def activate(self, snapshot, appended_lineage_ckc, decision: GovernanceDecision, *, actor: str):
+        """Activate an appended successor or initial CKC in a new Registry snapshot."""
         if decision.status != "approved":
             raise ActivationError("Only an approved decision can authorize activation")
         try:
-            stored_successor = self.repository.get_version(successor.id, successor.version)
-            append_receipt = self.repository.get_append_receipt(successor.id, successor.version)
+            stored_ckc = self.repository.get_version(
+                appended_lineage_ckc.id,
+                appended_lineage_ckc.version,
+            )
         except ArtifactNotFoundError as error:
             raise ActivationError(
-                "Only a previously appended successor can be activated"
+                "Only a previously appended lineage CKC can be activated"
             ) from error
-        if stored_successor != successor:
-            raise ActivationError("Appended successor differs from the activation target")
+        if stored_ckc != appended_lineage_ckc:
+            raise ActivationError("Appended lineage CKC differs from the activation target")
         activation = decision.activation
         if (
-            activation.get("capability") != successor.capability_ref
-            or activation.get("ckc") != successor.id
-            or activation.get("version") != successor.version
+            activation.get("capability") != appended_lineage_ckc.capability_ref
+            or activation.get("ckc") != appended_lineage_ckc.id
+            or activation.get("version") != appended_lineage_ckc.version
         ):
-            raise ActivationError("Decision activation target does not match the successor CKC")
+            raise ActivationError("Decision activation target does not match the appended CKC")
         updated = snapshot.model_copy(deep=True)
-        capability = updated.capability(successor.capability_ref)
+        capability = updated.capability(appended_lineage_ckc.capability_ref)
         if capability is None:
-            raise ActivationError(f"Unknown capability {successor.capability_ref}")
+            raise ActivationError(f"Unknown capability {appended_lineage_ckc.capability_ref}")
         if capability.active_ckc is None:
-            raise ActivationError("Only an active capability with an active CKC can be advanced")
+            return self._activate_initial(
+                updated,
+                capability,
+                appended_lineage_ckc,
+                decision,
+                actor=actor,
+            )
+        try:
+            append_receipt = self.repository.get_append_receipt(
+                appended_lineage_ckc.id,
+                appended_lineage_ckc.version,
+            )
+        except ArtifactNotFoundError as error:
+            raise ActivationError("Successor CKC has no append receipt") from error
         if (
             append_receipt.capability_ref != capability.id
             or append_receipt.status != "inactive-successor"
@@ -52,25 +69,27 @@ class ActivationService:
         ):
             raise ActivationError("Activation does not reference the exact successor append")
         previous = capability.active_ckc.model_dump()
-        authorized_actor = successor.governance.get("activation_authority") or capability.owner
+        authorized_actor = (
+            appended_lineage_ckc.governance.get("activation_authority") or capability.owner
+        )
         if actor != authorized_actor:
             raise ActivationError(
                 f"Actor {actor!r} is not the declared activation authority {authorized_actor!r}"
             )
-        if successor.version <= capability.active_ckc.version:
-            raise ActivationError("Successor version must be newer than the active CKC")
+        if appended_lineage_ckc.version <= capability.active_ckc.version:
+            raise ActivationError("Appended CKC version must be newer than the active CKC")
         transition = activation.get("active_pointer_transition", {})
         expected_from = {
             f"{capability.active_ckc.id}@{capability.active_ckc.version}",
             f"{capability.active_ckc.id}-v{capability.active_ckc.version}",
         }
         expected_to = {
-            f"{successor.id}@{successor.version}",
-            f"{successor.id}-v{successor.version}",
+            f"{appended_lineage_ckc.id}@{appended_lineage_ckc.version}",
+            f"{appended_lineage_ckc.id}-v{appended_lineage_ckc.version}",
         }
         predecessor_refs = {
-            successor.predecessor,
-            successor.generated_from.get("predecessor"),
+            appended_lineage_ckc.predecessor,
+            appended_lineage_ckc.generated_from.get("predecessor"),
         }
         if not expected_from & predecessor_refs:
             raise ActivationError("Successor CKC does not identify the active predecessor")
@@ -84,15 +103,92 @@ class ActivationService:
             raise ActivationError("Decision does not declare the exact rollback target")
         if "future" not in str(activation.get("applies_to", "")):
             raise ActivationError("Successor activation must apply only to future resolutions")
-        capability.active_ckc.id, capability.active_ckc.version = successor.id, successor.version
+        capability.active_ckc.id = appended_lineage_ckc.id
+        capability.active_ckc.version = appended_lineage_ckc.version
         record = ActivationRecord(
             id=str(activation["id"]),
             decision_ref=decision.id,
             capability_ref=capability.id,
+            activation_kind="successor",
             successor_append_ref=append_receipt.id,
             previous_ckc=previous,
             active_ckc=capability.active_ckc.model_dump(),
             rollback_target=previous,
+            activated_by=actor,
+            activated_at=utc_now(),
+        )
+        return updated, record
+
+    def _activate_initial(
+        self,
+        updated,
+        capability,
+        initial_ckc,
+        decision: GovernanceDecision,
+        *,
+        actor: str,
+    ):
+        if capability.lifecycle != LifecycleStatus.APPROVED:
+            raise ActivationError("Initial activation requires an approved, inactive capability")
+        if initial_ckc.version != 1 or initial_ckc.predecessor:
+            raise ActivationError("Initial activation requires an initial CKC v1")
+        try:
+            formation_receipt = self.repository.get_formation_receipt(
+                initial_ckc.id,
+                initial_ckc.version,
+            )
+        except ArtifactNotFoundError as error:
+            raise ActivationError("Initial CKC has no governed formation append") from error
+
+        activation = decision.activation
+        transition = activation.get("active_pointer_transition", {})
+        target_refs = {
+            f"{initial_ckc.id}@{initial_ckc.version}",
+            f"{initial_ckc.id}-v{initial_ckc.version}",
+        }
+        if (
+            activation.get("activation_kind") != "initial"
+            or activation.get("formation_append_ref") != formation_receipt.id
+            or formation_receipt.capability_ref != capability.id
+            or formation_receipt.status != "inactive-initial-ckc"
+            or transition.get("from") is not None
+            or transition.get("to") not in target_refs
+            or activation.get("rollback_target") is not None
+        ):
+            raise ActivationError(
+                "Initial activation is not separate from the exact formation append"
+            )
+        if "future" not in str(activation.get("applies_to", "")):
+            raise ActivationError("Initial activation must apply only to future resolutions")
+        authorized_actor = initial_ckc.governance.get("activation_authority") or capability.owner
+        if actor != authorized_actor:
+            raise ActivationError(
+                f"Actor {actor!r} is not the declared activation authority {authorized_actor!r}"
+            )
+
+        capability.active_ckc = ActiveCKC(id=initial_ckc.id, version=initial_ckc.version)
+        capability.lifecycle = LifecycleStatus.ACTIVE
+        resulting_snapshot_ref = activation.get("resulting_registry_snapshot_ref")
+        if not resulting_snapshot_ref:
+            raise ActivationError("Initial activation lacks its resulting Registry snapshot")
+        previous_snapshot_ref = updated.id
+        updated.id = str(resulting_snapshot_ref)
+        updated.generated_from = {
+            "previous_registry_snapshot": previous_snapshot_ref,
+            "governance_decision": decision.id,
+            "formation_append": formation_receipt.id,
+            "activation": activation["id"],
+        }
+        updated.registry["last_transition"] = activation["id"]
+        record = ActivationRecord(
+            id=str(activation["id"]),
+            decision_ref=decision.id,
+            capability_ref=capability.id,
+            activation_kind="initial",
+            formation_append_ref=formation_receipt.id,
+            previous_ckc=None,
+            active_ckc=capability.active_ckc.model_dump(),
+            rollback_target=None,
             activated_by=actor,
             activated_at=utc_now(),
         )

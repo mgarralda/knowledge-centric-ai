@@ -82,6 +82,11 @@ properties:
     type: object
     minProperties: 1
     properties:
+      immutable: {type: boolean}
+      formation_origin: {enum: [crystallization, strategy, process-analysis, onboarding]}
+      proposal_ref: {type: string, pattern: "^PROP-[A-Z0-9-]+$"}
+      formation_decision_ref: {type: string, pattern: "^DEC-[A-Z0-9-]+$"}
+      formation_append_ref: {type: string, pattern: "^FORM-[A-Z0-9-]+$"}
       successor_delta_ref:
         type: string
         pattern: "^DELTA-[A-Z0-9-]+$"
@@ -141,4 +146,26 @@ allOf:
           required: [governance_decision, predecessor, successor_delta]
         governance:
           required: [admission_decision_ref, successor_delta_ref]
+  - if:
+      properties:
+        version: {const: 1}
+        governance:
+          properties:
+            formation_origin: {const: crystallization}
+          required: [formation_origin]
+      required: [version, governance]
+    then:
+      properties:
+        generated_from:
+          required:
+            - capability_proposal
+            - governance_decision
+            - formation_append
+            - recurrent_history
+        governance:
+          required:
+            - immutable
+            - proposal_ref
+            - formation_decision_ref
+            - formation_append_ref
 additionalProperties: true

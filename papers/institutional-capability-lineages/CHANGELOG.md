@@ -6,6 +6,15 @@ All notable changes to the ICLA paper companion are recorded here.
 
 ### Added
 
+- A standalone capability-proposal schema shared by the OAuth candidate and a
+  submitted-proposal formation trace.
+- A deterministic governed formation service that assigns one new capability
+  identity and appends one complete immutable CKC v1 without activating it.
+- Separate initial activation, `before -> formed -> active` Registry snapshots,
+  formation-origin lineage, and positive, negative, and no-partial-effect tests.
+- A public conformance matrix separating machine-checked formation behavior
+  from discovery quality and institutional judgment.
+
 - A machine-checkable pre-resolution `CAP-IAM` impact path for the OAuth
   example, covering the identity-policy change, affected interpretation and
   temporal validity, Registry relation traversal, governance, `CKC-IAM v8`
@@ -49,6 +58,6 @@ All notable changes to the ICLA paper companion are recorded here.
   CEE autonomy, mandate identity, and evidence boundaries.
 - Published the current paper and machine-readable citation metadata.
 - Aligned the companion assessment scope with the paper's
-  resolution-to-succession claim. The OAuth proposal remains represented, but
-  complete crystallization promotion is no longer exposed as executable.
+  two-dimensional evolution model. OAuth remains an unpromoted candidate case;
+  a separate trace now exercises the bounded governed capability-formation path.
 - Made CLI conformance output state both the profile and assessment scope.

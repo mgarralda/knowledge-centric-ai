@@ -20,16 +20,22 @@ platform.
 - [Current SSRN preprint](https://dx.doi.org/10.2139/ssrn.7172438) —
   *Institutional Capability Lineages: A Registry-centered Reference
   Architecture for Governed and Evolving AI*.
-- [Reference schemas](../specification/schemas/README.md) — eight JSON Schema
+- [Reference schemas](../specification/schemas/README.md) — nine JSON Schema
   Draft 2020-12 contracts.
 - [OAuth 2.1 reference trace](../specification/reference-traces/oauth-042/README.md)
-  — seven linked artifacts corresponding to the paper's worked example.
+  — eight linked artifacts corresponding to the paper's worked example.
+- [Capability-formation trace](../specification/reference-traces/auth-evolution-formation/README.md)
+  — six linked artifacts for submitted proposal, governed formation, and
+  separate initial activation.
 - [Implementation architecture](ARCHITECTURE.md) — direct mapping from the
   paper and specification to Python modules and services.
+- [Conformance and claim boundary](CONFORMANCE.md) — construct-to-artifact
+  coverage and the exact limits of the executable evidence.
 
 The paper defines the architecture. The sibling `../specification/` directory
-defines the reference artifact contracts. This package makes the implemented
-resolution-to-succession path executable and testable.
+defines the reference artifact contracts. This package makes both the
+resolution-to-succession path and the deterministic governed capability-
+formation transition executable and testable.
 
 The paper develops ICLA as an iteratively refined design-science artifact. This
 implementation provides requirement-to-component traceability and artificial
@@ -61,8 +67,12 @@ The implementation includes:
 - a connected lineage trace and historical preservation;
 - episodic evidence records and governed transition of accepted precedents into
   semantic or procedural CKC commitments;
-- structural and scenario-level representation of the separate capability
-  proposal path, without executing crystallization promotion;
+- a standalone pre-institutional capability proposal with only `candidate` and
+  `submitted` states;
+- governed formation from a submitted proposal to exactly one new capability
+  and one complete immutable initial CKC v1, without implicit activation;
+- a subsequent initial activation that publishes the already formed CKC for
+  future resolutions through a separately identifiable record;
 - schema, artifact, profile, and cross-artifact conformance validation.
 
 YAML reference artifacts remain the source of truth for the worked trace.
@@ -95,6 +105,10 @@ several architectural boundaries from the paper executable:
   complete immutable successor CKC and an explanatory delta; append adds it to
   the lineage without moving the active pointer, and a separate activation can
   then make that exact appended version current for future resolutions.
+- **formation without automatic discovery**: the implementation accepts a
+  submitted proposal and declared institutional decision, forms the identity
+  and initial CKC, and activates them separately; it never infers that the
+  proposal is valuable or institutionally correct.
 
 ## Requirements
 
@@ -111,14 +125,16 @@ Run the following commands from this directory:
 poetry install
 poetry run icla validate-schemas
 poetry run icla run-trace oauth-042
+poetry run icla run-trace auth-evolution-formation
 poetry run pytest
 ```
 
 The conformance commands should report:
 
 ```text
-Validated 8 schema(s)
-Validated 7 artifact(s); ICLA-Evolving trace conformance passed for the represented resolution-to-succession scope; crystallization promotion was not executed
+Validated 9 schema(s)
+Validated 8 artifact(s); ICLA-Governed trace conformance passed; ICLA-11 pre-institutional proposal boundaries passed
+Validated 6 artifact(s); ICLA-Evolving trace conformance passed; governed capability formation and separate initial activation are represented; discovery effectiveness and institutional judgment were not assessed
 ```
 
 For the complete development verification:
@@ -137,25 +153,27 @@ poetry run icla schemas
 poetry run icla validate path/to/artifact.yaml
 poetry run icla validate path/to/artifact-directory
 poetry run icla run-trace oauth-042
+poetry run icla run-trace auth-evolution-formation
 poetry run icla run-trace oauth-042 --trace-dir ../specification/reference-traces/oauth-042
 ```
 
 The commands have distinct responsibilities:
 
-- `schemas` lists the eight available contracts;
+- `schemas` lists the nine available contracts;
 - `validate-schemas` validates the schema documents themselves;
 - `validate` validates one artifact or all artifacts in a directory;
-- `run-trace` validates the represented trace and applies the cumulative
-  `ICLA-Evolving` checks within the stated resolution-to-succession scope,
-  including cross-artifact identity and version continuity.
+- `run-trace` validates cross-artifact identity, version, formation, activation,
+  and lineage continuity. Profile `auto` selects `ICLA-Evolving` for a positive
+  formation trace and `ICLA-Governed` otherwise; `--profile` can select an
+  explicit cumulative profile.
 
-`run-trace` does not execute institutional transitions. The end-to-end pytest
-scenario additionally runs resolution, Evidence Gateway qualification,
-governance persistence, inactive successor append, separate activation,
-historical snapshot checks, and
-connected-lineage verification. The Gateway generates `RCPT-OAUTH-042`; the
-test consumes, rather than synthesizes, the declared governance decision,
-activation identifier, and successor CKC.
+`run-trace` validates retained artifacts; it does not execute institutional
+transitions. The end-to-end pytest scenarios replay both paths. OAuth runs
+resolution, Evidence Gateway qualification, governance persistence, inactive
+successor append, separate activation, historical-snapshot checks, and lineage.
+The formation replay consumes the published submitted proposal and decision,
+creates the inactive identity and CKC v1 state, performs initial activation,
+and matches both published successor snapshots exactly.
 
 ## Specification location
 
@@ -199,10 +217,10 @@ reference-implementation/
 
 ## Design guarantees
 
-- CKC versions, assemblies, evidence, decisions, successor-append receipts,
-  activations, and lineage
-  records are append-only.
-- Adjudication, successor append, and activation are separate operations.
+- CKC versions, assemblies, evidence, decisions, successor- and formation-append
+  receipts, activations, and lineage records are append-only.
+- Adjudication, successor append or capability formation, and activation are
+  separate operations.
 - Historical assemblies retain their exact CKC versions.
 - Evidence submissions do not contain receipts; the Evidence Gateway produces
   and persists them during qualification.
@@ -213,30 +231,32 @@ reference-implementation/
 - Re-resolution is event-driven; it is not required for each local CEE step.
 - Governed and non-standard measurements remain separate.
 - Materializations cannot silently become canonical CKCs.
-- The proposal scenario never assigns identity; complete crystallization
-  promotion remains outside the current executable scope.
+- OAuth's candidate proposal never assigns identity; only the separate
+  submitted-proposal trace crosses the governed formation boundary.
+- Formation creates an `approved` capability without an active pointer; only a
+  later initial activation changes it to `active` and publishes CKC v1.
 - Architecture decisions and validation failures carry machine-readable
   rationale.
 
-Crystallization belongs to the complete ICLA model. The current companion
-represents `PROP-AUTH-EVOL-01` and checks the authority boundary in ICLA-11,
-but it intentionally provides neither a standalone capability-proposal schema
-nor executable promotion, Registry identity assignment, initial CKC creation,
-or preserved promotion-origin links.
+Crystallization belongs to the complete ICLA model. OAuth retains
+`PROP-AUTH-EVOL-01` in `candidate` state because one execution does not establish
+recurrence. A separate constructed trace represents the same responsibility
+after multiple retained signals support submission. Its authorized decision
+assigns `CAP-AUTH-EVOL`, appends complete `CKC-AUTH-EVOL v1`, preserves formation
+provenance, and leaves the capability inactive until `ACT-AUTH-EVOL-001`.
 
-The executable assessment therefore ends at append-backed successor activation. It does not
-claim complete crystallization promotion or organizational effectiveness.
-
-The next crystallization extension identified by the paper is a standalone
-capability-proposal contract with positive and negative proposal validation,
-retention without promotion, governed Registry identity assignment, initial
-immutable CKC creation, and preserved `derived_from` links.
+This supports implementation-conformance claims for the exercised governed
+capability-formation path. It does **not** validate automatic pattern discovery,
+recurrence-detection quality, capability-boundary quality, ownership, value,
+overlap resolution, or organizational effectiveness. Those remain inputs to or
+judgments within governance, not deterministic conclusions of the reference
+implementation.
 
 ## Non-goals
 
 This demonstrator does not provide production authentication, distributed
 transactions, a database, REST or MCP transports, operational observability,
-or a human workflow system. Those concerns can be implemented behind the
+automatic capability discovery, or a human workflow system. Those concerns can be implemented behind the
 existing service and repository boundaries without changing the demonstrated
 ICLA semantics.
 

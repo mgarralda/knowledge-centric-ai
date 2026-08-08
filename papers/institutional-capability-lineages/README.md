@@ -329,8 +329,9 @@ is prospective, and independent organizational validation remains future work.
 | [`specification/reference-objects/`](specification/reference-objects/) | Consumer-independent reference objects and schema mappings. |
 | [`specification/reference-traces/`](specification/reference-traces/) | Linked reference traces for the implemented lifecycle scope and prospective governed branches. |
 | [`specification/reference-traces/oauth-042/`](specification/reference-traces/oauth-042/) | OAuth 2.1 trace covering pre-resolution source impact, resolution, assembly, evidence, governance, activation, and historical preservation. |
-| [`reference-implementation/`](reference-implementation/) | Deterministic, schema-driven implementation of resolution, conformance, evidence qualification, adjudication, CKC activation, and lineage preservation. |
-| [`reference-implementation/tests/`](reference-implementation/tests/) | Executable checks for trace consistency, conformance profiles, successor activation, historical immutability, and connected lineage. |
+| [`specification/reference-traces/auth-evolution-formation/`](specification/reference-traces/auth-evolution-formation/) | Submitted-proposal trace covering governed identity formation, initial CKC v1 append, inactive state, and separate initial activation. |
+| [`reference-implementation/`](reference-implementation/) | Deterministic, schema-driven implementation of resolution, evidence governance, CKC succession, capability formation, activation, and lineage preservation. |
+| [`reference-implementation/tests/`](reference-implementation/tests/) | Executable checks for both governed evolution paths, negative boundaries, historical immutability, and connected lineage. |
 
 ---
 
@@ -339,20 +340,23 @@ is prospective, and independent organizational validation remains future work.
 The companion artifact set is versioned as **`icla-spec 0.1.0`** and includes machine-checkable contracts for:
 
 1. institutional capability;
-2. Capability Knowledge Contract;
-3. Registry snapshot;
-4. intent;
-5. resolution and admission;
-6. contextual assembly;
-7. evidence bundle;
-8. governance decision and activation.
+2. pre-institutional capability proposal;
+3. Capability Knowledge Contract;
+4. Registry snapshot;
+5. intent;
+6. resolution and admission;
+7. contextual assembly;
+8. evidence bundle;
+9. governance decision and activation.
 
 The paper defines the architecture and conformance requirements. The companion artifacts serve distinct scientific roles:
 
 - **Meta-model and invariants** establish structural consistency.
 - **Schemas and linked reference records** establish representational consistency.
 - **Reference traces** establish end-to-end traceability and reproducibility.
-- **Reference implementation and tests** establish executable consistency from resolution through successor activation.
+- **Reference implementation and tests** establish executable consistency from
+  resolution through successor activation and for the bounded governed
+  capability-formation transition.
 - **Claims C1–C3** define the comparative evaluation still required to assess effectiveness.
 
 The schemas, traces, and implementation do not introduce additional architectural requirements beyond the paper's conformance invariants.
@@ -381,8 +385,16 @@ It includes:
 
 The executable suite replays the same identifiers and verifies the
 pre-resolution IAM impact path, conformance, activation, historical
-immutability, and connected lineage. It does not assign `CAP-AUTH-EVOL`, create
-its initial CKC, or validate promotion-origin links.
+immutability, and connected lineage. OAuth intentionally does not assign
+`CAP-AUTH-EVOL`; one execution is insufficient to establish recurrence.
+
+The separate
+[`auth-evolution-formation`](specification/reference-traces/auth-evolution-formation/)
+trace begins with a submitted proposal supported by multiple retained signals.
+It executes authorized formation of `CAP-AUTH-EVOL` and complete
+`CKC-AUTH-EVOL v1`, retains the intermediate no-pointer state, and performs
+initial activation separately. This validates the transition structure, not
+automatic discovery or the institutional quality of the proposal.
 
 ---
 
@@ -394,7 +406,7 @@ ICLA defines three cumulative profiles:
 |---|---|
 | **ICLA-Core** | Stable capability identity, Registry navigation, CKCs, contextual projection, CEE traceability, and reproducibility. |
 | **ICLA-Governed** | ICLA-Core plus governed evidence, measurement conformity, successor creation, and activation. |
-| **ICLA-Evolving** | ICLA-Governed plus ICLA-11, continuous impact analysis, candidate lifecycle, rollback, and capability discovery. The current trace is assessed only over its represented resolution-to-succession scope; complete promotion remains prospective. |
+| **ICLA-Evolving** | ICLA-Governed plus ICLA-11 and the governed capability-formation boundary. The companion executes the submitted-proposal formation path; discovery quality and institutional judgment remain outside machine assessment. |
 
 Conformance is behavioral and implementation-independent. Every conformance result must state both the named profile and its assessment scope.
 
@@ -509,5 +521,6 @@ The reference implementation and executable code are licensed separately under t
 | Reference objects and trace | **Available** |
 | Deterministic reference implementation | **Available** |
 | Executable tests | **Available** |
-| Complete crystallization promotion | **Future companion work** |
+| Governed capability-formation transition | **Available** |
+| Automatic discovery and organizational evaluation | **Future work** |
 | Comparative longitudinal evaluation | **Future work** |

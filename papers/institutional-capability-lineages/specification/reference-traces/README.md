@@ -28,6 +28,9 @@ capture.
   `DEC-OAUTH-042`, inactive append of `CKC-VERIFY v10`, and its separate
   activation for future
   resolutions, plus an unpromoted capability proposal scenario.
+- [Governed capability formation](./auth-evolution-formation/README.md) — a
+  submitted proposal, authorized identity and initial-CKC formation, retained
+  inactive state, and separate initial activation.
 
 Reusable, consumer-independent object representations are catalogued separately
 under [`reference-objects/`](../reference-objects/README.md).
