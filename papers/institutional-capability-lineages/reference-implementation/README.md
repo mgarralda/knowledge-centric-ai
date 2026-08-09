@@ -58,7 +58,8 @@ The implementation includes:
 - bundle, payload, workspace, and governed-access-handle materialization;
 - execution-scoped CEE boundaries whose relevant configuration is pinned from
   intent through evidence, plus situated, non-authoritative candidate knowledge;
-- Evidence Gateway validation, metric qualification, and receipt generation;
+- Evidence Gateway schema and measurement-conformity validation, evidence
+  qualification, and receipt generation;
 - explicit governance decisions and impact records;
 - ordered, event-identified impact analysis for continuous change streams,
   including affected bindings, exact CKC versions, traversed Registry

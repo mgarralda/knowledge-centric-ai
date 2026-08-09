@@ -69,7 +69,7 @@ def test_conforming_failed_metric_is_qualified_and_persisted(tmp_path):
     repository = EvidenceRepository(AppendOnlyStore(tmp_path))
     receipt = EvidenceGateway(repository=repository).submit_evidence(bundle())
 
-    assert receipt.metric_conformity is True
+    assert receipt.measurement_conformity is True
     assert receipt.id == "RCPT-TEST"
     assert receipt.threshold_outcomes[0]["passed"] is False
     assert receipt.qualification_status == "qualified-for-review"
@@ -87,7 +87,7 @@ def test_schema_valid_bundle_can_be_rejected_when_evidence_is_insufficient():
     receipt = EvidenceGateway().submit_evidence(submission)
 
     assert receipt.schema_conformity is True
-    assert receipt.metric_conformity is False
+    assert receipt.measurement_conformity is False
     assert receipt.qualification_status == "rejected"
     assert receipt.rationale == [
         "Schema conformity alone is insufficient: no governed measurements were submitted"

@@ -205,6 +205,6 @@ candidate_knowledge:
 gateway_receipt:
   id: RCPT-OAUTH-042
   schema_conformity: true
-  metric_conformity: true
+  measurement_conformity: true
   provenance_complete: true
   qualification_status: qualified-for-review

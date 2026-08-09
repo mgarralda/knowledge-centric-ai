@@ -20,7 +20,7 @@ from .common import ExtensibleModel, SpecificationMetadata
 class EvidenceReceipt(ExtensibleModel):
     id: str
     schema_conformity: bool | str
-    metric_conformity: bool | str
+    measurement_conformity: bool | str
     provenance_complete: bool
     qualification_status: str
     threshold_outcomes: list[dict[str, Any]] = Field(default_factory=list)

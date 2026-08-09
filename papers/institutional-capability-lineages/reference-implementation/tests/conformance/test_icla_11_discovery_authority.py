@@ -79,7 +79,7 @@ def test_valid_positive_promotion_has_no_artifact_level_boundary_error():
 
 
 def test_pre_institutional_proposal_uses_candidate_or_submitted_only():
-    artifact = proposal(status="proposed")
+    artifact = proposal(status="draft")
     assert check_icla_11_discovery_authority(artifact) == [
         "ICLA-11: pre-institutional proposal must be candidate or submitted"
     ]

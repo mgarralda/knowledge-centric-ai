@@ -143,11 +143,11 @@ properties:
       additionalProperties: true
   gateway_receipt:
     type: object
-    required: [id, schema_conformity, metric_conformity, provenance_complete, qualification_status]
+    required: [id, schema_conformity, measurement_conformity, provenance_complete, qualification_status]
     properties:
       id: {type: string, pattern: "^RCPT-[A-Z0-9-]+$"}
       schema_conformity: {type: boolean}
-      metric_conformity: {type: boolean}
+      measurement_conformity: {type: boolean}
       provenance_complete: {type: boolean}
       qualification_status: {enum: [qualified-for-review, rejected]}
     additionalProperties: true

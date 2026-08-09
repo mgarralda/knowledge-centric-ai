@@ -281,6 +281,9 @@ def test_formation_lineage_connects_history_proposal_decision_identity_ckc_and_a
     lineage = LineageService().build_lineage("CAP-AUTH-EVOL", list(values.values()))
     LineageService.validate_connected_lineage(lineage)
     reachable = LineageService()._reachable("PROP-AUTH-EVOL-01", lineage)
+    typed_edges = {
+        (edge.source, edge.relation_type, edge.target) for edge in lineage.edges
+    }
 
     assert {
         "ASM-OAUTH-042",
@@ -291,6 +294,26 @@ def test_formation_lineage_connects_history_proposal_decision_identity_ckc_and_a
         "CKC-AUTH-EVOL@1",
         "ACT-AUTH-EVOL-001",
     } <= reachable
+    assert (
+        "CKC-AUTH-EVOL@1",
+        "derived_from",
+        "PROP-AUTH-EVOL-01",
+    ) in typed_edges
+    assert (
+        "CKC-AUTH-EVOL@1",
+        "derived_from",
+        "ASM-OAUTH-042",
+    ) in typed_edges
+    assert (
+        "CKC-AUTH-EVOL@1",
+        "authorized_by",
+        "DEC-AUTH-EVOL-FORMATION-001",
+    ) in typed_edges
+    assert (
+        "DEC-AUTH-EVOL-FORMATION-001",
+        "reviews_history",
+        "ASM-OAUTH-042",
+    ) in typed_edges
 
 
 def test_trace_rejects_implicit_activation_and_missing_formation_provenance():

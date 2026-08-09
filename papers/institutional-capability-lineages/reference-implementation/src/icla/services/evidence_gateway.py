@@ -64,7 +64,7 @@ class EvidenceGateway:
         receipt = EvidenceReceipt(
             id=receipt_id,
             schema_conformity=schema_ok,
-            metric_conformity=metric_ok,
+            measurement_conformity=metric_ok,
             provenance_complete=provenance_ok,
             qualification_status="qualified-for-review" if qualified else "rejected",
             threshold_outcomes=[

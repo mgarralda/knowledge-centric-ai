@@ -31,6 +31,8 @@ state disclosure. Assembly correctness traces additionally retain the applied
 review-policy version. Evidence lineage conditionally retains any versioned
 transformation used to construct the submitted report. These are nested
 commitments, not new principal object types.
+The Evidence Gateway receipt records schema conformity and measurement
+conformity separately from qualification status.
 The same assembly correctness trace records every applicable conflict through
 its assembly-compatible resolution outcome and versioned policy basis. A
 successful successor append remains an implementation operation rather than a

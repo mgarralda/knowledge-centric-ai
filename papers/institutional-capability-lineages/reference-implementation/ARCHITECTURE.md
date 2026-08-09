@@ -219,7 +219,7 @@ assurance changes enough to require re-resolution.
 ### Evidence Gateway
 
 The Evidence Gateway validates contract-selected CEE evidence and candidate knowledge
-before governance review. It verifies schema conformity, governed metric
+before governance review. It verifies schema conformity, governed measurement
 conformity, producer and execution provenance, and provenance completeness. It
 keeps governed and non-standard measurements distinct and returns a receipt.
 If the submitted report was constructed through a versioned transformation,
