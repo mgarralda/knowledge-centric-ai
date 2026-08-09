@@ -27,7 +27,7 @@ flowchart TD
     GOV["Governance Service<br/>declared adjudication"]
     SUC["Succession Service<br/>append complete inactive successor"]
     FORM["Formation Service<br/>assign identity + append initial CKC"]
-    ACT["Activation Service<br/>atomic active-pointer transition"]
+    ACT["Activation Service<br/>separate governed active-pointer transition"]
     LIN["Lineage Service<br/>connected typed trace"]
 
     SPEC --> REG
@@ -71,15 +71,15 @@ linearly derived from the literature.
 | Capability Knowledge Contract (CKC) | Represent immutable, versioned knowledge scope, obligations, evidence, evaluation, governance, projection rules, and source bindings | [`ckc.py`](src/icla/models/ckc.py), [`ckc_repository.py`](src/icla/repositories/ckc_repository.py) |
 | Operational Intent | Capture goal, context, consumer, risk, budget, assurance, and required outcomes | [`intent.py`](src/icla/models/intent.py) |
 | Capability Resolution | Perform candidate generation, relation expansion, filtering, constraint validation, and admission | [`resolution_service.py`](src/icla/services/resolution_service.py) |
-| Contextual Assembly | Bind exact versions and establish a bounded, execution-scoped mandate with explicit re-resolution triggers | [`assembly.py`](src/icla/models/assembly.py), [`assembly_service.py`](src/icla/services/assembly_service.py), [`mandate.py`](src/icla/policies/mandate.py) |
+| Contextual Assembly | Bind exact versions, retain the `RequiredCovered` method and applicable validator, model, or review-policy version, and establish a bounded execution-scoped mandate | [`assembly.py`](src/icla/models/assembly.py), [`assembly_service.py`](src/icla/services/assembly_service.py), [`mandate.py`](src/icla/policies/mandate.py) |
 | Materialization | Deliver a bundle, payload, workspace, or governed access handles without changing assembly semantics or source authority | [`materialization_service.py`](src/icla/services/materialization_service.py) |
 | Capability Execution Environment (CEE) | Record an execution-scoped situated boundary and the configuration needed for resolution, authorization, assurance, traceability, and evidence interpretation; operate autonomously inside the mandate and return only contract-selected evidence | [`intent.py`](src/icla/models/intent.py), [`evidence.py`](src/icla/models/evidence.py), [`conformance.py`](src/icla/specification/conformance.py) |
-| Execution Evidence | Separate governed from non-standard measurements, check schema and provenance, and issue a qualification receipt | [`evidence_gateway.py`](src/icla/services/evidence_gateway.py) |
+| Execution Evidence | Separate governed from non-standard measurements, retain any versioned submitted-report transformation in provenance, check schema and provenance, and issue a qualification receipt | [`evidence_gateway.py`](src/icla/services/evidence_gateway.py) |
 | Governance | Persist an explicit institutional decision without synthesizing human approval | [`governance_service.py`](src/icla/services/governance_service.py) |
 | CKC Succession | Verify the decision-linked delta and append the complete successor as an inactive lineage version without moving the Registry pointer | [`succession_service.py`](src/icla/services/succession_service.py), [`ckc_repository.py`](src/icla/repositories/ckc_repository.py) |
 | Governed Activation | Activate an already appended successor or initial CKC through a separately identifiable pointer transition; preserve rollback for succession and the explicit no-predecessor boundary for initial activation | [`activation_service.py`](src/icla/services/activation_service.py) |
 | Lineage trace | Build and validate a concrete connected, typed instantiation of the institutional capability lineage across artifacts and transitions | [`lineage_service.py`](src/icla/services/lineage_service.py) |
-| Impact Analysis | Identify source bindings, exact CKC versions, relation paths, retained assemblies, situated CEEs, and consumers affected by individual changes or ordered change-event streams | [`impact_analysis_service.py`](src/icla/services/impact_analysis_service.py) |
+| Impact Analysis | Identify source bindings, exact CKC versions, relation paths, retained assemblies, situated CEEs, and consumers that delimit review scope without directly invalidating or blocking canonical state | [`impact_analysis_service.py`](src/icla/services/impact_analysis_service.py) |
 | Capability Crystallization | Validate a common pre-institutional proposal type; execute governed identity assignment and initial CKC append from a submitted proposal; activate the formed capability separately; preserve formation-origin links | [`proposal.py`](src/icla/models/proposal.py), [`capability_formation_service.py`](src/icla/services/capability_formation_service.py), [`auth-evolution-formation/`](../specification/reference-traces/auth-evolution-formation/) |
 
 ## Artifact flow
@@ -169,8 +169,11 @@ three explicit stages:
 2. Graph expansion through Registry relations.
 3. Constraint validation for lifecycle and authorization.
 
-The output records admitted and excluded capabilities with rationale. Discovery
-does not grant authority: only admitted capabilities may proceed to assembly.
+The output records admitted and excluded capabilities with rationale, the
+matcher identifier and version, and explicit confidence semantics. The
+reference matcher discloses qualitative, non-calibrated ranking rather than
+presenting its scores as probabilities. Discovery does not grant authority:
+only admitted capabilities may proceed to assembly.
 
 ### Assembly Service
 
@@ -186,6 +189,16 @@ hold:
 - conflicts resolved;
 - within budget;
 - exact CKC versions supplied.
+
+The assembly correctness trace identifies the method applied to
+`RequiredCovered` and the applicable validator, model, or review-policy
+version. The reference path is deterministic; the schema also represents
+model-assisted and human-reviewed assessments without treating them as
+equivalent to automated validation.
+`ConflictsResolved` separately retains each applicable conflict, its
+assembly-compatible outcome, and the governing policy identifier and version;
+unresolved conflicts prevent assembly admission without prescribing a
+particular resolution mechanism.
 
 The resulting assembly is authorized input to a CEE, not a claim that the
 CEE's later observations or outputs are already institutional knowledge. It
@@ -209,8 +222,14 @@ The Evidence Gateway validates contract-selected CEE evidence and candidate know
 before governance review. It verifies schema conformity, governed metric
 conformity, producer and execution provenance, and provenance completeness. It
 keeps governed and non-standard measurements distinct and returns a receipt.
+If the submitted report was constructed through a versioned transformation,
+the evidence lineage retains its identifier and version. This reference is
+conditional and does not imply that every evidence submission uses a report
+transformation.
 Qualification means *eligible for review*; it is not approval or institutional
-admission. Internal reasoning, working memory, local stores, and intermediate
+admission. Schema conformity does not establish substantive correctness or
+evidential sufficiency, and impact identification alone does not invalidate a
+CKC or block admission. Internal reasoning, working memory, local stores, and intermediate
 artifacts remain outside submission unless the evidence contract selects them.
 
 ### Governance, Succession Append, and Activation
@@ -229,8 +248,10 @@ An approved decision alone does not mutate the Registry. The Succession Service
 verifies the target capability, exact predecessor, decision status, and delta
 recording changed CKC commitments, supporting evidence, rationale, authorizing
 decision, and rollback. It appends the complete immutable successor—not a
-reconstruction patch—and emits an inactive-successor receipt while leaving the
-active pointer unchanged. The logical `activate_ckc` port accepts an appended
+reconstruction patch—only when that predecessor is still the latest appended
+CKC. A stale predecessor is rejected without creating a canonical branch or
+moving the active pointer; no locking strategy is prescribed. A successful
+append emits an inactive-successor receipt. The logical `activate_ckc` port accepts an appended
 lineage CKC for either succession or formation. Activation verifies the exact
 append reference and pointer transition, then returns a new Registry snapshot
 and a separate activation record. For an initial CKC, the transition is
@@ -282,18 +303,22 @@ The conformance layer and tests make the main paper invariants executable:
 | Invariant | Demonstrated property |
 |---|---|
 | ICLA-1 | Every active capability has stable identity, owner, lifecycle, and a governed active CKC pointer |
-| ICLA-2 | Canonical CKCs declare immutable knowledge, operational relations, obligations, authorities, evidence, evaluation, source, and projection contracts |
+| ICLA-2 | Canonical CKCs declare immutable knowledge, operational relations, obligations, authorities, evidence, evaluation, source, and projection contracts, including metric interpretation and representative-case or coverage bases |
 | ICLA-3 | Every execution records its situated CEE boundary and relevant configuration; autonomy and working-state privacy remain bounded, and candidate contributions gain authority only through governed adjudication |
-| ICLA-4 | Registry entries are filterable by metadata, lifecycle, policy, and conditions and expose typed relations |
-| ICLA-5 | Resolution and assembly retain intent, situated CEE boundary and configuration, Registry, admission, and mandatory-constraint traceability |
+| ICLA-4 | Registry entries are filterable by metadata, lifecycle, policy, and conditions and expose typed relations and source-impact paths |
+| ICLA-5 | Resolution and assembly retain intent, situated CEE boundary and configuration, Registry snapshot, matcher identity/version, confidence semantics, selected capability set, exact capability-to-CKC map, admission, and mandatory-constraint traceability; `RequiredCovered` retains its method/version and `ConflictsResolved` retains conflict, compatible outcome, and policy/version basis |
 | ICLA-6 | Assemblies pin CKC, evaluation-contract, source, policy, and transformation versions |
 | ICLA-7 | A consumer projection cannot silently become a canonical CKC |
-| ICLA-8 | Governed and non-standard measurements remain separate and receipts originate at the Evidence Gateway |
-| ICLA-9 | Canonical change records impact, approval, a complete immutable successor CKC, its decision-linked delta, inactive append, exact later pointer transition, rollback target, and historical immutability |
-| ICLA-10 | Retained assemblies include version and policy metadata needed for reproduction and interpretation |
-| ICLA-11 | Candidate and submitted proposals remain identity-free; governed promotion creates one new identity and complete initial CKC v1 with retained origins; the formed state has no active pointer; initial activation is executed separately |
+| ICLA-8 | Governed and non-standard measurements remain separate, receipts originate at the Evidence Gateway, schema conformity remains distinct from evidential sufficiency, and any submitted-report transformation is version-referenced in provenance |
+| ICLA-9 | Impact identifies review scope without automatic invalidation; canonical succession requires the latest appended predecessor and rejects stale-predecessor branching; successful change retains the complete successor, decision-linked delta, inactive append, separate pointer transition, rollback target, and historical immutability |
+| ICLA-10 | Retained assemblies include version, access, retention, and policy metadata needed for reproduction and interpretation; authorized disposal remains outside the companion operation set |
+| ICLA-11 | Candidate and submitted proposals remain identity-free and their lifecycle states cannot be assigned to institutional capabilities; governed promotion creates one new identity and complete initial CKC v1 with retained origins; the formed state has no active pointer; initial activation is executed separately |
 
 The corresponding tests live in [`tests/conformance/`](tests/conformance/).
+The complete evidence mapping, including the clauses that remain governed
+judgments, is maintained in the
+[`conformance-matrix.md`](../specification/conformance-matrix.md) companion
+artifact.
 The end-to-end [`oauth-042` test](tests/traces/test_oauth_042.py) loads the
 published sibling artifacts, applies ICLA-Governed checks to the implemented
 resolution-to-succession scope, verifies event-linked impact analysis and the

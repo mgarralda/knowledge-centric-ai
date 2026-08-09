@@ -39,6 +39,10 @@ class EvidenceGateway:
         metric_ok = bool(governed) and all(
             result.definition_conformity for result in metric_results
         )
+        if not governed:
+            rationale.append(
+                "Schema conformity alone is insufficient: no governed measurements were submitted"
+            )
         provenance_ok = all(
             bundle.lineage.get(key)
             for key in (

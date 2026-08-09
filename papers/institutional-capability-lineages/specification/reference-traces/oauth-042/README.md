@@ -73,10 +73,14 @@ CKC-VERIFY v10 (future resolutions)
    assurance.
 3. [Resolution](./resolution.yaml) — `RES-OAUTH-042` navigates the Registry,
    expands mandatory relations, excludes inapplicable capabilities, resolves
-   the compatibility conflict, and produces admission `ADM-OAUTH-042`.
+   the compatibility conflict, retains matcher identity/version and explicitly
+   non-calibrated qualitative confidence semantics, and produces admission
+   `ADM-OAUTH-042`.
 4. [Assembly](./assembly.yaml) — `ASM-OAUTH-042` snapshots six exact CKC
    versions, selects and excludes knowledge, binds governed metrics, and
-   establishes the bounded operational mandate. Agent and reviewer
+   records the deterministic `RequiredCovered` method and validator version
+   plus the compatibility-conflict outcome and versioned policy basis before
+   establishing the bounded operational mandate. Agent and reviewer
    materializations preserve that mandate while `CEE-OAUTH-042` consumes the
    authorized semantic, procedural, and episodic elements selected into the
    assembly.
@@ -88,6 +92,9 @@ CKC-VERIFY v10 (future resolutions)
    serialized object shows the
    post-Gateway state; the executable test removes the receipt from the
    submission and verifies that the Gateway recreates `RCPT-OAUTH-042`. It also
+   retains the identifier and version of the transformation used to construct
+   the submitted report, without treating such a transformation as mandatory
+   for every evidence bundle. It
    records the execution as episodic memory, preserves candidate producer and
    execution identity, and declares submitted candidate lifecycle and
    memory-role transitions.
@@ -126,14 +133,16 @@ commitment in `CKC-VERIFY v10`.
 - `ASM-OAUTH-042` remains immutably linked to `CKC-VERIFY v9`.
 - `APPEND-VERIFY-010` adds `CKC-VERIFY v10` to the lineage without changing
   the active pointer.
+- The executable negative path rejects a stale predecessor after v10 has been
+  appended and preserves the single `[v9, v10]` canonical lineage.
 - Future resolutions use `CKC-VERIFY v10` after activation.
 - The approved activation can be rolled back only to its declared
   `CKC-VERIFY v9` target.
 - No new institutional capability is created by this decision.
 - The current OAuth trace does not by itself establish recurrence, so
   `PROP-AUTH-EVOL-01` remains a pre-institutional `candidate`. Later recurrent
-  executions may provide the evidence required for submission. The current
-  companion does not assign
+  executions may provide the evidence required for submission. The OAuth
+  trace does not assign
   `CAP-AUTH-EVOL`, create `CKC-AUTH-EVOL v1`, or validate promotion-origin
   links.
 

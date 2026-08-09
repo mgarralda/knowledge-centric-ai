@@ -7,6 +7,9 @@ and principal relations of each reference object while permitting extensions.
 The schemas are intentionally limited to the implemented conformance claims
 while permitting non-normative extensions. `additionalProperties` is enabled
 so the specification can evolve without invalidating the reference traces.
+The companion-wide mapping from those invariants to schemas, traces, tests, and
+governed judgments is maintained in
+[`../conformance-matrix.md`](../conformance-matrix.md).
 
 Where relevant, contracts expose `semantic`, `procedural`, and `episodic` as
 overlapping knowledge-role annotations. They describe how governed knowledge
@@ -16,12 +19,22 @@ declare more than one role.
 The Intent, Resolution, Assembly, and Evidence contracts pin the situated CEE
 boundary and the configuration attributes needed for resolution,
 authorization, assurance, traceability, and evidence interpretation. The
+Resolution record additionally retains the matcher identifier/version and
+explicit confidence semantics; the reference trace marks qualitative ranking
+as non-calibrated rather than presenting it as probability. The
 Assembly also makes the admitted operational mandate explicit:
 execution-scoped authority, local CEE autonomy, evidence-only disclosure, and
 event-driven re-resolution triggers. The Evidence Bundle records an autonomous
 execution interval and contract-selected submission without requiring working
-state disclosure. These are nested commitments, not new principal object
-types.
+state disclosure. Assembly correctness traces additionally retain the applied
+`RequiredCovered` assessment method and applicable validator, model, or
+review-policy version. Evidence lineage conditionally retains any versioned
+transformation used to construct the submitted report. These are nested
+commitments, not new principal object types.
+The same assembly correctness trace records every applicable conflict through
+its assembly-compatible resolution outcome and versioned policy basis. A
+successful successor append remains an implementation operation rather than a
+new artifact type and requires the latest appended CKC as predecessor.
 
 The Registry contract can also retain a pre-resolution change-and-impact
 history. In the OAuth trace this records the identity-policy version change,
@@ -31,8 +44,10 @@ subsequent activation, and the
 historical assembly that remains linked to v7. This is a nested Registry
 history governed by the existing contract, not a ninth principal schema.
 
-Capability records require an active CKC pointer only in the `active`
-lifecycle state. Governance decisions identify an authorized successor delta
+Capability records use only institutional lifecycle states and require an
+active CKC pointer only in the `active` state. The pre-institutional
+`candidate` and `submitted` states belong exclusively to Capability Proposal;
+they cannot be assigned to a `CAP-*` identity. Governance decisions identify an authorized successor delta
 with changed CKC commitments, rationale, supporting evidence, authorizing
 decision, and rollback reference. The append record adds the complete successor
 to its CKC lineage with inactive status and does not move the Registry pointer.

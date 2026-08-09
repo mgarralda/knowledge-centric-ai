@@ -36,4 +36,4 @@ capabilities:
     conditions: {recurrence: established}
 relations:
   - {type: depends_on, from: CAP-API, to: CAP-IAM}
-  - {type: validated_by, from: CAP-API, to: CAP-VERIFY}
+  - {type: depends_on, from: CAP-API, to: CAP-VERIFY}

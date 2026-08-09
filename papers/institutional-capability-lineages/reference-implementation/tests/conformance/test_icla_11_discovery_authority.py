@@ -85,6 +85,25 @@ def test_pre_institutional_proposal_uses_candidate_or_submitted_only():
     ]
 
 
+def test_pre_institutional_lifecycle_cannot_be_assigned_to_a_capability_identity():
+    artifact = {
+        "document_type": "institutional-capability",
+        "id": "CAP-CANDIDATE",
+        "lifecycle": "candidate",
+    }
+    assert check_icla_11_discovery_authority(artifact) == [
+        "ICLA-11: an institutional capability cannot use a pre-institutional lifecycle"
+    ]
+
+    registry = {
+        "document_type": "institutional-capability-registry-snapshot",
+        "capabilities": [artifact],
+    }
+    assert check_icla_11_discovery_authority(registry) == [
+        "ICLA-11: Registry capability uses a pre-institutional lifecycle"
+    ]
+
+
 def test_pre_institutional_proposal_cannot_carry_assigned_identity():
     artifact = proposal(assigned_identity="CAP-NEW")
     assert check_icla_11_discovery_authority(artifact) == [

@@ -67,6 +67,9 @@ lineage:
     - SRC-THREAT-MODELS-OAUTH-BASELINE-042
     - SRC-COMPATIBILITY-TESTS-v9
     - SRC-PRIOR-INCIDENTS-OAUTH-BASELINE-042
+  submitted_report_transformations:
+    - id: TRANSFORM-OAUTH-EVIDENCE-REPORT
+      version: 1
 
 results:
   task_status: completed

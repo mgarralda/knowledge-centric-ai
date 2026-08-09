@@ -78,3 +78,17 @@ def test_conforming_failed_metric_is_qualified_and_persisted(tmp_path):
     ArtifactValidator().validate_artifact(
         repository.get("EVD-TEST").model_dump(mode="json", by_alias=True, exclude_none=True)
     )
+
+
+def test_schema_valid_bundle_can_be_rejected_when_evidence_is_insufficient():
+    submission = bundle().model_copy(deep=True)
+    submission.measurements["governed"] = []
+
+    receipt = EvidenceGateway().submit_evidence(submission)
+
+    assert receipt.schema_conformity is True
+    assert receipt.metric_conformity is False
+    assert receipt.qualification_status == "rejected"
+    assert receipt.rationale == [
+        "Schema conformity alone is insufficient: no governed measurements were submitted"
+    ]

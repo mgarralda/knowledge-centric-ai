@@ -280,6 +280,14 @@ def check_icla_5_intent_traceability(artifact: dict[str, Any]) -> list[str]:
         )
         if missing:
             errors.append(f"ICLA-5: resolution misses trace fields {missing}")
+        matcher = artifact.get("matcher", {})
+        confidence = artifact.get("confidence", {})
+        if _missing(matcher, ("id", "version", "method")) or _missing(
+            confidence, ("mode", "calibration")
+        ):
+            errors.append(
+                "ICLA-5: resolution lacks matcher identity/version or confidence semantics"
+            )
         if artifact.get("admission", {}).get("status") == "admitted":
             failed = [
                 item.get("constraint", "<unknown>")
@@ -309,6 +317,31 @@ def check_icla_5_intent_traceability(artifact: dict[str, Any]) -> list[str]:
         failed = [name for name in required if correctness.get(name) is not True]
         if failed:
             errors.append(f"ICLA-5: authoritative assembly fails {failed}")
+        coverage_assessment = artifact.get("correctness_trace", {}).get(
+            "required_covered", {}
+        )
+        coverage_reference = coverage_assessment.get("applicable_reference", {})
+        if _missing(coverage_assessment, ("applied_method", "applicable_reference")) or _missing(
+            coverage_reference, ("kind", "id", "version")
+        ):
+            errors.append(
+                "ICLA-5: RequiredCovered trace lacks its applied method or versioned reference"
+            )
+        conflict_trace = artifact.get("correctness_trace", {}).get(
+            "conflicts_resolved", {}
+        )
+        applicable_conflicts = conflict_trace.get("applicable_conflicts")
+        if not isinstance(applicable_conflicts, list):
+            errors.append("ICLA-5: ConflictsResolved trace is missing")
+        elif any(
+            _missing(item, ("conflict_ref", "resolution_outcome", "policy_basis"))
+            or item.get("assembly_compatible") is not True
+            or _missing(item.get("policy_basis", {}), ("id", "version"))
+            for item in applicable_conflicts
+        ):
+            errors.append(
+                "ICLA-5: ConflictsResolved trace lacks an outcome or versioned policy basis"
+            )
         return errors
     return []
 
@@ -383,6 +416,13 @@ def check_icla_8_evidence_separation(artifact: dict[str, Any]) -> list[str]:
             errors.append("ICLA-8: non-standard measurement is not excluded from comparison")
         if metric.get("threshold_decision_use") != "prohibited":
             errors.append("ICLA-8: non-standard measurement can influence a threshold decision")
+    for transformation in artifact.get("lineage", {}).get(
+        "submitted_report_transformations", []
+    ):
+        if _missing(transformation, ("id", "version")):
+            errors.append(
+                "ICLA-8: submitted-report transformation is not version-referenced"
+            )
     if artifact.get("status") in {"qualified-for-review", "adjudicated"} and not artifact.get(
         "gateway_receipt"
     ):
@@ -524,6 +564,21 @@ def check_icla_11_discovery_authority(artifact: dict[str, Any]) -> list[str]:
         "institutional_capability_id",
         "capability_ref",
     }
+    if document_type == "institutional-capability":
+        if artifact.get("lifecycle") in {"candidate", "submitted"}:
+            errors.append(
+                "ICLA-11: an institutional capability cannot use a pre-institutional lifecycle"
+            )
+        return errors
+    if document_type == "institutional-capability-registry-snapshot":
+        if any(
+            item.get("lifecycle") in {"candidate", "submitted"}
+            for item in artifact.get("capabilities", [])
+        ):
+            errors.append(
+                "ICLA-11: Registry capability uses a pre-institutional lifecycle"
+            )
+        return errors
     if document_type == "capability-proposal":
         status = artifact.get("status")
         if status not in {"candidate", "submitted"}:

@@ -59,7 +59,7 @@ properties:
         owner: {type: string, minLength: 1}
         domain: {type: string, minLength: 1}
         lifecycle:
-          enum: [discovered, proposed, approved, active, under-review, retired, merged]
+          enum: [approved, active, under-review, retired, merged]
         policy_refs:
           type: array
           minItems: 1
@@ -86,7 +86,15 @@ properties:
       type: object
       required: [type, from, to]
       properties:
-        type: {type: string}
+        type:
+          enum:
+            - depends_on
+            - composes_with
+            - specializes
+            - replaces
+            - shares_knowledge
+            - derived_from
+            - conflicts_with
         from: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
         to: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
       additionalProperties: true

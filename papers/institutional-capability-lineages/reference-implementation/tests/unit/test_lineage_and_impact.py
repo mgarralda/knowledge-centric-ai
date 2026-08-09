@@ -111,6 +111,7 @@ def test_impact_analysis_uses_exact_structured_references():
         source_bindings=[{"source_ref": "SRC-10"}],
     )
     service = ImpactAnalysisService()
+    registry_before = registry.model_dump(mode="json", by_alias=True)
 
     accidental = service.analyze(
         {"source_ref": "SRC-1"}, registry=registry, ckcs=[contract], assemblies=[]
@@ -121,6 +122,9 @@ def test_impact_analysis_uses_exact_structured_references():
 
     assert accidental.affected_ckcs == ()
     assert exact.affected_ckcs == ("CKC-1-v1",)
+    assert registry.model_dump(mode="json", by_alias=True) == registry_before
+    assert registry.capability("CAP-1").lifecycle.value == "active"
+    assert registry.capability("CAP-1").active_ckc.version == 1
 
     streamed = service.analyze_change_stream(
         [

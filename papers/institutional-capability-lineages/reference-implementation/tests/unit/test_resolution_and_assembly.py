@@ -27,15 +27,25 @@ def capability(identifier, outcome, *, lifecycle="active"):
 
 
 def test_only_active_capabilities_require_an_active_ckc_pointer():
-    proposed = Capability(
-        id="CAP-PROPOSED",
-        name="Proposed",
-        outcome="candidate responsibility",
+    approved = Capability(
+        id="CAP-APPROVED",
+        name="Approved",
+        outcome="formed responsibility",
         owner="OWNER",
         domain="security",
-        lifecycle="proposed",
+        lifecycle="approved",
     )
-    assert proposed.active_ckc is None
+    assert approved.active_ckc is None
+
+    with pytest.raises(ValidationError, match="Input should be"):
+        Capability(
+            id="CAP-CANDIDATE",
+            name="Candidate",
+            outcome="pre-institutional responsibility",
+            owner="OWNER",
+            domain="security",
+            lifecycle="candidate",
+        )
 
     with pytest.raises(ValidationError, match="active CKC pointer"):
         Capability(
@@ -45,6 +55,17 @@ def test_only_active_capabilities_require_an_active_ckc_pointer():
             owner="OWNER",
             domain="security",
             lifecycle="active",
+        )
+
+
+def test_registry_relations_use_the_declared_capability_vocabulary():
+    assert RegistryRelation.model_validate(
+        {"type": "depends_on", "from": "CAP-API", "to": "CAP-VERIFY"}
+    ).relation_type == "depends_on"
+
+    with pytest.raises(ValidationError, match="Input should be"):
+        RegistryRelation.model_validate(
+            {"type": "validated_by", "from": "CAP-API", "to": "CAP-VERIFY"}
         )
 
 
@@ -153,6 +174,18 @@ def test_only_mandatory_relations_expand_and_irrelevant_exclusions_do_not_make_p
 
     assert result.admission.status == "admitted"
     assert set(result.selected_capabilities) == {"CAP-AUTH", "CAP-DEP"}
+    assert result.matcher.model_dump() == {
+        "id": "MATCHER-ICLA-REFERENCE",
+        "version": 1,
+        "method": "deterministic-metadata-and-relation-traversal",
+    }
+    assert result.confidence.model_dump() == {
+        "mode": "qualitative",
+        "calibration": "not-calibrated",
+        "interpretation": (
+            "candidate scores support relative ranking only and are not probabilities"
+        ),
+    }
     assert "CAP-SHARED" not in result.relation_expansion["capabilities"]
     assert result.relation_expansion["advisory_relations"][0]["type"] == "shares_knowledge"
     assert any(item["capability"] == "CAP-ALT" for item in result.filtering["excluded"])
@@ -197,6 +230,17 @@ def test_assembly_checks_actual_required_outcome_coverage():
         contracts,
     )
     assert assembly.correctness["required_covered"] is True
+    assert assembly.correctness_trace["required_covered"] == {
+        "applied_method": "deterministic",
+        "applicable_reference": {
+            "kind": "validator",
+            "id": "VALIDATOR-ICLA-REFERENCE-ASSEMBLY",
+            "version": 1,
+        },
+    }
+    assert assembly.correctness_trace["conflicts_resolved"] == {
+        "applicable_conflicts": []
+    }
     assert assembly.correctness["mandate_bounded"] is True
     assert assembly.operational_mandate.authority_scope == "execution-scoped"
     assert assembly.operational_mandate.institutional_change_authority is False
@@ -225,11 +269,54 @@ def test_assembly_checks_actual_required_outcome_coverage():
 
 
 def test_incompatible_obligations_remain_unresolved():
-    _, rationale, unresolved = resolve_obligation_conflicts(
+    _, rationale, unresolved, resolutions = resolve_obligation_conflicts(
         [
             {"id": "OBL-1", "mode": "allow"},
             {"id": "OBL-1", "mode": "deny"},
         ]
     )
     assert unresolved
+    assert not resolutions
     assert "governance review" in rationale[0]
+
+
+def test_unresolved_ckc_conflict_prevents_authoritative_assembly():
+    snapshot = registry()
+    original_intent = intent("authentication change")
+    resolution = ResolutionService().resolve_intent(original_intent, snapshot)
+    left = ckc("CAP-AUTH").model_copy(
+        update={"obligations": [{"id": "OBL-ACCESS", "mode": "allow"}]}
+    )
+    right = ckc("CAP-DEP").model_copy(
+        update={"obligations": [{"id": "OBL-ACCESS", "mode": "deny"}]}
+    )
+
+    with pytest.raises(AdmissionError, match="conflicts_resolved"):
+        AssemblyService().assemble(
+            original_intent,
+            resolution,
+            snapshot,
+            [left, right],
+        )
+
+
+def test_resolved_conflict_retains_outcome_and_policy_version():
+    _, _, unresolved, resolutions = resolve_obligation_conflicts(
+        [
+            {"id": "OBL-LATENCY", "maximum": 10},
+            {"id": "OBL-LATENCY", "maximum": 5},
+        ]
+    )
+
+    assert not unresolved
+    assert resolutions == [
+        {
+            "conflict_ref": "OBL-LATENCY",
+            "resolution_outcome": "selected-stricter-maximum",
+            "assembly_compatible": True,
+            "policy_basis": {
+                "id": "POL-STRICTER-OBLIGATION-PREVAILS",
+                "version": 1,
+            },
+        }
+    ]

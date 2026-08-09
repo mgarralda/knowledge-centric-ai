@@ -45,7 +45,7 @@ properties:
   owner: {type: string, minLength: 1}
   domain: {type: string, minLength: 1}
   lifecycle:
-    enum: [discovered, proposed, approved, active, under-review, retired, merged]
+    enum: [approved, active, under-review, retired, merged]
   active_ckc:
     type: object
     required: [id, version]

@@ -24,6 +24,8 @@ required:
   - cee_configuration_ref
   - intent_ref
   - registry_snapshot_ref
+  - matcher
+  - confidence
   - candidate_generation
   - relation_expansion
   - filtering
@@ -49,6 +51,22 @@ properties:
   cee_configuration_ref: {type: string, pattern: "^CEE-CONFIG-[A-Z0-9-]+$"}
   intent_ref: {type: string, pattern: "^INT-[A-Z0-9-]+$"}
   registry_snapshot_ref: {type: string, pattern: "^REG-SNAP-[A-Z0-9-]+$"}
+  matcher:
+    type: object
+    required: [id, version, method]
+    properties:
+      id: {type: string, pattern: "^MATCHER-[A-Z0-9-]+$"}
+      version: {type: [integer, string]}
+      method: {type: string, minLength: 1}
+    additionalProperties: true
+  confidence:
+    type: object
+    required: [mode, calibration]
+    properties:
+      mode: {enum: [qualitative, quantitative]}
+      calibration: {type: string, minLength: 1}
+      interpretation: {type: string, minLength: 1}
+    additionalProperties: true
   candidate_generation: {type: object}
   relation_expansion: {type: object}
   filtering: {type: object}

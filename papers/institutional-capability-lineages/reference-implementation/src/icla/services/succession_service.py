@@ -52,8 +52,12 @@ class SuccessionService:
             raise SuccessionError(
                 "The predecessor must already belong to the CKC lineage"
             ) from error
-        if stored_predecessor != predecessor or latest.version != predecessor.version:
-            raise SuccessionError("The predecessor must be the latest governed CKC version")
+        if stored_predecessor != predecessor:
+            raise SuccessionError("The predecessor does not match the retained CKC version")
+        if latest.version != predecessor.version:
+            raise SuccessionError(
+                "stale-predecessor: predecessor is not the latest appended CKC"
+            )
 
         authorized_actor = (
             successor.governance.get("succession_authority")

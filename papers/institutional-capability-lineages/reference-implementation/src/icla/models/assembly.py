@@ -53,6 +53,7 @@ class Assembly(SpecificationMetadata):
     evaluation_contract: dict[str, Any]
     evidence_contract: dict[str, Any]
     correctness: dict[str, bool]
+    correctness_trace: dict[str, Any] = Field(default_factory=dict)
     retention: dict[str, Any] = Field(default_factory=dict)
     access_policy_ref: str | None = None
     materializations: list[dict[str, Any]] = Field(default_factory=list)

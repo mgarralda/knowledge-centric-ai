@@ -5,6 +5,12 @@ capability-formation extension. The paper remains the authority for ICLA's
 conceptual meaning; schemas and code are inspectable realizations of that
 meaning.
 
+The complete invariant-level evidentiary mapping is published in the
+[ICLA conformance coverage matrix](../specification/conformance-matrix.md).
+That matrix maps ICLA-1–ICLA-11 without assigning a score, pass/fail column, or
+certification status. The construct matrix below focuses on the complementary
+capability-formation path.
+
 ## Construct-to-artifact matrix
 
 | Construct or transition | Schema / retained artifact | Executable operation | Principal verification |
@@ -37,6 +43,21 @@ fixtures and deterministic implementation:
 - invalid requests are rejected before append-only writes in the single-process
   reference flow;
 - input snapshots and earlier trace records are not rewritten;
+- resolution retains the matcher identifier/version and explicit confidence
+  semantics without presenting qualitative ranking as calibrated probability;
+- institutional capabilities cannot use the pre-institutional `candidate` or
+  `submitted` states, which belong exclusively to Capability Proposal;
+- the OAuth `RequiredCovered` trace pins its deterministic method and validator
+  version;
+- `ConflictsResolved` retains the applicable conflict, compatible outcome, and
+  policy/version basis, while unresolved CKC conflicts block assembly;
+- a submitted-report transformation, when declared, must retain an identifier
+  and version in evidence provenance;
+- a schema-valid bundle may still be rejected when governed evidence is
+  insufficient;
+- impact analysis identifies review scope without mutating canonical state;
+- successor append rejects a stale predecessor before creating a branch or
+  changing the active pointer;
 - OAuth succession and its historical references continue to pass regression
   tests.
 
@@ -47,7 +68,7 @@ capability-formation path. They are not a general validation of crystallization.
 
 The implementation consumes, but does not decide, whether:
 
-- a recurrent pattern was detected accurately;
+- the retained history establishes recurrence adequately;
 - the declared time horizon is sufficient;
 - the proposed responsibility has a sound institutional boundary;
 - the candidate owner is accountable and appropriate;
@@ -69,4 +90,3 @@ poetry run icla run-trace oauth-042
 poetry run icla run-trace auth-evolution-formation
 poetry run pytest
 ```
-

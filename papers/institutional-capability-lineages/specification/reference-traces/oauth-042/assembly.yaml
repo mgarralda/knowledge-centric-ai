@@ -215,6 +215,22 @@ correctness:
   within_budget: true
   mandate_bounded: true
 
+correctness_trace:
+  required_covered:
+    applied_method: deterministic
+    applicable_reference:
+      kind: validator
+      id: VALIDATOR-ICLA-REFERENCE-ASSEMBLY
+      version: 1
+  conflicts_resolved:
+    applicable_conflicts:
+      - conflict_ref: backward-compatibility-obligation
+        resolution_outcome: selected-stricter-obligation
+        assembly_compatible: true
+        policy_basis:
+          id: POL-STRICTER-OBLIGATION-PREVAILS
+          version: 1
+
 retention:
   policy_ref: POL-ICLA-TRACE-RETENTION-v1
   historical_reproduction: required

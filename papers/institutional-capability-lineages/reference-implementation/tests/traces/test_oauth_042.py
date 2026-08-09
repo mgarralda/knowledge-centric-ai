@@ -243,6 +243,30 @@ def test_oauth_042_end_to_end_governed_successor(tmp_path):
         item["capability"] for item in resolution["admission"]["admitted_capabilities"]
     }
     assert generated_resolution.admission.status == "admitted"
+    assert resolution["matcher"] == {
+        "id": "MATCHER-ICLA-REFERENCE",
+        "version": 1,
+        "method": "hybrid-metadata-and-relation-traversal",
+    }
+    assert resolution["confidence"] == {
+        "mode": "qualitative",
+        "calibration": "not-calibrated",
+        "interpretation": "Candidate ranking only; values are not probabilities",
+    }
+    assert generated_resolution.matcher.id == resolution["matcher"]["id"]
+    assert generated_resolution.matcher.version == resolution["matcher"]["version"]
+    assert generated_resolution.confidence.mode == resolution["confidence"]["mode"]
+    assert generated_resolution.confidence.calibration == resolution["confidence"][
+        "calibration"
+    ]
+    assert artifacts["assembly"]["correctness_trace"]["required_covered"] == {
+        "applied_method": "deterministic",
+        "applicable_reference": {
+            "kind": "validator",
+            "id": "VALIDATOR-ICLA-REFERENCE-ASSEMBLY",
+            "version": 1,
+        },
+    }
     assert set(generated_resolution.selected_capabilities) == expected_capabilities
     assert resolution["admission"]["status"] == "admitted"
     assert {item["capability"] for item in resolution["filtering"]["excluded"]} == {
@@ -276,6 +300,9 @@ def test_oauth_042_end_to_end_governed_successor(tmp_path):
         "selection_mode": "contract-selected",
         "checkpoint": "terminal",
     }
+    assert evidence.lineage["submitted_report_transformations"] == [
+        {"id": "TRANSFORM-OAUTH-EVIDENCE-REPORT", "version": 1}
+    ]
     assert evidence.execution["consumed_memory_roles"] == [
         "semantic",
         "procedural",

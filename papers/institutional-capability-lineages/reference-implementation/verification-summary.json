@@ -1,0 +1,52 @@
+{
+  "document_type": "companion-verification-summary",
+  "manuscript_alignment": "ICLA_EMISAJ_CR_35",
+  "verification_date": "2026-08-09",
+  "specification_version": {
+    "icla-spec": "0.1.0"
+  },
+  "scope": "constructed reference artifacts and deterministic modeled paths",
+  "results": {
+    "schemas": {
+      "published": 9,
+      "valid": 9
+    },
+    "tests": {
+      "passed": 82,
+      "failed": 0
+    },
+    "reference_traces": [
+      {
+        "name": "oauth-042",
+        "artifacts": 8,
+        "profile": "ICLA-Governed",
+        "pre_institutional_boundary_checked": true
+      },
+      {
+        "name": "auth-evolution-formation",
+        "artifacts": 6,
+        "profile": "ICLA-Evolving"
+      }
+    ],
+    "static_analysis": {
+      "tool": "ruff",
+      "errors": 0
+    }
+  },
+  "commands": [
+    "poetry run ruff check src tests",
+    "poetry run pytest",
+    "poetry run icla validate-schemas",
+    "poetry run icla run-trace oauth-042",
+    "poetry run icla run-trace auth-evolution-formation"
+  ],
+  "excluded_claims": [
+    "discovery effectiveness",
+    "institutional judgment quality",
+    "organizational effectiveness",
+    "production readiness",
+    "distributed consistency",
+    "organizational-scale operation"
+  ],
+  "interpretation": "This file reports verification of the packaged revision; it is not a certification result or maturity score."
+}

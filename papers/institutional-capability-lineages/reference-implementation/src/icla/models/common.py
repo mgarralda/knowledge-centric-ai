@@ -30,8 +30,6 @@ class ExtensibleModel(BaseModel):
 
 
 class LifecycleStatus(StrEnum):
-    DISCOVERED = "discovered"
-    PROPOSED = "proposed"
     APPROVED = "approved"
     ACTIVE = "active"
     UNDER_REVIEW = "under-review"

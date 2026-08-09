@@ -50,9 +50,12 @@ class AssemblyService:
         }
         supplied = {(item.capability_ref, item.id, item.version) for item in ckcs}
         exact = admitted == supplied
-        obligations, conflict_rationale, unresolved_obligations = resolve_obligation_conflicts(
-            [item for ckc in ckcs for item in ckc.obligations]
-        )
+        (
+            obligations,
+            conflict_rationale,
+            unresolved_obligations,
+            conflict_resolutions,
+        ) = resolve_obligation_conflicts([item for ckc in ckcs for item in ckc.obligations])
         metrics = [metric for ckc in ckcs for metric in ckc.evaluation_contract.get("metrics", [])]
         budget_limit = intent.budget.get("max_capabilities")
         within_budget = budget_limit is None or len(ckcs) <= int(budget_limit)
@@ -165,6 +168,19 @@ class AssemblyService:
                 "checkpoint_policy": ["terminal", "contract-defined"],
             },
             correctness=correctness,
+            correctness_trace={
+                "required_covered": {
+                    "applied_method": "deterministic",
+                    "applicable_reference": {
+                        "kind": "validator",
+                        "id": "VALIDATOR-ICLA-REFERENCE-ASSEMBLY",
+                        "version": 1,
+                    },
+                },
+                "conflicts_resolved": {
+                    "applicable_conflicts": conflict_resolutions,
+                },
+            },
             retention={
                 "policy_ref": "POL-ICLA-TRACE-RETENTION-v1",
                 "historical_reproduction": "required",

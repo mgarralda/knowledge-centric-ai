@@ -230,6 +230,28 @@ def test_append_rejects_a_delta_that_does_not_describe_the_complete_successor(tm
         )
 
 
+def test_icla_9_rejects_stale_predecessor_without_creating_a_branch(tmp_path):
+    repository, succession, _ = governed_services(tmp_path)
+    succession.append_successor(
+        snapshot().capability("CAP-VERIFY"),
+        predecessor(),
+        successor(),
+        decision(),
+        actor="OWNER",
+    )
+
+    with pytest.raises(SuccessionError, match="stale-predecessor"):
+        succession.append_successor(
+            snapshot().capability("CAP-VERIFY"),
+            predecessor(),
+            successor(),
+            decision(),
+            actor="OWNER",
+        )
+
+    assert [item.version for item in repository.list_lineage("CKC-VERIFY")] == [9, 10]
+
+
 def test_activation_rejects_an_undeclared_authority(tmp_path):
     _, service, _ = append_governed_successor(tmp_path)
     with pytest.raises(ActivationError, match="activation authority"):

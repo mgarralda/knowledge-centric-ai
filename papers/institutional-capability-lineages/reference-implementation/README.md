@@ -15,11 +15,8 @@ platform.
 
 ## Relationship to the ICLA artifacts
 
-- [Paper overview](../README.md) — concepts, invariants, lifecycle, and
-  evaluation claims.
-- [Current SSRN preprint](https://dx.doi.org/10.2139/ssrn.7172438) —
-  *Institutional Capability Lineages: A Registry-centered Reference
-  Architecture for Governed and Evolving AI*.
+- The reviewed manuscript defines the concepts, invariants, lifecycle, and
+  evaluation claims; reviewer packages intentionally omit the manuscript.
 - [Reference schemas](../specification/schemas/README.md) — nine JSON Schema
   Draft 2020-12 contracts.
 - [OAuth 2.1 reference trace](../specification/reference-traces/oauth-042/README.md)
@@ -31,6 +28,9 @@ platform.
   paper and specification to Python modules and services.
 - [Conformance and claim boundary](CONFORMANCE.md) — construct-to-artifact
   coverage and the exact limits of the executable evidence.
+- [Invariant conformance coverage](../specification/conformance-matrix.md) —
+  ICLA-1–ICLA-11 mapping from machine-checkable clauses to supporting
+  artifacts, executable tests, and governed-judgment remainders.
 
 The paper defines the architecture. The sibling `../specification/` directory
 defines the reference artifact contracts. This package makes both the
@@ -51,6 +51,8 @@ The implementation includes:
 - overlapping semantic, procedural, and episodic knowledge-role annotations
   without imposing storage partitions;
 - intent resolution, relation traversal, constraint checking, and admission;
+- retained matcher identity/version and explicit, non-calibrated confidence
+  semantics for resolution auditability;
 - immutable contextual assembly with an execution-scoped operational mandate
   and exact CKC, source, policy, evaluation, and transformation versions;
 - bundle, payload, workspace, and governed-access-handle materialization;
@@ -69,6 +71,8 @@ The implementation includes:
   semantic or procedural CKC commitments;
 - a standalone pre-institutional capability proposal with only `candidate` and
   `submitted` states;
+- institutional capability lifecycle states that exclude those
+  pre-institutional proposal states;
 - governed formation from a submitted proposal to exactly one new capability
   and one complete immutable initial CKC v1, without implicit activation;
 - a subsequent initial activation that publishes the already formed CKC for
@@ -229,8 +233,24 @@ reference-implementation/
 - CEE reasoning, working memory, local stores, and intermediate artifacts are
   not disclosed unless selected by the evidence contract.
 - Re-resolution is event-driven; it is not required for each local CEE step.
+- The `RequiredCovered` trace retains its applied assessment method and the
+  applicable validator, model, or review-policy identifier and version.
+- Resolution retains the applicable matcher identifier/version and states
+  whether confidence is qualitative or quantitative; the reference matcher's
+  ranking is explicitly not calibrated as probability.
+- The `ConflictsResolved` trace retains each applicable conflict, its
+  assembly-compatible outcome, and the governing policy identifier and version;
+  unresolved conflicts cannot produce an authoritative assembly.
 - Governed and non-standard measurements remain separate.
+- Schema conformity is reported independently from evidence qualification and
+  does not establish substantive correctness or evidential sufficiency.
+- Evidence provenance conditionally retains any versioned transformation used
+  to construct the submitted report.
 - Materializations cannot silently become canonical CKCs.
+- Successor append requires the latest appended CKC as predecessor; a stale
+  predecessor is rejected without branching or activating the candidate.
+- Impact analysis scopes review without directly mutating, invalidating, or
+  blocking canonical state.
 - OAuth's candidate proposal never assigns identity; only the separate
   submitted-proposal trace crosses the governed formation boundary.
 - Formation creates an `approved` capability without an active pointer; only a
@@ -263,5 +283,6 @@ ICLA semantics.
 ## License
 
 The Python reference implementation is licensed under the [MIT License](LICENSE).
-The paper, schemas, documentation, and reference traces are licensed under
-[Creative Commons Attribution 4.0 International](../README.md#license).
+The schemas, documentation, and reference traces are licensed under Creative
+Commons Attribution 4.0 International; the reviewer package includes that
+license at its root.

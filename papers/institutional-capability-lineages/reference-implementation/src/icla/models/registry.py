@@ -11,7 +11,7 @@ See the LICENSE file in the repository root for details.
 # Module purpose: Immutable Registry snapshots and typed relations.
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import Field
 
@@ -20,7 +20,15 @@ from .common import SpecificationMetadata, TypedRelation
 
 
 class RegistryRelation(TypedRelation):
-    pass
+    relation_type: Literal[
+        "depends_on",
+        "composes_with",
+        "specializes",
+        "replaces",
+        "shares_knowledge",
+        "derived_from",
+        "conflicts_with",
+    ] = Field(alias="type")
 
 
 class RegistrySnapshot(SpecificationMetadata):

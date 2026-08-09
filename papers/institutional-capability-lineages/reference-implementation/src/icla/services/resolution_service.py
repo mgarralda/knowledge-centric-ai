@@ -206,6 +206,18 @@ class ResolutionService:
             cee_configuration_ref=intent.cee.configuration.id,
             intent_ref=intent.id,
             registry_snapshot_ref=registry.id,
+            matcher={
+                "id": "MATCHER-ICLA-REFERENCE",
+                "version": 1,
+                "method": "deterministic-metadata-and-relation-traversal",
+            },
+            confidence={
+                "mode": "qualitative",
+                "calibration": "not-calibrated",
+                "interpretation": (
+                    "candidate scores support relative ranking only and are not probabilities"
+                ),
+            },
             candidate_generation={"candidates": candidates},
             relation_expansion={
                 "capabilities": sorted(expanded),

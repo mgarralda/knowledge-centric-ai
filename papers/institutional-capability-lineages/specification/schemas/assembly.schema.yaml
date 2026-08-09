@@ -31,6 +31,7 @@ required:
   - evaluation_contract
   - evidence_contract
   - correctness
+  - correctness_trace
   - retention
   - access_policy_ref
   - materializations
@@ -152,6 +153,48 @@ properties:
   correctness:
     type: object
     required: [traceable, authorized, required_covered, evaluation_bound, conflicts_resolved, within_budget, mandate_bounded]
+    additionalProperties: true
+  correctness_trace:
+    type: object
+    required: [required_covered, conflicts_resolved]
+    properties:
+      required_covered:
+        type: object
+        required: [applied_method, applicable_reference]
+        properties:
+          applied_method:
+            enum: [deterministic, model-assisted, human-reviewed]
+          applicable_reference:
+            type: object
+            required: [kind, id, version]
+            properties:
+              kind: {enum: [validator, model, review-policy]}
+              id: {type: string, minLength: 1}
+              version: {type: [integer, string]}
+            additionalProperties: false
+        additionalProperties: false
+      conflicts_resolved:
+        type: object
+        required: [applicable_conflicts]
+        properties:
+          applicable_conflicts:
+            type: array
+            items:
+              type: object
+              required: [conflict_ref, resolution_outcome, assembly_compatible, policy_basis]
+              properties:
+                conflict_ref: {type: string, minLength: 1}
+                resolution_outcome: {type: string, minLength: 1}
+                assembly_compatible: {const: true}
+                policy_basis:
+                  type: object
+                  required: [id, version]
+                  properties:
+                    id: {type: string, minLength: 1}
+                    version: {type: [integer, string]}
+                  additionalProperties: false
+              additionalProperties: true
+        additionalProperties: false
     additionalProperties: true
   retention:
     type: object

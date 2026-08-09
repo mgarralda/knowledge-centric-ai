@@ -10,7 +10,7 @@ See the LICENSE file in the repository root for details.
 
 # Module purpose: Resolution, exclusion rationale, and admission decision.
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import Field
 
@@ -41,12 +41,26 @@ class AdmissionDecision(ExtensibleModel):
     rationale: list[str] = Field(default_factory=list)
 
 
+class MatcherReference(ExtensibleModel):
+    id: str
+    version: str | int
+    method: str
+
+
+class ConfidenceDisclosure(ExtensibleModel):
+    mode: Literal["qualitative", "quantitative"]
+    calibration: str
+    interpretation: str | None = None
+
+
 class ResolutionResult(SpecificationMetadata):
     document_type: str = "capability-resolution"
     cee_ref: str
     cee_configuration_ref: str
     intent_ref: str
     registry_snapshot_ref: str
+    matcher: MatcherReference
+    confidence: ConfidenceDisclosure
     candidate_generation: dict[str, Any]
     relation_expansion: dict[str, Any]
     filtering: dict[str, Any]

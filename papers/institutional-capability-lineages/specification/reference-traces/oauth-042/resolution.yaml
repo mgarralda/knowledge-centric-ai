@@ -26,8 +26,14 @@ cee_ref: CEE-OAUTH-042
 cee_configuration_ref: CEE-CONFIG-OAUTH-042
 intent_ref: INT-OAUTH-042
 registry_snapshot_ref: REG-SNAP-042
-resolution_method: hybrid-metadata-and-relation-traversal
-scoring_disclosure: qualitative-ranking-only
+matcher:
+  id: MATCHER-ICLA-REFERENCE
+  version: 1
+  method: hybrid-metadata-and-relation-traversal
+confidence:
+  mode: qualitative
+  calibration: not-calibrated
+  interpretation: Candidate ranking only; values are not probabilities
 
 candidate_generation:
   direct:
