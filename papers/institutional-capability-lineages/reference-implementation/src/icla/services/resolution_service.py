@@ -196,7 +196,7 @@ class ResolutionService:
             and not conflicts
             and within_budget
         )
-        status = "admitted" if authoritative else "partial" if admitted else "inadmissible"
+        status = "admitted" if authoritative else "escalated" if admitted else "rejected"
         resolution_id = _identifier("RES", f"{intent.id}:{registry.id}")
         return ResolutionResult(
             id=resolution_id,

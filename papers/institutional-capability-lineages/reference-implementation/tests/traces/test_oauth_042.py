@@ -24,7 +24,7 @@ from icla.specification import (
     ConformanceChecker,
     ConformanceProfile,
 )
-from icla.specification.conformance import check_icla_11_discovery_authority
+from icla.specification.conformance import check_icla_11_formation_authority
 from icla.storage import AppendOnlyStore
 
 TRACE = Path(__file__).resolve().parents[3] / "specification" / "reference-traces" / "oauth-042"
@@ -231,7 +231,7 @@ def test_oauth_042_end_to_end_governed_successor(tmp_path):
     artifacts = {path.stem: validator.validate_file(path) for path in sorted(TRACE.glob("*.yaml"))}
     checker = ConformanceChecker()
     checker.require_trace(artifacts.values(), ConformanceProfile.GOVERNED)
-    assert not check_icla_11_discovery_authority(artifacts["governance-decision"])
+    assert not check_icla_11_formation_authority(artifacts["governance-decision"])
 
     registry = RegistrySnapshot.model_validate(artifacts["capability-registry"])
     generated_resolution = ResolutionService().resolve_intent(
@@ -364,9 +364,11 @@ def test_oauth_042_end_to_end_governed_successor(tmp_path):
     assert decision.capability_formation["proposal_refs"] == [proposal.id]
     assert proposal.status == "candidate"
     assert proposal.recurrence_assessment == {
-        "established": False,
+        "basis": "observed-recurrence",
+        "justified_expectation": False,
         "current_trace_sufficient": False,
         "declared_horizon": "Multiple independent authentication-change intents",
+        "rationale": "One execution does not yet justify recurrence over the declared horizon",
         "required_future_execution_types": [
             "token-rotation",
             "provider-replacement",
@@ -435,6 +437,18 @@ def test_oauth_042_end_to_end_governed_successor(tmp_path):
         edge.source == "EXE-OAUTH-042"
         and edge.relation_type == "performed_by"
         and edge.target == "CEE-OAUTH-042"
+        for edge in lineage.edges
+    )
+    assert any(
+        edge.source == "ASM-OAUTH-042"
+        and edge.relation_type == "uses"
+        and edge.target == "SRC-IDENTITY-POLICY@8"
+        for edge in lineage.edges
+    )
+    assert any(
+        edge.source == "MAT-AGENT-042"
+        and edge.relation_type == "materializes"
+        and edge.target == "ASM-OAUTH-042"
         for edge in lineage.edges
     )
     assert any(

@@ -79,13 +79,21 @@ properties:
     required: [id, status, admitted_capabilities]
     properties:
       id: {type: string, pattern: "^ADM-[A-Z0-9-]+$"}
-      status: {enum: [admitted, partial, inadmissible]}
+      status: {enum: [admitted, rejected, escalated]}
       admitted_capabilities:
         type: array
         items:
           type: object
           required: [capability, ckc, version]
           additionalProperties: true
+    allOf:
+      - if:
+          properties:
+            status: {const: admitted}
+          required: [status]
+        then:
+          properties:
+            admitted_capabilities: {minItems: 1}
     additionalProperties: true
   trace: {type: object}
 additionalProperties: true

@@ -22,7 +22,7 @@ generated_from:
 inputs:
   proposal_ref: PROP-AUTH-EVOL-01
   registry_snapshot_ref: REG-SNAP-AUTH-EVOL-BEFORE
-  supporting_history_refs:
+  supporting_record_refs:
     - ASM-OAUTH-042
     - EVD-OAUTH-042
     - ASM-AUTH-ROTATION-017
@@ -81,7 +81,7 @@ activation:
   resulting_registry_snapshot_ref: REG-SNAP-AUTH-EVOL-ACTIVE
 
 historical_immutability:
-  retained_history_refs:
+  retained_supporting_record_refs:
     - ASM-OAUTH-042
     - EVD-OAUTH-042
     - ASM-AUTH-ROTATION-017

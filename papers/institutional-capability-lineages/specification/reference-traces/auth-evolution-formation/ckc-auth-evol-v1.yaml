@@ -20,7 +20,7 @@ generated_from:
   capability_proposal: PROP-AUTH-EVOL-01
   governance_decision: DEC-AUTH-EVOL-FORMATION-001
   formation_append: FORM-AUTH-EVOL-001
-  recurrent_history:
+  supporting_record_refs:
     - ASM-OAUTH-042
     - EVD-OAUTH-042
     - ASM-AUTH-ROTATION-017
@@ -78,4 +78,3 @@ source_bindings:
     authority: identity-and-api-governance-review
     knowledge_roles: [semantic, procedural]
     derived_from: PROP-AUTH-EVOL-01
-

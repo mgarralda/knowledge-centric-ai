@@ -16,20 +16,50 @@ status: submitted
 
 generated_from:
   recurrence_review: REVIEW-AUTH-EVOL-01
-  retained_history:
-    - ASM-OAUTH-042
-    - EVD-OAUTH-042
-    - ASM-AUTH-ROTATION-017
-    - EVD-AUTH-ROTATION-017
-    - ASM-AUTH-PROVIDER-023
-    - EVD-AUTH-PROVIDER-023
+  supporting_records:
+    - record_ref: ASM-OAUTH-042
+      record_type: contextual-assembly
+      repository_ref: companion-reference-traces
+      record_locator: ../oauth-042/assembly.yaml
+      record_version: 1
+      provenance_refs: [INT-OAUTH-042, RES-OAUTH-042, REG-SNAP-OAUTH-042]
+    - record_ref: EVD-OAUTH-042
+      record_type: execution-evidence-bundle
+      repository_ref: companion-reference-traces
+      record_locator: ../oauth-042/evidence-bundle.yaml
+      record_version: 1
+      provenance_refs: [ASM-OAUTH-042, EXE-OAUTH-042, CEE-OAUTH-042]
+    - record_ref: ASM-AUTH-ROTATION-017
+      record_type: contextual-assembly
+      repository_ref: ORG-MEM-AUTH-CHANGE
+      record_locator: assemblies/ASM-AUTH-ROTATION-017
+      record_version: 1
+      provenance_refs: [INT-AUTH-ROTATION-017, REG-SNAP-AUTH-ROTATION-017]
+    - record_ref: EVD-AUTH-ROTATION-017
+      record_type: execution-evidence-bundle
+      repository_ref: ORG-MEM-AUTH-CHANGE
+      record_locator: evidence/EVD-AUTH-ROTATION-017
+      record_version: 1
+      provenance_refs: [ASM-AUTH-ROTATION-017, EXE-AUTH-ROTATION-017]
+    - record_ref: ASM-AUTH-PROVIDER-023
+      record_type: contextual-assembly
+      repository_ref: ORG-MEM-AUTH-CHANGE
+      record_locator: assemblies/ASM-AUTH-PROVIDER-023
+      record_version: 1
+      provenance_refs: [INT-AUTH-PROVIDER-023, REG-SNAP-AUTH-PROVIDER-023]
+    - record_ref: EVD-AUTH-PROVIDER-023
+      record_type: execution-evidence-bundle
+      repository_ref: ORG-MEM-AUTH-CHANGE
+      record_locator: evidence/EVD-AUTH-PROVIDER-023
+      record_version: 1
+      provenance_refs: [ASM-AUTH-PROVIDER-023, EXE-AUTH-PROVIDER-023]
 
 proposed_responsibility:
   name: Authentication Protocol Evolution
   outcome: Govern recurrent cross-capability authentication protocol changes
   domain: identity-and-api-governance
 
-pattern_signal_refs:
+supporting_record_refs:
   - ASM-OAUTH-042
   - EVD-OAUTH-042
   - ASM-AUTH-ROTATION-017
@@ -38,10 +68,11 @@ pattern_signal_refs:
   - EVD-AUTH-PROVIDER-023
 
 recurrence_assessment:
-  established: true
+  basis: observed-recurrence
+  justified_expectation: true
   current_trace_sufficient: true
   declared_horizon: Three independent authentication-change intents over twelve months
-  assessment_basis: Repeated responsibility, assembly rules, and comparable outcomes
+  rationale: Repeated responsibility, assembly rules, and comparable outcomes justify recurrence over the declared horizon
 
 stable_assembly_rules:
   - Compose identity, API evolution, and validation capabilities

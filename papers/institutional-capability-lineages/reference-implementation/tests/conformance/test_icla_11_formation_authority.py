@@ -1,7 +1,9 @@
+"""ICLA-11 governed capability-formation authority checks."""
+
 from icla.specification.conformance import (
     ConformanceChecker,
     ConformanceProfile,
-    check_icla_11_discovery_authority,
+    check_icla_11_formation_authority,
 )
 
 
@@ -9,10 +11,27 @@ def proposal(**updates):
     value = {
         "document_type": "capability-proposal",
         "id": "PROP-1",
+        "generated_from": {
+            "supporting_records": [
+                {
+                    "record_ref": "ASM-1",
+                    "record_type": "contextual-assembly",
+                    "repository_ref": "ORG-MEM-1",
+                    "record_locator": "assemblies/ASM-1",
+                    "record_version": 1,
+                    "provenance_refs": ["INT-1"],
+                }
+            ]
+        },
         "status": "candidate",
         "proposed_responsibility": {"name": "N", "outcome": "O", "domain": "D"},
-        "pattern_signal_refs": ["ASM-1"],
-        "recurrence_assessment": {"established": False},
+        "supporting_record_refs": ["ASM-1"],
+        "recurrence_assessment": {
+            "basis": "observed-recurrence",
+            "justified_expectation": False,
+            "declared_horizon": "future intents",
+            "rationale": "One observation is insufficient",
+        },
         "stable_assembly_rules": ["rule"],
         "value_assessment": {"result": "pending"},
         "comparable_outcome_refs": ["OUT-1"],
@@ -71,16 +90,16 @@ def test_incomplete_decision_cannot_create_capability():
         "document_type": "governance-decision",
         "capability_formation": {"new_capability_created_by_this_decision": True},
     }
-    assert check_icla_11_discovery_authority(artifact)
+    assert check_icla_11_formation_authority(artifact)
 
 
 def test_valid_positive_promotion_has_no_artifact_level_boundary_error():
-    assert not check_icla_11_discovery_authority(promotion_decision())
+    assert not check_icla_11_formation_authority(promotion_decision())
 
 
 def test_pre_institutional_proposal_uses_candidate_or_submitted_only():
     artifact = proposal(status="draft")
-    assert check_icla_11_discovery_authority(artifact) == [
+    assert check_icla_11_formation_authority(artifact) == [
         "ICLA-11: pre-institutional proposal must be candidate or submitted"
     ]
 
@@ -91,7 +110,7 @@ def test_pre_institutional_lifecycle_cannot_be_assigned_to_a_capability_identity
         "id": "CAP-CANDIDATE",
         "lifecycle": "candidate",
     }
-    assert check_icla_11_discovery_authority(artifact) == [
+    assert check_icla_11_formation_authority(artifact) == [
         "ICLA-11: an institutional capability cannot use a pre-institutional lifecycle"
     ]
 
@@ -99,28 +118,83 @@ def test_pre_institutional_lifecycle_cannot_be_assigned_to_a_capability_identity
         "document_type": "institutional-capability-registry-snapshot",
         "capabilities": [artifact],
     }
-    assert check_icla_11_discovery_authority(registry) == [
+    assert check_icla_11_formation_authority(registry) == [
         "ICLA-11: Registry capability uses a pre-institutional lifecycle"
     ]
 
 
 def test_pre_institutional_proposal_cannot_carry_assigned_identity():
     artifact = proposal(assigned_identity="CAP-NEW")
-    assert check_icla_11_discovery_authority(artifact) == [
+    assert check_icla_11_formation_authority(artifact) == [
         "ICLA-11: proposal carries institutional identity before promotion"
     ]
 
 
-def test_submitted_proposal_requires_established_recurrence():
+def test_submitted_proposal_requires_justified_continuity_expectation():
     artifact = proposal(status="submitted")
-    assert check_icla_11_discovery_authority(artifact) == [
-        "ICLA-11: submitted proposal does not establish recurrence"
+    assert check_icla_11_formation_authority(artifact) == [
+        "ICLA-11: submitted proposal does not justify expected recurrence or continuing "
+        "institutional need"
     ]
 
 
+def test_submitted_proposal_may_use_general_records_and_prospective_justification():
+    supporting_records = [
+        {
+            "record_ref": "INT-UNRESOLVED-CUSTOMER-ONBOARDING",
+            "record_type": "operational-intent",
+            "repository_ref": "ORG-MEM-STRATEGY",
+            "record_locator": "intents/INT-UNRESOLVED-CUSTOMER-ONBOARDING",
+            "record_version": 1,
+            "provenance_refs": ["CEE-CUSTOMER-ONBOARDING"],
+        },
+        {
+            "record_ref": "DEC-STRATEGY-DIGITAL-ACCESS",
+            "record_type": "strategic-decision",
+            "repository_ref": "ORG-MEM-STRATEGY",
+            "record_locator": "decisions/DEC-STRATEGY-DIGITAL-ACCESS",
+            "record_version": 1,
+            "provenance_refs": ["POL-DIGITAL-ACCESS"],
+        },
+        {
+            "record_ref": "ONBOARD-PARTNER-PLATFORM",
+            "record_type": "onboarding-record",
+            "repository_ref": "ORG-MEM-STRATEGY",
+            "record_locator": "onboarding/ONBOARD-PARTNER-PLATFORM",
+            "record_version": 1,
+            "provenance_refs": ["DEC-STRATEGY-DIGITAL-ACCESS"],
+        },
+    ]
+    artifact = proposal(
+        status="submitted",
+        generated_from={"supporting_records": supporting_records},
+        supporting_record_refs=[item["record_ref"] for item in supporting_records],
+        recurrence_assessment={
+            "basis": "prospective-continuity",
+            "justified_expectation": True,
+            "current_trace_sufficient": False,
+            "declared_horizon": "approved two-year platform strategy",
+            "rationale": (
+                "The approved strategy requires the responsibility before recurrence exists"
+            ),
+        },
+    )
+
+    assert not check_icla_11_formation_authority(artifact)
+
+
+def test_evolving_conformance_rejects_unresolved_supporting_record_provenance():
+    artifact = proposal()
+    artifact["generated_from"]["supporting_records"] = []
+
+    assert ConformanceChecker().check_trace(
+        [artifact], ConformanceProfile.EVOLVING
+    ) == ["ICLA-Evolving: supporting-record provenance is unresolved"]
+
+
 def test_zero_one_or_multiple_proposals_remain_preinstitutional():
-    assert not check_icla_11_discovery_authority({"document_type": "unrelated"})
-    assert not check_icla_11_discovery_authority(proposal())
+    assert not check_icla_11_formation_authority({"document_type": "unrelated"})
+    assert not check_icla_11_formation_authority(proposal())
     assert not ConformanceChecker().check_trace(
         [proposal(), proposal(id="PROP-2")], ConformanceProfile.EVOLVING
     )
@@ -128,7 +202,7 @@ def test_zero_one_or_multiple_proposals_remain_preinstitutional():
 
 def test_proposal_draft_cannot_anticipate_an_institutional_ckc_identity():
     artifact = proposal(proposal_scoped_ckc_draft_ref="CKC-NEW-v1-draft")
-    assert check_icla_11_discovery_authority(artifact) == [
+    assert check_icla_11_formation_authority(artifact) == [
         "ICLA-11: proposal draft anticipates an institutional CKC identity"
     ]
 
@@ -144,7 +218,7 @@ def test_promotion_requires_an_authorized_review_decision():
     artifact = promotion_decision(review={})
     assert (
         "ICLA-11: promotion must reference an authorized review decision"
-        in check_icla_11_discovery_authority(artifact)
+        in check_icla_11_formation_authority(artifact)
     )
 
 
@@ -160,5 +234,5 @@ def test_initial_activation_is_identifiable_separately_from_promotion():
     )
     assert (
         "ICLA-11: initial activation is not separately identifiable from promotion"
-        in check_icla_11_discovery_authority(artifact)
+        in check_icla_11_formation_authority(artifact)
     )

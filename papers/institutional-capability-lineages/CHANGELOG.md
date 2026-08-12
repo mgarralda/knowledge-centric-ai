@@ -12,8 +12,16 @@ All notable changes to the ICLA paper companion are recorded here.
   identity and appends one complete immutable CKC v1 without activating it.
 - Separate initial activation, `before -> formed -> active` Registry snapshots,
   formation-origin lineage, and positive, negative, and no-partial-effect tests.
-- A public conformance matrix separating machine-checked formation behavior
-  from discovery quality and institutional judgment.
+- A public conformance coverage matrix mapping ICLA-1–ICLA-11 to
+  machine-checkable clauses, supporting artifacts, executable tests, and the
+  governed-judgment remainder without producing a certification score.
+- Versioned `RequiredCovered` assessment provenance in assembly correctness traces and
+  conditional versioned transformation provenance for submitted evidence
+  reports, without adding principal object types.
+- Observable conflict-resolution provenance, including compatible outcome and
+  policy/version basis; schema-valid evidence rejection when governed evidence
+  is insufficient; and stale-predecessor rejection that prevents canonical CKC
+  branching without prescribing a locking strategy.
 
 - A machine-checkable pre-resolution `CAP-IAM` impact path for the OAuth
   example, covering the identity-policy change, affected interpretation and
@@ -42,8 +50,9 @@ All notable changes to the ICLA paper companion are recorded here.
   ICLA denotes the architecture, a capability lineage denotes its modeled
   authority-preserving structure, and a lineage trace denotes a concrete
   retained instantiation. Evidence informs governed change rather than
-  changing canonical state directly, and complete crystallization promotion is
-  recorded as future companion work.
+  changing canonical state directly. The later submitted-proposal trace now
+  exercises the bounded governed formation transition while automatic
+  discovery and promotion quality remain future work.
 - Aligned the public methodological description with the paper's iterative DSR
   account: literature synthesis positions, refines, and justifies the artifact
   boundaries; requirement-to-component links express traceability rather than
@@ -52,8 +61,8 @@ All notable changes to the ICLA paper companion are recorded here.
 - Extended impact analysis output with affected source bindings, exact CKC
   versions, traversed relations, retained CEEs, and version-aware assembly
   matching, aligned with the paper's expanded Organizational Memory model.
-- Updated the OAuth 2.1 reference trace and public architecture diagrams to
-  match the paper dated 2026-07-22.
+- Updated the OAuth 2.1 reference trace, conformance coverage, and public
+  architecture documentation to match the current manuscript.
 - Strengthened ICLA-3, ICLA-5, ICLA-6, and ICLA-8 conformance checks around
   CEE autonomy, mandate identity, and evidence boundaries.
 - Published the current paper and machine-readable citation metadata.

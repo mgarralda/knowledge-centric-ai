@@ -51,6 +51,9 @@ The implementation includes:
 - overlapping semantic, procedural, and episodic knowledge-role annotations
   without imposing storage partitions;
 - intent resolution, relation traversal, constraint checking, and admission;
+- explicit `admitted`, `rejected`, and `escalated` resolution outcomes; only an
+  admitted outcome has a mandatory nonempty exact capability-to-CKC map and
+  may proceed to assembly;
 - retained matcher identity/version and explicit, non-calibrated confidence
   semantics for resolution auditability;
 - immutable contextual assembly with an execution-scoped operational mandate
@@ -66,12 +69,16 @@ The implementation includes:
   relations, retained assemblies, and situated CEEs;
 - authorized append of complete successor CKCs as inactive lineage versions,
   followed by separate active-pointer transitions for future resolutions and
-  exact, pre-authorized rollback targets;
-- a connected lineage trace and historical preservation;
+  separately authorized reactivation of an eligible retained CKC;
+- a connected lineage trace across retained CKCs, source versions,
+  materializations, executions, evidence, decisions, and lifecycle records,
+  with historical preservation;
 - episodic evidence records and governed transition of accepted precedents into
   semantic or procedural CKC commitments;
 - a standalone pre-institutional capability proposal with only `candidate` and
-  `submitted` states;
+  `submitted` states, general supporting-record references, and an observed,
+  prospective, or mixed continuity justification; supporting references retain
+  repository, locator, version, and provenance metadata;
 - institutional capability lifecycle states that exclude those
   pre-institutional proposal states;
 - governed formation from a submitted proposal to exactly one new capability
@@ -110,9 +117,13 @@ several architectural boundaries from the paper executable:
   complete immutable successor CKC and an explanatory delta; append adds it to
   the lineage without moving the active pointer, and a separate activation can
   then make that exact appended version current for future resolutions.
+- **reactivation without lineage rewriting**: an eligible retained CKC can be
+  selected again only through a new approved activation decision, while other
+  capability pointers remain unchanged.
 - **formation without automatic discovery**: the implementation accepts a
-  submitted proposal and declared institutional decision, forms the identity
-  and initial CKC, and activates them separately; it never infers that the
+  submitted proposal with authorized supporting records and a declared
+  institutional decision, forms the identity and initial CKC, and activates
+  them separately; it neither requires a pattern signal nor infers that the
   proposal is valuable or institutionally correct.
 
 ## Requirements
@@ -139,7 +150,7 @@ The conformance commands should report:
 ```text
 Validated 9 schema(s)
 Validated 8 artifact(s); ICLA-Governed trace conformance passed; ICLA-11 pre-institutional proposal boundaries passed
-Validated 6 artifact(s); ICLA-Evolving trace conformance passed; governed capability formation and separate initial activation are represented; discovery effectiveness and institutional judgment were not assessed
+Validated 6 artifact(s); ICLA-Evolving trace conformance passed; governed capability formation and separate initial activation are represented; proposal-generation or discovery effectiveness and institutional judgment were not assessed
 ```
 
 For the complete development verification:
@@ -239,6 +250,10 @@ reference-implementation/
 - Resolution retains the applicable matcher identifier/version and states
   whether confidence is qualitative or quantitative; the reference matcher's
   ranking is explicitly not calibrated as probability.
+- Resolution uses the paper's `admitted`, `rejected`, and `escalated` outcome
+  vocabulary. An admitted outcome requires a nonempty exact active-CKC map;
+  rejected and escalated outcomes may retain an empty selection and cannot be
+  assembled by the reference service.
 - The `ConflictsResolved` trace retains each applicable conflict, its
   assembly-compatible outcome, and the governing policy identifier and version;
   unresolved conflicts cannot produce an authoritative assembly.
@@ -246,10 +261,14 @@ reference-implementation/
 - Schema conformity is reported independently from evidence qualification and
   does not establish substantive correctness or evidential sufficiency.
 - Evidence provenance conditionally retains any versioned transformation used
-  to construct the submitted report.
+  to construct the submitted report. This makes the transformation auditable;
+  it does not establish semantic fidelity or substantive correctness.
 - Materializations cannot silently become canonical CKCs.
 - Successor append requires the latest appended CKC as predecessor; a stale
   predecessor is rejected without branching or activating the candidate.
+- Any retained eligible CKC can become current only through a new approved
+  activation decision. The resulting snapshot changes only the target
+  capability's active pointer; other capability entries remain unchanged.
 - Impact analysis scopes review without directly mutating, invalidating, or
   blocking canonical state.
 - OAuth's candidate proposal never assigns identity; only the separate
@@ -261,8 +280,12 @@ reference-implementation/
 
 Crystallization belongs to the complete ICLA model. OAuth retains
 `PROP-AUTH-EVOL-01` in `candidate` state because one execution does not establish
-recurrence. A separate constructed trace represents the same responsibility
-after multiple retained signals support submission. Its authorized decision
+recurrence under that trace's history-driven criteria. A separate constructed
+trace represents the same responsibility after multiple retained records
+support submission. The proposal schema also admits unresolved intents,
+strategic decisions, process-analysis records, onboarding records, or other
+authorized retained references; observed frequency is not universally
+required. Its authorized decision
 assigns `CAP-AUTH-EVOL`, appends complete `CKC-AUTH-EVOL v1`, preserves formation
 provenance, and leaves the capability inactive until `ACT-AUTH-EVOL-001`.
 

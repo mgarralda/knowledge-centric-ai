@@ -161,7 +161,7 @@ allOf:
             - capability_proposal
             - governance_decision
             - formation_append
-            - recurrent_history
+            - supporting_record_refs
         governance:
           required:
             - immutable

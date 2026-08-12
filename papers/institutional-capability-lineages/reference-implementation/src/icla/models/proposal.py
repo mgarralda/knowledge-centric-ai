@@ -29,7 +29,7 @@ class CapabilityProposal(SpecificationMetadata):
     document_type: str = "capability-proposal"
     status: ProposalStatus
     proposed_responsibility: dict[str, Any]
-    pattern_signal_refs: list[str] = Field(min_length=1)
+    supporting_record_refs: list[str] = Field(min_length=1)
     recurrence_assessment: dict[str, Any]
     stable_assembly_rules: list[str] = Field(min_length=1)
     value_assessment: dict[str, Any]
@@ -37,6 +37,7 @@ class CapabilityProposal(SpecificationMetadata):
     candidate_owner: str
     overlap_analysis: list[dict[str, Any] | str] = Field(min_length=1)
     proposal_scoped_ckc_draft_ref: str
+
     @model_validator(mode="after")
     def preserve_preinstitutional_boundary(self):
         forbidden = {"assigned_identity", "institutional_capability_id", "capability_ref"}
@@ -44,9 +45,20 @@ class CapabilityProposal(SpecificationMetadata):
             raise ValueError("A pre-institutional proposal cannot carry capability identity")
         if self.proposal_scoped_ckc_draft_ref.startswith("CKC-"):
             raise ValueError("A proposal-scoped draft cannot anticipate an institutional CKC ID")
+        provenance = self.generated_from.get("supporting_records", [])
+        indexed_refs = {
+            item.get("record_ref")
+            for item in provenance
+            if isinstance(item, dict) and item.get("record_ref")
+        }
+        if not set(self.supporting_record_refs).issubset(indexed_refs):
+            raise ValueError("Supporting records must have resolvable provenance metadata")
         if (
             self.status == ProposalStatus.SUBMITTED
-            and self.recurrence_assessment.get("established") is not True
+            and self.recurrence_assessment.get("justified_expectation") is not True
         ):
-            raise ValueError("A submitted proposal must establish recurrence")
+            raise ValueError(
+                "A submitted proposal must justify expected recurrence or continuing "
+                "institutional need"
+            )
         return self

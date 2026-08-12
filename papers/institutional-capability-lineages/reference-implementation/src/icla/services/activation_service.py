@@ -195,15 +195,17 @@ class ActivationService:
         return updated, record
 
     def rollback(self, snapshot, target, decision: GovernanceDecision, *, actor: str):
-        """Apply the rollback target pre-authorized by an approved activation decision."""
+        """Reactivate an eligible retained CKC through a new approved activation decision."""
         if decision.status != "approved":
-            raise ActivationError("Rollback requires an approved governance decision")
+            raise ActivationError("Reactivation requires an approved governance decision")
         try:
             stored_target = self.repository.get_version(target.id, target.version)
         except ArtifactNotFoundError as error:
-            raise ActivationError("Rollback target is not in the governed CKC lineage") from error
+            raise ActivationError(
+                "Reactivation target is not in the governed CKC lineage"
+            ) from error
         if stored_target != target:
-            raise ActivationError("Stored rollback target differs from the requested CKC")
+            raise ActivationError("Stored retained target differs from the requested CKC")
         activation = decision.activation
         capability = snapshot.capability(target.capability_ref)
         if capability is None or capability.active_ckc is None:
@@ -219,10 +221,23 @@ class ActivationService:
             f"{capability.active_ckc.id}@{capability.active_ckc.version}",
             f"{capability.active_ckc.id}-v{capability.active_ckc.version}",
         }
-        if activation.get("rollback_target") not in target_refs:
-            raise ActivationError("Requested CKC is not the approved rollback target")
-        if not isinstance(transition, dict) or transition.get("to") not in current_refs:
-            raise ActivationError("Current active CKC is not the state authorized for rollback")
+        if (
+            activation.get("activation_kind") != "reactivation"
+            or activation.get("capability") != target.capability_ref
+            or activation.get("ckc") != target.id
+            or activation.get("version") != target.version
+        ):
+            raise ActivationError("Requested retained CKC is not the approved reactivation target")
+        if (
+            not isinstance(transition, dict)
+            or transition.get("from") not in current_refs
+            or transition.get("to") not in target_refs
+            or activation.get("rollback_target") not in current_refs
+        ):
+            raise ActivationError(
+                "Reactivation requires a new activation decision from the current CKC "
+                "to the retained target"
+            )
 
         updated = snapshot.model_copy(deep=True)
         updated_capability = updated.capability(target.capability_ref)
@@ -231,14 +246,14 @@ class ActivationService:
         updated_capability.active_ckc.id = target.id
         updated_capability.active_ckc.version = target.version
         record = ActivationRecord(
-            id=f"RBK-{activation['id']}",
+            id=str(activation["id"]),
             decision_ref=decision.id,
             capability_ref=updated_capability.id,
-            successor_append_ref=str(activation.get("successor_append_ref", "rollback")),
+            activation_kind="reactivation",
             previous_ckc=previous,
             active_ckc=updated_capability.active_ckc.model_dump(),
-            rollback_target=updated_capability.active_ckc.model_dump(),
-            action="rollback",
+            rollback_target=previous,
+            action="reactivate",
             activated_by=actor,
             activated_at=utc_now(),
         )

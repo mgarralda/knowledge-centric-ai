@@ -37,6 +37,23 @@ def snapshot():
     )
 
 
+def snapshot_with_unrelated_capability():
+    value = snapshot()
+    value.capabilities.append(
+        Capability(
+            id="CAP-OTHER",
+            name="Other",
+            outcome="other",
+            owner="OTHER-OWNER",
+            domain="operations",
+            lifecycle="active",
+            active_ckc=ActiveCKC(id="CKC-OTHER", version=3),
+        )
+    )
+    value.registry["capability_count"] = 2
+    return value
+
+
 def successor():
     return CapabilityKnowledgeContract(
         id="CKC-VERIFY",
@@ -141,6 +158,28 @@ def decision(status="approved"):
     )
 
 
+def reactivation_decision(status="approved"):
+    value = decision(status).model_copy(deep=True)
+    value.id = "DEC-REACTIVATE-1"
+    value.activation = {
+        "id": "ACT-REACTIVATE-1",
+        "activation_kind": "reactivation",
+        "capability": "CAP-VERIFY",
+        "ckc": "CKC-VERIFY",
+        "version": 9,
+        "applies_to": "future-resolutions-only",
+        "active_pointer_transition": {
+            "from": "CKC-VERIFY@10",
+            "to": "CKC-VERIFY@9",
+        },
+        "rollback_target": "CKC-VERIFY@10",
+    }
+    value.resulting_lineage_edges = [
+        {"type": "reactivates", "from": "ACT-REACTIVATE-1", "to": "CKC-VERIFY@9"}
+    ]
+    return value
+
+
 def governed_services(tmp_path):
     repository = CKCRepository(AppendOnlyStore(tmp_path))
     repository.append_successor(predecessor())
@@ -177,6 +216,18 @@ def test_append_and_activation_are_distinct_and_historical_snapshot_is_unchanged
     assert record.successor_append_ref == receipt.id
 
 
+def test_activation_changes_only_the_target_pointer_mapping(tmp_path):
+    _, service, _ = append_governed_successor(tmp_path)
+    original = snapshot_with_unrelated_capability()
+
+    updated, _ = service.activate(original, successor(), decision(), actor="OWNER")
+
+    assert original.capability("CAP-VERIFY").active_ckc.version == 9
+    assert updated.capability("CAP-VERIFY").active_ckc.version == 10
+    assert updated.capability("CAP-OTHER") == original.capability("CAP-OTHER")
+    assert len(updated.capabilities) == len(original.capabilities)
+
+
 def test_approved_rollback_restores_the_exact_predecessor_without_mutating_history(tmp_path):
     _, service, _ = append_governed_successor(tmp_path)
     original = snapshot()
@@ -190,7 +241,7 @@ def test_approved_rollback_restores_the_exact_predecessor_without_mutating_histo
     restored, rollback = service.rollback(
         advanced,
         predecessor(),
-        decision(),
+        reactivation_decision(),
         actor="OWNER",
     )
 
@@ -198,8 +249,19 @@ def test_approved_rollback_restores_the_exact_predecessor_without_mutating_histo
     assert advanced.capability("CAP-VERIFY").active_ckc.version == 10
     assert restored.capability("CAP-VERIFY").active_ckc.version == 9
     assert activation.action == "activate"
-    assert rollback.action == "rollback"
+    assert rollback.action == "reactivate"
+    assert rollback.id == "ACT-REACTIVATE-1"
+    assert rollback.decision_ref == "DEC-REACTIVATE-1"
+    assert rollback.activation_kind == "reactivation"
     assert rollback.previous_ckc["version"] == 10
+
+
+def test_reactivation_cannot_reuse_the_forward_activation_decision(tmp_path):
+    _, service, _ = append_governed_successor(tmp_path)
+    advanced, _ = service.activate(snapshot(), successor(), decision(), actor="OWNER")
+
+    with pytest.raises(ActivationError, match="approved reactivation target"):
+        service.rollback(advanced, predecessor(), decision(), actor="OWNER")
 
 
 def test_rejected_decision_cannot_activate(tmp_path):

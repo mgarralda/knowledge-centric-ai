@@ -15,15 +15,18 @@ capability-formation path.
 
 | Construct or transition | Schema / retained artifact | Executable operation | Principal verification |
 |---|---|---|---|
-| Candidate proposal | `capability-proposal.schema.yaml`; OAuth `PROP-AUTH-EVOL-01` | None: detection is outside the deterministic kernel | Candidate carries no institutional capability or CKC identity |
-| Submitted proposal | Same proposal type in `auth-evolution-formation` | Validated input to formation | Recurrence is declared established and multiple retained signals are referenced |
+| Candidate proposal | `capability-proposal.schema.yaml`; OAuth `PROP-AUTH-EVOL-01` | None: proposal generation is outside the deterministic kernel | Candidate carries no institutional capability or CKC identity and may reference any authorized supporting-record type |
+| Submitted proposal | Same proposal type in `auth-evolution-formation` | Validated input to formation | A justified continuity expectation and declared horizon are present; the published trace uses observed history, while tests also admit prospective strategic, unresolved-intent, and onboarding references |
+| Supporting-record provenance | Proposal `generated_from.supporting_records` metadata | Checked before governed formation | Every supporting reference resolves to an identified repository, locator, version, and provenance-reference set; bundled companion locators resolve to published files |
 | Authorized review | `governance-decision.schema.yaml` | Declared decision consumed by `CapabilityFormationService` | Authority and ownership, distinctiveness, overlap, value, and evidence review results are present |
 | Governed promotion | Decision `governed_promotion` and `formation_append` | `CapabilityFormationService.promote` | Exactly one new identity and one complete immutable CKC v1 are appended |
 | Formed state | `REG-SNAP-AUTH-EVOL-FORMED` | Immutable snapshot returned by promotion | Capability is `approved`, has no active pointer, and prior entries are unchanged |
 | Initial activation | Decision `activation` block | Existing `ActivationService.activate` initial branch | Exact formation append is required; a separate activation publishes CKC v1 |
 | Active state | `REG-SNAP-AUTH-EVOL-ACTIVE` | Immutable snapshot returned by activation | Capability is `active`; exact pointer is `CKC-AUTH-EVOL v1` |
-| Formation lineage | Proposal, decision, CKC provenance, transition edges | `LineageService` extractors | History, proposal, decision, formation append, identity, CKC, and activation are connected |
-| CKC succession | OAuth decision, successor CKC, append and activation records | `SuccessionService` plus `ActivationService` | Existing resolution-to-succession behavior remains unchanged |
+| Formation lineage | Proposal, supporting records, decision, CKC provenance, transition edges | `LineageService` extractors | Supporting records, proposal, decision, formation append, identity, CKC, and activation are connected |
+| Resolution outcome | `resolution.schema.yaml`; OAuth admitted resolution | `ResolutionService` plus `AssemblyService` | Outcomes use `admitted`, `rejected`, or `escalated`; admitted selection is nonempty and only admitted resolutions can be assembled |
+| Assembly lineage | OAuth assembly, source snapshots, and materializations | `LineageService` | Exact source-version and materialization nodes remain linked to the retained assembly |
+| CKC succession and reactivation | OAuth decision, successor CKC, append and activation records; constructed reactivation decision | `SuccessionService` plus `ActivationService` | Successor append and activation remain separate; an eligible retained CKC requires a new activation decision and unrelated pointers remain unchanged |
 
 ## Machine-checked claims
 
@@ -35,11 +38,20 @@ fixtures and deterministic implementation:
   decision with the declared review results;
 - promotion assigns one previously unused capability identifier;
 - promotion appends one complete canonical CKC v1 without a predecessor;
-- proposal, decision, retained history, capability, and CKC provenance agree;
+- proposal, decision, retained supporting records, capability, and CKC provenance agree;
+- every supporting-record reference has identifiable and resolvable provenance
+  metadata before formation can append canonical state;
+- supporting records are not restricted to pattern signals, and the submitted
+  proposal may justify continuity prospectively without observed frequency;
 - formation produces an immutable snapshot with no active pointer for the new
   capability;
 - initial activation is a later service call and references the exact formation
   append;
+- resolution outcomes use the canonical `admitted`, `rejected`, and
+  `escalated` vocabulary; an admitted selection is nonempty and rejected or
+  escalated outcomes cannot enter the assembly service;
+- assembly lineage contains the exact selected CKCs, bound source versions,
+  and materialization records used by the fixture;
 - invalid requests are rejected before append-only writes in the single-process
   reference flow;
 - input snapshots and earlier trace records are not rewritten;
@@ -58,6 +70,8 @@ fixtures and deterministic implementation:
 - impact analysis identifies review scope without mutating canonical state;
 - successor append rejects a stale predecessor before creating a branch or
   changing the active pointer;
+- reactivation of an eligible retained CKC requires a distinct approved
+  activation decision and changes only the target pointer mapping;
 - OAuth succession and its historical references continue to pass regression
   tests.
 
@@ -68,13 +82,18 @@ capability-formation path. They are not a general validation of crystallization.
 
 The implementation consumes, but does not decide, whether:
 
-- the retained history establishes recurrence adequately;
-- the declared time horizon is sufficient;
+- the supporting records justify expected recurrence or continuing
+  institutional need adequately;
+- the declared continuity horizon is sufficient;
 - the proposed responsibility has a sound institutional boundary;
 - the candidate owner is accountable and appropriate;
 - overlap with existing capabilities is acceptable;
 - expected value or risk reduction justifies formation;
 - organizational outcomes improve longitudinally.
+
+Likewise, retaining the identifier and version of a submitted-report
+transformation makes it auditable but does not establish semantic fidelity or
+substantive correctness. No machine-checked semantic-correctness claim is made.
 
 The companion also makes no claim of distributed or crash-atomic persistence.
 It validates every deterministic precondition before writing and demonstrates

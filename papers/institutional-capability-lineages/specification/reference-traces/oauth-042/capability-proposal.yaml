@@ -22,20 +22,35 @@ status: candidate
 generated_from:
   assembly: ASM-OAUTH-042
   evidence: EVD-OAUTH-042
+  supporting_records:
+    - record_ref: ASM-OAUTH-042
+      record_type: contextual-assembly
+      repository_ref: companion-reference-traces
+      record_locator: ./assembly.yaml
+      record_version: 1
+      provenance_refs: [INT-OAUTH-042, RES-OAUTH-042, REG-SNAP-OAUTH-042]
+    - record_ref: EVD-OAUTH-042
+      record_type: execution-evidence-bundle
+      repository_ref: companion-reference-traces
+      record_locator: ./evidence-bundle.yaml
+      record_version: 1
+      provenance_refs: [ASM-OAUTH-042, EXE-OAUTH-042, CEE-OAUTH-042]
 
 proposed_responsibility:
   name: Authentication Protocol Evolution
   outcome: Govern recurrent cross-capability authentication protocol changes
   domain: identity-and-api-governance
 
-pattern_signal_refs:
+supporting_record_refs:
   - ASM-OAUTH-042
   - EVD-OAUTH-042
 
 recurrence_assessment:
-  established: false
+  basis: observed-recurrence
+  justified_expectation: false
   current_trace_sufficient: false
   declared_horizon: Multiple independent authentication-change intents
+  rationale: One execution does not yet justify recurrence over the declared horizon
   required_future_execution_types:
     - token-rotation
     - provider-replacement

@@ -1,3 +1,4 @@
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -64,6 +65,7 @@ def test_governed_formation_and_initial_activation_replay_the_published_states(t
     )
 
     assert formed == RegistrySnapshot.model_validate(values["registry-formed"])
+    assert formed.capabilities[:-1] == before.capabilities
     assert before.capability("CAP-AUTH-EVOL") is None
     assert formed.capability("CAP-AUTH-EVOL").active_ckc is None
     assert formed.capability("CAP-AUTH-EVOL").lifecycle == "approved"
@@ -80,6 +82,7 @@ def test_governed_formation_and_initial_activation_replay_the_published_states(t
     )
 
     assert active == RegistrySnapshot.model_validate(values["registry-active"])
+    assert active.capabilities[:-1] == formed.capabilities[:-1]
     assert formed.capability("CAP-AUTH-EVOL").active_ckc is None
     assert active.capability("CAP-AUTH-EVOL").active_ckc.version == 1
     assert activation.id == "ACT-AUTH-EVOL-001"
@@ -276,6 +279,109 @@ def test_second_promotion_is_rejected_without_changing_retained_state(tmp_path):
     assert len(repository.store.list("formation-append-receipts")) == 1
 
 
+def test_prospective_supporting_records_can_authorize_formation_without_pattern_history(
+    tmp_path,
+):
+    values = artifacts()
+    proposal_data = deepcopy(values["capability-proposal"])
+    supporting_records = [
+        "INT-UNRESOLVED-CUSTOMER-ONBOARDING",
+        "DEC-STRATEGY-DIGITAL-ACCESS",
+        "ONBOARD-PARTNER-PLATFORM",
+    ]
+    proposal_data["supporting_record_refs"] = supporting_records
+    proposal_data["generated_from"]["supporting_records"] = [
+        {
+            "record_ref": supporting_records[0],
+            "record_type": "operational-intent",
+            "repository_ref": "ORG-MEM-STRATEGY",
+            "record_locator": "intents/INT-UNRESOLVED-CUSTOMER-ONBOARDING",
+            "record_version": 1,
+            "provenance_refs": ["CEE-CUSTOMER-ONBOARDING"],
+        },
+        {
+            "record_ref": supporting_records[1],
+            "record_type": "strategic-decision",
+            "repository_ref": "ORG-MEM-STRATEGY",
+            "record_locator": "decisions/DEC-STRATEGY-DIGITAL-ACCESS",
+            "record_version": 1,
+            "provenance_refs": ["POL-DIGITAL-ACCESS"],
+        },
+        {
+            "record_ref": supporting_records[2],
+            "record_type": "onboarding-record",
+            "repository_ref": "ORG-MEM-STRATEGY",
+            "record_locator": "onboarding/ONBOARD-PARTNER-PLATFORM",
+            "record_version": 1,
+            "provenance_refs": ["DEC-STRATEGY-DIGITAL-ACCESS"],
+        },
+    ]
+    proposal_data["recurrence_assessment"] = {
+        "basis": "prospective-continuity",
+        "justified_expectation": True,
+        "current_trace_sufficient": False,
+        "declared_horizon": "approved two-year platform strategy",
+        "rationale": (
+            "The approved strategy requires the responsibility before recurrence exists"
+        ),
+    }
+    ArtifactValidator().validate_artifact(proposal_data)
+
+    before = RegistrySnapshot.model_validate(values["registry-before"])
+    proposal = CapabilityProposal.model_validate(proposal_data)
+    initial_ckc = CapabilityKnowledgeContract.model_validate(values["ckc-auth-evol-v1"])
+    initial_ckc.generated_from["supporting_record_refs"] = supporting_records
+    decision = GovernanceDecision.model_validate(values["governance-decision"])
+    decision.inputs["supporting_record_refs"] = supporting_records
+    decision.historical_immutability["retained_supporting_record_refs"] = supporting_records
+    decision.capability_formation["governed_promotion"]["assigned_capability"][
+        "conditions"
+    ] = {"continuity": "institutionally-required"}
+
+    formed, receipt = CapabilityFormationService(
+        CKCRepository(AppendOnlyStore(tmp_path))
+    ).promote(
+        before,
+        proposal,
+        initial_ckc,
+        decision,
+        actor="institutional-capability-governance-board",
+    )
+
+    assert formed.capability("CAP-AUTH-EVOL") is not None
+    assert receipt.status == "inactive-initial-ckc"
+
+
+def test_formation_rejects_unresolved_supporting_record_provenance_before_write(tmp_path):
+    _, before, proposal, initial_ckc, decision = inputs()
+    proposal.generated_from["supporting_records"][0].pop("record_locator")
+    repository = CKCRepository(AppendOnlyStore(tmp_path))
+
+    with pytest.raises(FormationError, match="unresolved supporting-record provenance"):
+        CapabilityFormationService(repository).promote(
+            before,
+            proposal,
+            initial_ckc,
+            decision,
+            actor="institutional-capability-governance-board",
+        )
+
+    assert repository.store.list("ckcs") == []
+    assert repository.store.list("formation-append-receipts") == []
+
+
+def test_bundled_supporting_record_locators_resolve_inside_the_companion():
+    proposal = artifacts()["capability-proposal"]
+    local_records = [
+        item
+        for item in proposal["generated_from"]["supporting_records"]
+        if item["repository_ref"] == "companion-reference-traces"
+    ]
+
+    assert local_records
+    assert all((TRACE / item["record_locator"]).resolve().is_file() for item in local_records)
+
+
 def test_formation_lineage_connects_history_proposal_decision_identity_ckc_and_activation():
     values = artifacts()
     lineage = LineageService().build_lineage("CAP-AUTH-EVOL", list(values.values()))
@@ -311,7 +417,7 @@ def test_formation_lineage_connects_history_proposal_decision_identity_ckc_and_a
     ) in typed_edges
     assert (
         "DEC-AUTH-EVOL-FORMATION-001",
-        "reviews_history",
+        "reviews_supporting_record",
         "ASM-OAUTH-042",
     ) in typed_edges
 
@@ -328,4 +434,7 @@ def test_trace_rejects_implicit_activation_and_missing_formation_provenance():
     errors = ConformanceChecker().check_trace(values.values(), ConformanceProfile.EVOLVING)
 
     assert "ICLA-11: promotion does not preserve a formed, inactive state" in errors
-    assert "ICLA-11: initial CKC loses its proposal, decision, or history origin" in errors
+    assert (
+        "ICLA-11: initial CKC loses its proposal, decision, or supporting-record origin"
+        in errors
+    )

@@ -1,11 +1,14 @@
 # Governed Capability-Formation Reference Trace
 
 This constructed trace exercises the deterministic institutional transition
-that follows discovery and review. It does not discover a capability or decide
-whether the proposal is institutionally valuable.
+that follows proposal generation and review. It does not generate a proposal
+or decide whether it is institutionally valuable.
 
-The trace begins with a pre-institutional `submitted` proposal supported by
-multiple retained assembly and evidence references. An authorized governance
+The trace is a valid history-driven instance. It begins with a pre-institutional
+`submitted` proposal supported by multiple retained assembly and evidence
+references. The proposal contract is more general: unresolved intents,
+strategic decisions, process-analysis records, onboarding records, and other
+authorized retained records may also support formation. An authorized governance
 decision then assigns one new identity and appends one complete initial CKC v1.
 That formation state is retained before a separate activation publishes the CKC
 for future resolutions.
@@ -31,7 +34,9 @@ FORM-AUTH-EVOL-001
 ## Artifacts
 
 1. [`capability-proposal.yaml`](./capability-proposal.yaml) records the
-   submitted proposal, recurrence basis, stable assembly rules, value basis,
+   submitted proposal, supporting-record references, history-driven continuity
+   basis, and a provenance index with record identity, repository, locator,
+   version, and provenance references, plus stable assembly rules and value basis,
    candidate owner, overlap review input, and proposal-scoped CKC draft.
 2. [`registry-before.yaml`](./registry-before.yaml) proves that
    `CAP-AUTH-EVOL` does not exist before promotion.
@@ -40,7 +45,7 @@ FORM-AUTH-EVOL-001
    identifiable initial activation.
 4. [`ckc-auth-evol-v1.yaml`](./ckc-auth-evol-v1.yaml) is the complete immutable
    initial contract, with no predecessor and with proposal, decision, formation,
-   and recurrent-history provenance.
+   and supporting-record provenance.
 5. [`registry-formed.yaml`](./registry-formed.yaml) records the intermediate
    state: the capability exists as `approved`, but has no active CKC pointer.
 6. [`registry-active.yaml`](./registry-active.yaml) records the later activation
@@ -61,13 +66,17 @@ activate(formed capability, CKC v1, same declared governance transaction)
 The tests require both generated snapshots to equal the published artifacts.
 Negative cases reject candidate proposals, unauthorized actors, duplicate
 identities, incomplete or wrongly linked CKCs, activation before formation,
-wrong append references, and repeated promotion without leaving partial state.
+wrong append references, unresolved supporting-record provenance, and repeated
+promotion without leaving partial state. Bundled companion locators are also
+resolved to their published files. Organizational-Memory locators remain
+external reference metadata; the companion does not claim retrieval of their
+payloads.
 
 ## Assessment boundary
 
 This trace supports executable consistency for governed capability formation
-and initial activation. It does not assess automatic pattern discovery,
-recurrence quality, boundary quality, ownership, value, overlap resolution, or
+and initial activation. It does not assess proposal-generation or pattern-
+discovery effectiveness, the adequacy of observed or prospective continuity
+justifications, boundary quality, ownership, value, overlap resolution, or
 organizational effectiveness. Those remain declared inputs or institutional
 judgments.
-

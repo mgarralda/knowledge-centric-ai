@@ -207,14 +207,23 @@ def test_registry_filters_metadata_policy_and_conditions():
     assert [item.id for item in matches] == ["CAP-AUTH"]
 
 
-def test_simultaneously_admitted_conflicting_capabilities_are_partial():
+def test_conflicting_candidate_selection_is_escalated_without_authoritative_admission():
     result = ResolutionService().resolve_intent(
         intent("authentication change", "conflicting control"),
         registry(include_conflict=True),
     )
 
-    assert result.admission.status == "partial"
+    assert result.admission.status == "escalated"
     assert result.conflict_resolution["status"] == "unresolved"
+
+
+def test_resolution_without_an_admissible_capability_is_rejected_with_empty_selection():
+    request = intent("responsibility absent from the registry")
+    request.goal = "unrepresented institutional need"
+    result = ResolutionService().resolve_intent(request, registry())
+
+    assert result.admission.status == "rejected"
+    assert result.admission.admitted_capabilities == []
 
 
 def test_assembly_checks_actual_required_outcome_coverage():

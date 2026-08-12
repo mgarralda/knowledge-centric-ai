@@ -21,7 +21,10 @@ def test_resolution_retains_matcher_version_and_confidence_semantics():
             "mode": "qualitative",
             "calibration": "not-calibrated",
         },
-        "admission": {"status": "admitted", "admitted_capabilities": []},
+        "admission": {
+            "status": "admitted",
+            "admitted_capabilities": [{"capability": "CAP-1", "ckc": "CKC-1", "version": 1}],
+        },
     }
 
     assert not check_icla_5_intent_traceability(resolution)

@@ -23,7 +23,7 @@ required:
   - generated_from
   - status
   - proposed_responsibility
-  - pattern_signal_refs
+  - supporting_record_refs
   - recurrence_assessment
   - stable_assembly_rules
   - value_assessment
@@ -44,7 +44,38 @@ properties:
   artifact_status: {const: reference}
   normative: {const: false}
   schema_ref: {type: string}
-  generated_from: {type: object, minProperties: 1}
+  generated_from:
+    type: object
+    required: [supporting_records]
+    properties:
+      supporting_records:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          required:
+            - record_ref
+            - record_type
+            - repository_ref
+            - record_locator
+            - record_version
+            - provenance_refs
+          properties:
+            record_ref: {type: string, minLength: 1}
+            record_type: {type: string, minLength: 1}
+            repository_ref: {type: string, minLength: 1}
+            record_locator: {type: string, minLength: 1}
+            record_version:
+              anyOf:
+                - {type: string, minLength: 1}
+                - {type: integer, minimum: 1}
+            provenance_refs:
+              type: array
+              minItems: 1
+              uniqueItems: true
+              items: {type: string, minLength: 1}
+          additionalProperties: true
+    additionalProperties: true
   status: {enum: [candidate, submitted]}
   proposed_responsibility:
     type: object
@@ -54,30 +85,26 @@ properties:
       outcome: {type: string, minLength: 1}
       domain: {type: string, minLength: 1}
     additionalProperties: true
-  pattern_signal_refs:
+  supporting_record_refs:
     type: array
     minItems: 1
     uniqueItems: true
     items: {type: string, minLength: 1}
   recurrence_assessment:
     type: object
-    required: [established, current_trace_sufficient]
+    required: [basis, justified_expectation, declared_horizon, rationale]
     properties:
-      established: {type: boolean}
+      basis:
+        enum: [observed-recurrence, prospective-continuity, mixed]
+      justified_expectation: {type: boolean}
       current_trace_sufficient: {type: boolean}
       declared_horizon: {type: string, minLength: 1}
+      rationale: {type: string, minLength: 1}
       required_future_execution_types:
         type: array
         minItems: 1
         uniqueItems: true
         items: {type: string, minLength: 1}
-    allOf:
-      - if:
-          properties:
-            established: {const: false}
-          required: [established]
-        then:
-          required: [required_future_execution_types]
     additionalProperties: true
   stable_assembly_rules:
     type: array
@@ -115,6 +142,6 @@ allOf:
       properties:
         recurrence_assessment:
           properties:
-            established: {const: true}
-          required: [established]
+            justified_expectation: {const: true}
+          required: [justified_expectation]
 additionalProperties: true

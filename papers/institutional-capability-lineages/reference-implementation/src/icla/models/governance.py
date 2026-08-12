@@ -37,7 +37,7 @@ class ActivationRecord(ExtensibleModel):
     id: str
     decision_ref: str
     capability_ref: str
-    activation_kind: Literal["successor", "initial"] = "successor"
+    activation_kind: Literal["successor", "initial", "reactivation"] = "successor"
     successor_append_ref: str | None = None
     formation_append_ref: str | None = None
     previous_ckc: dict[str, Any] | None = None

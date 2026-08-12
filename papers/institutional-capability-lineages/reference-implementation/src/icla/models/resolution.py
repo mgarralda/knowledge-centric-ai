@@ -12,7 +12,7 @@ See the LICENSE file in the repository root for details.
 
 from typing import Any, Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from .common import ExtensibleModel, SpecificationMetadata
 
@@ -36,9 +36,15 @@ class AdmittedCapability(ExtensibleModel):
 
 class AdmissionDecision(ExtensibleModel):
     id: str
-    status: str
+    status: Literal["admitted", "rejected", "escalated"]
     admitted_capabilities: list[AdmittedCapability] = Field(default_factory=list)
     rationale: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def require_nonempty_admitted_selection(self):
+        if self.status == "admitted" and not self.admitted_capabilities:
+            raise ValueError("An admitted resolution requires a nonempty selected capability set")
+        return self
 
 
 class MatcherReference(ExtensibleModel):

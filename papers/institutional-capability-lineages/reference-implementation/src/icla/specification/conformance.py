@@ -289,6 +289,8 @@ def check_icla_5_intent_traceability(artifact: dict[str, Any]) -> list[str]:
                 "ICLA-5: resolution lacks matcher identity/version or confidence semantics"
             )
         if artifact.get("admission", {}).get("status") == "admitted":
+            if not artifact.get("admission", {}).get("admitted_capabilities"):
+                errors.append("ICLA-5: admitted resolution has an empty capability selection")
             failed = [
                 item.get("constraint", "<unknown>")
                 for item in artifact.get("constraint_validation", [])
@@ -510,27 +512,34 @@ def check_icla_9_governed_activation(artifact: dict[str, Any]) -> list[str]:
             errors.append("ICLA-9: append is not the authorized inactive successor transition")
 
     if activation:
+        activation_kind = activation.get("activation_kind", "successor")
+        required_activation_fields = [
+            "id",
+            "capability",
+            "ckc",
+            "version",
+            "active_pointer_transition",
+            "rollback_target",
+        ]
+        if activation_kind == "successor":
+            required_activation_fields.append("successor_append_ref")
         if _missing(
             activation,
-            (
-                "id",
-                "capability",
-                "ckc",
-                "version",
-                "successor_append_ref",
-                "active_pointer_transition",
-                "rollback_target",
-            ),
+            tuple(required_activation_fields),
         ):
             errors.append("ICLA-9: activation target is incomplete")
         transition = activation.get("active_pointer_transition")
         if not isinstance(transition, dict) or _missing(transition, ("from", "to")):
             errors.append("ICLA-9: activation does not declare the exact pointer transition")
         elif activation.get("rollback_target") != transition.get("from"):
-            errors.append("ICLA-9: activation rollback target is not the exact predecessor")
-        if successor_append and activation.get("successor_append_ref") != successor_append.get(
-            "id"
+            errors.append("ICLA-9: activation rollback target is not the exact prior pointer")
+        if activation_kind == "reactivation" and (
+            activation.get("successor_append_ref") or activation.get("formation_append_ref")
         ):
+            errors.append("ICLA-9: retained-CKC reactivation must not claim a new append")
+        if activation_kind == "successor" and successor_append and activation.get(
+            "successor_append_ref"
+        ) != successor_append.get("id"):
             errors.append("ICLA-9: activation does not reference the appended successor")
         if artifact.get("historical_immutability", {}).get("retroactive_mutation") is not False:
             errors.append("ICLA-9: activation does not preserve historical state")
@@ -556,7 +565,7 @@ def check_icla_10_reproducibility(artifact: dict[str, Any]) -> list[str]:
     return errors
 
 
-def check_icla_11_discovery_authority(artifact: dict[str, Any]) -> list[str]:
+def check_icla_11_formation_authority(artifact: dict[str, Any]) -> list[str]:
     document_type = artifact.get("document_type")
     errors = []
     forbidden_identity_fields = {
@@ -589,8 +598,11 @@ def check_icla_11_discovery_authority(artifact: dict[str, Any]) -> list[str]:
         if isinstance(draft_ref, str) and draft_ref.startswith("CKC-"):
             errors.append("ICLA-11: proposal draft anticipates an institutional CKC identity")
         recurrence = artifact.get("recurrence_assessment", {})
-        if status == "submitted" and recurrence.get("established") is not True:
-            errors.append("ICLA-11: submitted proposal does not establish recurrence")
+        if status == "submitted" and recurrence.get("justified_expectation") is not True:
+            errors.append(
+                "ICLA-11: submitted proposal does not justify expected recurrence or "
+                "continuing institutional need"
+            )
         return errors
     if document_type != "governance-decision":
         return []
@@ -663,7 +675,7 @@ def check_icla_evolving_controls(artifact: dict[str, Any]) -> list[str]:
             "id",
             "status",
             "proposed_responsibility",
-            "pattern_signal_refs",
+            "supporting_record_refs",
             "recurrence_assessment",
             "stable_assembly_rules",
             "value_assessment",
@@ -673,7 +685,27 @@ def check_icla_evolving_controls(artifact: dict[str, Any]) -> list[str]:
             "proposal_scoped_ckc_draft_ref",
         )
         missing = _missing(artifact, required)
-        return [f"ICLA-Evolving: crystallization proposal misses {missing}"] if missing else []
+        if missing:
+            return [f"ICLA-Evolving: crystallization proposal misses {missing}"]
+        expected_refs = set(artifact.get("supporting_record_refs", []))
+        entries = artifact.get("generated_from", {}).get("supporting_records", [])
+        required_fields = {
+            "record_ref",
+            "record_type",
+            "repository_ref",
+            "record_locator",
+            "record_version",
+            "provenance_refs",
+        }
+        indexed = {
+            item.get("record_ref"): item for item in entries if isinstance(item, dict)
+        }
+        if expected_refs - indexed.keys() or any(
+            required_fields - item.keys() or not item.get("provenance_refs")
+            for item in indexed.values()
+        ):
+            return ["ICLA-Evolving: supporting-record provenance is unresolved"]
+        return []
     if document_type != "governance-decision":
         return []
 
@@ -691,8 +723,8 @@ def check_icla_evolving_controls(artifact: dict[str, Any]) -> list[str]:
         ):
             if not _passed(review.get(field)):
                 errors.append(f"ICLA-Evolving: capability formation lacks {field}")
-        if not artifact.get("inputs", {}).get("supporting_history_refs"):
-            errors.append("ICLA-Evolving: capability formation lacks recurrent history")
+        if not artifact.get("inputs", {}).get("supporting_record_refs"):
+            errors.append("ICLA-Evolving: capability formation lacks supporting records")
         return errors
     impact = artifact.get("impact_record", {})
     if impact.get("assessment_mode") != "continuous-event-driven" or not impact.get(
@@ -739,7 +771,7 @@ class ConformanceChecker:
         check_icla_9_governed_activation,
     )
     _evolving = _governed + (
-        check_icla_11_discovery_authority,
+        check_icla_11_formation_authority,
         check_icla_evolving_controls,
     )
 
@@ -1042,17 +1074,19 @@ class ConformanceChecker:
                 f"{initial_ckc.get('id')}-v1",
             }
             provenance = initial_ckc.get("generated_from", {})
-            history = set(proposal.get("pattern_signal_refs", []))
+            supporting_records = set(proposal.get("supporting_record_refs", []))
             if (
                 promotion.get("initial_ckc_ref") not in initial_refs
                 or append.get("initial_ckc_ref") not in initial_refs
                 or provenance.get("capability_proposal") != proposal_ref
                 or provenance.get("governance_decision") != decision.get("id")
                 or provenance.get("formation_append") != append.get("id")
-                or not history.issubset(set(provenance.get("recurrent_history", [])))
+                or not supporting_records.issubset(
+                    set(provenance.get("supporting_record_refs", []))
+                )
             ):
                 errors.append(
-                    "ICLA-11: initial CKC loses its proposal, decision, or history origin"
+                    "ICLA-11: initial CKC loses its proposal, decision, or supporting-record origin"
                 )
 
         registries = {
@@ -1107,13 +1141,19 @@ class ConformanceChecker:
         if any(active_by_id.get(key) != value for key, value in before_by_id.items()):
             errors.append("ICLA-11: initial activation rewrites pre-existing capabilities")
 
-        history = set(proposal.get("pattern_signal_refs", []))
-        if not history.issubset(set(decision.get("inputs", {}).get("supporting_history_refs", []))):
-            errors.append("ICLA-11: review omits recurrent proposal history")
-        if not history.issubset(
-            set(decision.get("historical_immutability", {}).get("retained_history_refs", []))
+        supporting_records = set(proposal.get("supporting_record_refs", []))
+        if not supporting_records.issubset(
+            set(decision.get("inputs", {}).get("supporting_record_refs", []))
         ):
-            errors.append("ICLA-11: promotion does not preserve its recurrent history")
+            errors.append("ICLA-11: review omits proposal supporting records")
+        if not supporting_records.issubset(
+            set(
+                decision.get("historical_immutability", {}).get(
+                    "retained_supporting_record_refs", []
+                )
+            )
+        ):
+            errors.append("ICLA-11: promotion does not preserve its supporting records")
 
         edges = {
             (item.get("from"), item.get("type"), item.get("to"))

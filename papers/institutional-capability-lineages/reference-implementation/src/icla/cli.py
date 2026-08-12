@@ -26,7 +26,7 @@ from .specification import (
     ConformanceProfile,
     SchemaLoader,
 )
-from .specification.conformance import check_icla_11_discovery_authority
+from .specification.conformance import check_icla_11_formation_authority
 
 
 def _validator(specification_dir: str | None) -> ArtifactValidator:
@@ -118,7 +118,7 @@ def main(argv: list[str] | None = None) -> int:
             proposal_boundary_errors = [
                 error
                 for artifact in artifacts
-                for error in check_icla_11_discovery_authority(artifact)
+                for error in check_icla_11_formation_authority(artifact)
             ]
             if proposal_boundary_errors:
                 raise ConformanceError("\n".join(proposal_boundary_errors))
@@ -126,8 +126,8 @@ def main(argv: list[str] | None = None) -> int:
                 print(
                     f"Validated {len(validated)} artifact(s); {profile} trace conformance "
                     "passed; governed capability formation and separate initial activation "
-                    "are represented; discovery effectiveness and institutional judgment "
-                    "were not assessed"
+                    "are represented; proposal-generation or discovery effectiveness and "
+                    "institutional judgment were not assessed"
                 )
             else:
                 print(

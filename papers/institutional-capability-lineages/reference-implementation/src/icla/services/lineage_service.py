@@ -113,10 +113,10 @@ class LineageService:
                         {"from": ckc_ref, "type": relation, "to": str(generated[field])}
                     )
                 )
-        for history_ref in generated.get("recurrent_history", []):
+        for record_ref in generated.get("supporting_record_refs", []):
             edges.append(
                 LineageEdge.model_validate(
-                    {"from": ckc_ref, "type": "derived_from", "to": history_ref}
+                    {"from": ckc_ref, "type": "derived_from", "to": record_ref}
                 )
             )
         return edges
@@ -126,9 +126,9 @@ class LineageService:
         proposal_id = artifact["id"]
         return [
             LineageEdge.model_validate(
-                {"from": proposal_id, "type": "derived_from", "to": history_ref}
+                {"from": proposal_id, "type": "derived_from", "to": record_ref}
             )
-            for history_ref in artifact.get("pattern_signal_refs", [])
+            for record_ref in artifact.get("supporting_record_refs", [])
         ]
 
     @staticmethod
@@ -315,6 +315,26 @@ class LineageService:
                 edges.append(
                     LineageEdge.model_validate({"from": assembly_id, "type": "uses", "to": ckc_ref})
                 )
+        for source in artifact.get("source_snapshot", []):
+            source_ref = LineageService._versioned_source_ref(source)
+            if source_ref:
+                edges.append(
+                    LineageEdge.model_validate(
+                        {"from": assembly_id, "type": "uses", "to": source_ref}
+                    )
+                )
+        for materialization in artifact.get("materializations", []):
+            materialization_id = materialization.get("id")
+            if materialization_id:
+                edges.append(
+                    LineageEdge.model_validate(
+                        {
+                            "from": materialization_id,
+                            "type": "materializes",
+                            "to": assembly_id,
+                        }
+                    )
+                )
         return edges
 
     @staticmethod
@@ -429,10 +449,14 @@ class LineageService:
                 "proposal_ref": "reviews",
             },
         )
-        for history_ref in artifact.get("inputs", {}).get("supporting_history_refs", []):
+        for record_ref in artifact.get("inputs", {}).get("supporting_record_refs", []):
             edges.append(
                 LineageEdge.model_validate(
-                    {"from": decision_id, "type": "reviews_history", "to": history_ref}
+                    {
+                        "from": decision_id,
+                        "type": "reviews_supporting_record",
+                        "to": record_ref,
+                    }
                 )
             )
         edges.extend(
@@ -586,6 +610,14 @@ class LineageService:
         return f"{identifier}@{version}" if version is not None else str(identifier)
 
     @staticmethod
+    def _versioned_source_ref(value: dict[str, Any]) -> str | None:
+        identifier = value.get("source") or value.get("id")
+        version = value.get("version")
+        if not identifier:
+            return None
+        return f"{identifier}@{version}" if version is not None else str(identifier)
+
+    @staticmethod
     def _normalize_ckc_ref(value: str) -> str:
         marker = "-v"
         if value.startswith("CKC-") and marker in value:
@@ -624,6 +656,7 @@ class LineageService:
             "ACT-": "activation-record",
             "CAP-": "institutional-capability",
             "CKC-": "capability-knowledge-contract",
+            "SRC-": "governed-source-version",
         }
         return next(
             (node_type for prefix, node_type in prefixes.items() if node_id.startswith(prefix)),

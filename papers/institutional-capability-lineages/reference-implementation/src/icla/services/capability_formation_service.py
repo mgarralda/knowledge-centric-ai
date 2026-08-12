@@ -31,7 +31,7 @@ def _affirmed(value: Any) -> bool:
 
 
 class CapabilityFormationService:
-    """Execute the deterministic part of Eq. (14), not proposal discovery or review."""
+    """Execute governed promotion and initial-CKC append, not proposal discovery or review."""
 
     def __init__(self, repository: CKCRepository) -> None:
         self.repository = repository
@@ -52,8 +52,10 @@ class CapabilityFormationService:
 
         if proposal.status != ProposalStatus.SUBMITTED:
             raise FormationError("Promotion requires a submitted proposal")
-        if proposal.recurrence_assessment.get("established") is not True:
-            raise FormationError("Promotion requires established recurrence")
+        if proposal.recurrence_assessment.get("justified_expectation") is not True:
+            raise FormationError(
+                "Promotion requires justified expected recurrence or continuing institutional need"
+            )
         if decision.status != "approved":
             raise FormationError("Promotion requires an approved capability-formation decision")
         if formation.get("new_capability_created_by_this_decision") is not True:
@@ -117,8 +119,20 @@ class CapabilityFormationService:
         initial_refs = _ckc_refs(initial_ckc)
         append_id = append.get("id")
         formed_snapshot_ref = formation.get("formed_registry_snapshot_ref")
-        expected_history = set(proposal.pattern_signal_refs)
-        declared_history = set(decision.inputs.get("supporting_history_refs", []))
+        expected_support = set(proposal.supporting_record_refs)
+        declared_support = set(decision.inputs.get("supporting_record_refs", []))
+        support_entries = proposal.generated_from.get("supporting_records", [])
+        required_support_fields = {
+            "record_ref",
+            "record_type",
+            "repository_ref",
+            "record_locator",
+            "record_version",
+            "provenance_refs",
+        }
+        indexed_support = {
+            item.get("record_ref"): item for item in support_entries if isinstance(item, dict)
+        }
         provenance = initial_ckc.generated_from
         if (
             not append_id
@@ -134,13 +148,21 @@ class CapabilityFormationService:
             raise FormationError("Decision inputs do not identify the promoted proposal")
         if decision.inputs.get("registry_snapshot_ref") != snapshot.id:
             raise FormationError("Decision does not reference the exact input Registry snapshot")
-        if not expected_history.issubset(declared_history):
-            raise FormationError("Decision omits recurrent history supporting the proposal")
+        if expected_support - indexed_support.keys() or any(
+            required_support_fields - item.keys()
+            or not item.get("provenance_refs")
+            for item in indexed_support.values()
+        ):
+            raise FormationError("Proposal has unresolved supporting-record provenance")
+        if not expected_support.issubset(declared_support):
+            raise FormationError("Decision omits records supporting the proposal")
         if (
             provenance.get("capability_proposal") != proposal.id
             or provenance.get("governance_decision") != decision.id
             or provenance.get("formation_append") != append_id
-            or not expected_history.issubset(set(provenance.get("recurrent_history", [])))
+            or not expected_support.issubset(
+                set(provenance.get("supporting_record_refs", []))
+            )
         ):
             raise FormationError("Initial CKC does not preserve its formation provenance")
         if (

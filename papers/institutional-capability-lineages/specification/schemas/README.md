@@ -21,7 +21,11 @@ boundary and the configuration attributes needed for resolution,
 authorization, assurance, traceability, and evidence interpretation. The
 Resolution record additionally retains the matcher identifier/version and
 explicit confidence semantics; the reference trace marks qualitative ranking
-as non-calibrated rather than presenting it as probability. The
+as non-calibrated rather than presenting it as probability. Its outcome uses
+the canonical `admitted`, `rejected`, or `escalated` vocabulary. An admitted
+outcome requires a nonempty exact capability-to-active-CKC selection; rejected
+and escalated outcomes may have an empty selection and do not authorize
+assembly. The
 Assembly also makes the admitted operational mandate explicit:
 execution-scoped authority, local CEE autonomy, evidence-only disclosure, and
 event-driven re-resolution triggers. The Evidence Bundle records an autonomous
@@ -54,14 +58,25 @@ with changed CKC commitments, rationale, supporting evidence, authorizing
 decision, and rollback reference. The append record adds the complete successor
 to its CKC lineage with inactive status and does not move the Registry pointer.
 Activation must reference that exact append. The delta explains change and is
-not a reconstruction patch.
+not a reconstruction patch. A separately authorized `reactivation` may point
+to an eligible retained CKC without claiming a new append; it records the
+current pointer as the prior state.
 
 The standalone capability-proposal schema represents the same pre-institutional
 object in `candidate` and `submitted` states. It never carries an assigned
-capability identity or institutional CKC identifier. OAuth keeps the proposal
-as a candidate because one execution does not establish recurrence. The
-formation trace submits the same proposed responsibility only after multiple
-retained signals are declared.
+capability identity or institutional CKC identifier. Its
+`supporting_record_refs` may identify unresolved intents, realized work,
+strategic decisions, process-analysis records, onboarding records, or other
+authorized retained records; a pattern signal is not universally required.
+The existing `generated_from.supporting_records` metadata resolves each such
+reference through its record type, repository, locator, version, and provenance
+references. It is provenance metadata, not another principal object type.
+Submission records a justified expectation of recurrence or continuing
+institutional need over a declared horizon, using observed, prospective, or
+mixed grounds. OAuth keeps the proposal as a candidate because one execution
+does not satisfy its history-driven review criteria. The formation trace
+submits the same proposed responsibility after multiple retained records are
+declared.
 
 The governance-decision schema uses its existing `capability_formation` boundary
 to distinguish an unpromoted proposal reference from governed formation. A
@@ -69,7 +84,7 @@ positive formation records the submitted proposal, authorized review, assigned
 identity, initial CKC v1, and inactive formation append. Initial activation is
 optional at formation time and, when present, must remain a separate effect that
 references the exact formation append. The CKC schema conditionally requires
-proposal, decision, formation, and recurrent-history origins when CKC v1 declares
+proposal, decision, formation, and supporting-record origins when CKC v1 declares
 `formation_origin: crystallization`.
 
 | Schema | Applies to |

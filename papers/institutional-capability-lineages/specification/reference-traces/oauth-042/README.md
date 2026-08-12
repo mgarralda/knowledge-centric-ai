@@ -74,8 +74,8 @@ CKC-VERIFY v10 (future resolutions)
 3. [Resolution](./resolution.yaml) — `RES-OAUTH-042` navigates the Registry,
    expands mandatory relations, excludes inapplicable capabilities, resolves
    the compatibility conflict, retains matcher identity/version and explicitly
-   non-calibrated qualitative confidence semantics, and produces admission
-   `ADM-OAUTH-042`.
+   non-calibrated qualitative confidence semantics, and produces the
+   `admitted` outcome `ADM-OAUTH-042` with a nonempty exact active-CKC map.
 4. [Assembly](./assembly.yaml) — `ASM-OAUTH-042` snapshots six exact CKC
    versions, selects and excludes knowledge, binds governed metrics, and
    records the deterministic `RequiredCovered` method and validator version
@@ -83,7 +83,8 @@ CKC-VERIFY v10 (future resolutions)
    establishing the bounded operational mandate. Agent and reviewer
    materializations preserve that mandate while `CEE-OAUTH-042` consumes the
    authorized semantic, procedural, and episodic elements selected into the
-   assembly.
+   assembly. Executable lineage exposes the bound source versions and both
+   materialization records as nodes connected to the retained assembly.
 5. [Evidence Bundle](./evidence-bundle.yaml) — `EVD-OAUTH-042` returns
    terminal, contract-selected knowledge produced by `CEE-OAUTH-042` during
    the autonomous `EXE-OAUTH-042` interval as artifacts, provenance, five
@@ -136,12 +137,15 @@ commitment in `CKC-VERIFY v10`.
 - The executable negative path rejects a stale predecessor after v10 has been
   appended and preserves the single `[v9, v10]` canonical lineage.
 - Future resolutions use `CKC-VERIFY v10` after activation.
-- The approved activation can be rolled back only to its declared
-  `CKC-VERIFY v9` target.
+- `CKC-VERIFY v9` remains eligible for later reactivation only through a new
+  approved pointer decision; the original successor activation is not reused.
 - No new institutional capability is created by this decision.
 - The current OAuth trace does not by itself establish recurrence, so
   `PROP-AUTH-EVOL-01` remains a pre-institutional `candidate`. Later recurrent
-  executions may provide the evidence required for submission. The OAuth
+  executions may provide the evidence required under this history-driven review
+  path. This is not a universal formation precondition: other proposals may be
+  supported by unresolved intents, strategic decisions, process-analysis or
+  onboarding records and a justified prospective continuity expectation. The OAuth
   trace does not assign
   `CAP-AUTH-EVOL`, create `CKC-AUTH-EVOL v1`, or validate promotion-origin
   links.
