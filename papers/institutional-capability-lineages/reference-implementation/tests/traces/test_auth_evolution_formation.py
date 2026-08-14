@@ -22,6 +22,21 @@ TRACE = (
     / "reference-traces"
     / "auth-evolution-formation"
 )
+OAUTH_TRACE = TRACE.parent / "oauth-042"
+
+
+def _declared_ids(value):
+    if isinstance(value, dict):
+        identifiers = {value["id"]} if isinstance(value.get("id"), str) else set()
+        for nested in value.values():
+            identifiers.update(_declared_ids(nested))
+        return identifiers
+    if isinstance(value, list):
+        identifiers = set()
+        for nested in value:
+            identifiers.update(_declared_ids(nested))
+        return identifiers
+    return set()
 
 
 def artifacts():
@@ -380,6 +395,28 @@ def test_bundled_supporting_record_locators_resolve_inside_the_companion():
 
     assert local_records
     assert all((TRACE / item["record_locator"]).resolve().is_file() for item in local_records)
+
+
+def test_bundled_supporting_record_provenance_refs_resolve_to_published_ids():
+    validator = ArtifactValidator()
+    proposals = [
+        validator.validate_file(TRACE / "capability-proposal.yaml"),
+        validator.validate_file(OAUTH_TRACE / "capability-proposal.yaml"),
+    ]
+    oauth_artifacts = [
+        validator.validate_file(path) for path in sorted(OAUTH_TRACE.glob("*.yaml"))
+    ]
+    published_ids = set().union(*(_declared_ids(artifact) for artifact in oauth_artifacts))
+    unresolved = {
+        provenance_ref
+        for proposal in proposals
+        for item in proposal["generated_from"]["supporting_records"]
+        if item["repository_ref"] == "companion-reference-traces"
+        for provenance_ref in item["provenance_refs"]
+        if provenance_ref not in published_ids
+    }
+
+    assert not unresolved
 
 
 def test_formation_lineage_connects_history_proposal_decision_identity_ckc_and_activation():

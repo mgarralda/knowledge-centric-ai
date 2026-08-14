@@ -18,8 +18,10 @@ Mariano Garralda-Barrio
 
 Institutional Capability Lineage Architecture (**ICLA**) is a reference architecture for preserving the continuity of recurring institutional capabilities across changing people, agents, models, workflows, systems, and infrastructures.
 
-The bundled `paper.pdf` is the repository copy of the public SSRN preprint,
-identified by [DOI 10.2139/ssrn.7172438](https://dx.doi.org/10.2139/ssrn.7172438).
+The public paper is identified by
+[DOI 10.2139/ssrn.7172438](https://dx.doi.org/10.2139/ssrn.7172438). Reviewer
+companion packages intentionally omit the manuscript; the reviewed version is
+supplied through the corresponding submission channel.
 The specification, reference trace, and executable companion track the refined
 conceptual model and conformance boundaries being prepared for its successor.
 
@@ -53,7 +55,7 @@ ICLA is designed to answer that institutional question. Rather than improving ex
 
 ---
 
-**Quick links:** [SSRN preprint](https://dx.doi.org/10.2139/ssrn.7172438) · [Repository PDF](paper.pdf) · [Citation](citation.bib) · [Changelog](CHANGELOG.md) · [Schemas](specification/schemas/) · [Reference objects](specification/reference-objects/) · [Reference traces](specification/reference-traces/) · [Reference implementation](reference-implementation/)
+**Quick links:** [SSRN preprint](https://dx.doi.org/10.2139/ssrn.7172438) · [Citation](citation.bib) · [Changelog](CHANGELOG.md) · [Conformance coverage](specification/conformance-matrix.md) · [Schemas](specification/schemas/) · [Reference objects](specification/reference-objects/) · [Reference traces](specification/reference-traces/) · [Reference implementation](reference-implementation/)
 
 ---
 
@@ -120,7 +122,7 @@ The main architectural flow is:
 2. **Canonical CKC** — defines the authoritative, versioned, consumer-independent knowledge and evaluation contract.
 3. **Contextual Assembly** — records an immutable, bounded operational mandate over exact CKCs, governed sources, evidence, and evaluation contracts.
 4. **CEE** — executes autonomously within that mandate using local reasoning, working state, tools, coordination, and iteration.
-5. **Evidence** — returns only contract-selected outputs and checkpoints while preserving provenance, assembly identity, and applicable contracts.
+5. **Evidence** — returns only contract-selected outputs and checkpoints while preserving provenance, assembly identity, applicable contracts, and any versioned transformation used to construct the submitted report.
 6. **Governance** — qualifies and adjudicates candidate institutional knowledge.
 7. **Successor** — activates a new CKC version for future resolutions while preserving historical state.
 
@@ -218,6 +220,10 @@ It records:
 
 An assembly may combine semantic commitments from policies, procedural guidance from governed practices, and episodic knowledge from prior incidents or evidence.
 
+The assembly correctness trace records how `RequiredCovered` was assessed and
+pins the applicable validator, model, or review-policy version. This preserves
+auditability without requiring every assessment method to be deterministic.
+
 Admission turns the assembly into a **bounded operational mandate**. It delegates execution-scoped authority to the identified CEE while explicitly withholding institutional or canonical change authority. The mandate remains valid without repeated Registry interaction until intent, coverage, authority, freshness, risk, or assurance changes materially.
 
 Materialization may deliver a bundle, payload, workspace, procedure, or governed access handle. Every form must preserve the assembly's exact versions, limits, evidence contract, and lineage.
@@ -243,7 +249,7 @@ Production, recurrence, or technical success does not grant institutional author
 
 ### Governed Evidence and Evolution
 
-Only terminal or contract-defined checkpoint outputs return through the identified evidence path, with their execution identity, assembly, applicable contracts, and provenance intact. Conformance does not require disclosure of internal reasoning or working state beyond the evidence contract.
+Only terminal or contract-defined checkpoint outputs return through the identified evidence path, with their execution identity, assembly, applicable contracts, and provenance intact. If a versioned transformation is used to construct the submitted report, its identifier and version remain in that provenance; no transformation reference is required when none was used. Conformance does not require disclosure of internal reasoning or working state beyond the evidence contract.
 
 A submitted evidence bundle creates an episodic lineage record and presents reusable lessons as candidate knowledge. After qualification and adjudication, governance may:
 
@@ -255,10 +261,21 @@ A submitted evidence bundle creates an episodic lineage record and presents reus
 - initiate capability crystallization.
 
 A local execution never mutates canonical institutional state directly.
+Schema conformity does not establish substantive correctness or evidential
+sufficiency. Likewise, impact propagation identifies what requires assessment;
+it does not invalidate a CKC or block admission unless an applicable policy or
+governed decision makes the affected state inadmissible.
+
+Maintenance events may be reviewed concurrently, while canonical succession
+remains ordered. A successor can be appended only from the latest appended CKC;
+a stale predecessor is rejected without creating a canonical branch or moving
+the active pointer.
 
 ### Capability Crystallization
 
-Capability crystallization is the governed formation of a new institutional capability from recurrent, stable, and valuable execution patterns.
+Capability crystallization is the governed formation of a new institutional
+capability from a recurrent responsibility supported by retained history and
+an authorized institutional review.
 
 Detection may yield no proposal, one proposal, or several independent
 proposals. Ranking can prioritize this set, but it does not discard candidates
@@ -320,11 +337,11 @@ is prospective, and independent organizational validation remains future work.
 
 | Path | Purpose |
 |---|---|
-| [`paper.pdf`](paper.pdf) | Current published or preprint version of the paper. |
 | [`citation.bib`](citation.bib) | BibTeX citation entry. |
 | [`CITATION.cff`](CITATION.cff) | GitHub-compatible citation metadata. |
 | [`CHANGELOG.md`](CHANGELOG.md) | Public record of companion-artifact changes. |
 | [`figures/`](figures/) | README and publication figures. |
+| [`specification/conformance-matrix.md`](specification/conformance-matrix.md) | Coverage and evidentiary mapping from ICLA-1–ICLA-11 to machine-checkable clauses, supporting artifacts, executable tests, and governed-judgment remainders. |
 | [`specification/schemas/`](specification/schemas/) | Machine-checkable JSON Schema contracts for the principal ICLA object types. |
 | [`specification/reference-objects/`](specification/reference-objects/) | Consumer-independent reference objects and schema mappings. |
 | [`specification/reference-traces/`](specification/reference-traces/) | Linked reference traces for the implemented lifecycle scope and prospective governed branches. |
@@ -357,6 +374,9 @@ The paper defines the architecture and conformance requirements. The companion a
 - **Reference implementation and tests** establish executable consistency from
   resolution through successor activation and for the bounded governed
   capability-formation transition.
+- **Conformance coverage matrix** maps each invariant to the available evidence
+  and preserves the remainder that requires governed judgment; it is not a
+  score or certification dashboard.
 - **Claims C1–C3** define the comparative evaluation still required to assess effectiveness.
 
 The schemas, traces, and implementation do not introduce additional architectural requirements beyond the paper's conformance invariants.
@@ -377,7 +397,7 @@ It includes:
 - selection of six exact CKC versions;
 - contextual assembly;
 - agent and human-review materializations;
-- governed evidence and standardized measurements;
+- governed evidence and contract-defined measurements;
 - evidence qualification and adjudication;
 - activation of `CKC-VERIFY v10` for future resolutions;
 - preservation of earlier executions linked to `v9`;
@@ -408,7 +428,11 @@ ICLA defines three cumulative profiles:
 | **ICLA-Governed** | ICLA-Core plus governed evidence, measurement conformity, successor creation, and activation. |
 | **ICLA-Evolving** | ICLA-Governed plus ICLA-11 and the governed capability-formation boundary. The companion executes the submitted-proposal formation path; discovery quality and institutional judgment remain outside machine assessment. |
 
-Conformance is behavioral and implementation-independent. Every conformance result must state both the named profile and its assessment scope.
+Conformance is behavioral and implementation-independent. Every conformance
+result must state both the named profile and its assessment scope. The
+[conformance coverage matrix](specification/conformance-matrix.md) records the
+available machine-checkable evidence and the governed-judgment remainder
+without assigning a score or certification status.
 
 ---
 
@@ -517,6 +541,7 @@ The reference implementation and executable code are licensed separately under t
 |---|---|
 | Architecture | **Defined** |
 | Conformance invariants | **Defined** |
+| Conformance coverage matrix | **Available** |
 | Companion schemas | **Available** |
 | Reference objects and trace | **Available** |
 | Deterministic reference implementation | **Available** |

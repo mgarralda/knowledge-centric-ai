@@ -28,7 +28,7 @@ generated_from:
       repository_ref: companion-reference-traces
       record_locator: ./assembly.yaml
       record_version: 1
-      provenance_refs: [INT-OAUTH-042, RES-OAUTH-042, REG-SNAP-OAUTH-042]
+      provenance_refs: [INT-OAUTH-042, RES-OAUTH-042, REG-SNAP-042]
     - record_ref: EVD-OAUTH-042
       record_type: execution-evidence-bundle
       repository_ref: companion-reference-traces
