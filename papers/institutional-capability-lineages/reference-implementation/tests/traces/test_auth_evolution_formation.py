@@ -84,6 +84,14 @@ def test_governed_formation_and_initial_activation_replay_the_published_states(t
     assert before.capability("CAP-AUTH-EVOL") is None
     assert formed.capability("CAP-AUTH-EVOL").active_ckc is None
     assert formed.capability("CAP-AUTH-EVOL").lifecycle == "approved"
+    approved_relations = {
+        (item["type"], item["from"], item["to"])
+        for item in decision.capability_formation["governed_promotion"]["approved_relations"]
+    }
+    formed_relations = {
+        (item.relation_type, item.source, item.target) for item in formed.relations
+    }
+    assert approved_relations <= formed_relations
     assert receipt.status == "inactive-initial-ckc"
     assert receipt.initial_ckc_ref == "CKC-AUTH-EVOL@1"
     assert facade.ckc_repository.get_latest_governed_version("CKC-AUTH-EVOL") == initial_ckc
@@ -98,6 +106,7 @@ def test_governed_formation_and_initial_activation_replay_the_published_states(t
 
     assert active == RegistrySnapshot.model_validate(values["registry-active"])
     assert active.capabilities[:-1] == formed.capabilities[:-1]
+    assert active.relations == formed.relations
     assert formed.capability("CAP-AUTH-EVOL").active_ckc is None
     assert active.capability("CAP-AUTH-EVOL").active_ckc.version == 1
     assert activation.id == "ACT-AUTH-EVOL-001"
@@ -230,6 +239,38 @@ def test_duplicate_capability_identity_is_rejected_before_any_write(tmp_path):
         )
 
     assert repository.store.list("ckcs") == []
+
+
+def test_formation_rejects_unreviewed_or_noncapability_relations_before_write(tmp_path):
+    _, before, proposal, initial_ckc, decision = inputs()
+    cases = [
+        (
+            {"type": "depends_on", "from": "CAP-IAM", "to": "CAP-AUTH-EVOL"},
+            "not proposed for review",
+        ),
+        (
+            {"type": "depends_on", "from": "CAP-AUTH-EVOL", "to": "EVD-OAUTH-042"},
+            "unknown capability endpoint",
+        ),
+    ]
+    for index, (relation, message) in enumerate(cases):
+        invalid_decision = decision.model_copy(deep=True)
+        invalid_decision.capability_formation["governed_promotion"]["approved_relations"] = [
+            relation
+        ]
+        repository = CKCRepository(AppendOnlyStore(tmp_path / str(index)))
+
+        with pytest.raises(FormationError, match=message):
+            CapabilityFormationService(repository).promote(
+                before,
+                proposal,
+                initial_ckc,
+                invalid_decision,
+                actor="institutional-capability-governance-board",
+            )
+
+        assert repository.store.list("ckcs") == []
+        assert repository.store.list("formation-append-receipts") == []
 
 
 def test_initial_activation_requires_the_exact_formation_append(tmp_path):
@@ -467,11 +508,16 @@ def test_trace_rejects_implicit_activation_and_missing_formation_provenance():
         "version": 1,
     }
     values["ckc-auth-evol-v1"]["generated_from"]["capability_proposal"] = "PROP-OTHER"
+    values["registry-formed"]["relations"] = values["registry-formed"]["relations"][:-1]
 
     errors = ConformanceChecker().check_trace(values.values(), ConformanceProfile.EVOLVING)
 
     assert "ICLA-11: promotion does not preserve a formed, inactive state" in errors
     assert (
         "ICLA-11: initial CKC loses its proposal, decision, or supporting-record origin"
+        in errors
+    )
+    assert (
+        "ICLA-11: formed Registry relations differ from prior plus approved relations"
         in errors
     )

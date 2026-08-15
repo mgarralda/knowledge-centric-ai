@@ -36,6 +36,7 @@ class CapabilityProposal(SpecificationMetadata):
     comparable_outcome_refs: list[str] = Field(min_length=1)
     candidate_owner: str
     overlap_analysis: list[dict[str, Any] | str] = Field(min_length=1)
+    proposed_relations: list[dict[str, Any]] = Field(default_factory=list)
     proposal_scoped_ckc_draft_ref: str
 
     @model_validator(mode="after")

@@ -56,6 +56,10 @@ capability_formation:
       policy_refs: [POL-CAPABILITY-FORMATION]
       conditions:
         recurrence: established
+    approved_relations:
+      - {type: depends_on, from: CAP-AUTH-EVOL, to: CAP-IAM}
+      - {type: depends_on, from: CAP-AUTH-EVOL, to: CAP-API}
+      - {type: depends_on, from: CAP-AUTH-EVOL, to: CAP-VERIFY}
     initial_ckc_ref: CKC-AUTH-EVOL-v1
   formation_append:
     id: FORM-AUTH-EVOL-001

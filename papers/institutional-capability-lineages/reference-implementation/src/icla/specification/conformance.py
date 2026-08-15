@@ -603,6 +603,16 @@ def check_icla_11_formation_authority(artifact: dict[str, Any]) -> list[str]:
                 "ICLA-11: submitted proposal does not justify expected recurrence or "
                 "continuing institutional need"
             )
+        for relation in artifact.get("proposed_relations", []):
+            if (
+                relation.get("direction") not in {"outgoing", "incoming"}
+                or not relation.get("type")
+                or not str(relation.get("other_capability_ref", "")).startswith("CAP-")
+            ):
+                errors.append(
+                    "ICLA-11: proposed capability relation does not preserve the "
+                    "pre-institutional identity boundary"
+                )
         return errors
     if document_type != "governance-decision":
         return []
@@ -622,10 +632,35 @@ def check_icla_11_formation_authority(artifact: dict[str, Any]) -> list[str]:
         errors.append("ICLA-11: promotion must reference an authorized review decision")
     assigned = promotion.get("assigned_capability", {})
     append = formation.get("formation_append", {})
-    if _missing(assigned, ("id", "name", "outcome", "owner", "domain", "lifecycle")):
-        errors.append("ICLA-11: promotion does not define the assigned capability identity")
+    if _missing(
+        assigned,
+        ("id", "name", "outcome", "owner", "domain", "lifecycle", "policy_refs", "conditions"),
+    ):
+        errors.append("ICLA-11: promotion does not define the approved capability metadata")
     if assigned.get("lifecycle") != "approved" or assigned.get("active_ckc"):
         errors.append("ICLA-11: promotion must form an approved capability without activation")
+    approved_relations = promotion.get("approved_relations")
+    if not isinstance(approved_relations, list):
+        errors.append("ICLA-11: promotion does not record approved capability relations")
+    elif any(
+        _missing(item, ("type", "from", "to"))
+        for item in approved_relations
+        if isinstance(item, dict)
+    ) or any(not isinstance(item, dict) for item in approved_relations):
+        errors.append("ICLA-11: approved capability relations are incomplete")
+    else:
+        assigned_id = assigned.get("id")
+        relation_keys = set()
+        for relation in approved_relations:
+            source, target = relation.get("from"), relation.get("to")
+            key = (relation.get("type"), source, target)
+            if assigned_id not in {source, target} or source == target:
+                errors.append(
+                    "ICLA-11: approved capability relation must involve the formed identity"
+                )
+            if key in relation_keys:
+                errors.append("ICLA-11: approved capability relations must be unique")
+            relation_keys.add(key)
     if (
         _missing(
             append,
@@ -1140,6 +1175,58 @@ class ConformanceChecker:
             errors.append("ICLA-11: promotion rewrites pre-existing Registry capabilities")
         if any(active_by_id.get(key) != value for key, value in before_by_id.items()):
             errors.append("ICLA-11: initial activation rewrites pre-existing capabilities")
+
+        if formed_capability is not None and any(
+            formed_capability.get(key) != value for key, value in assigned.items()
+        ):
+            errors.append("ICLA-11: formed Registry does not preserve approved capability metadata")
+
+        def relation_key(item: dict[str, Any]) -> tuple[Any, Any, Any]:
+            return (item.get("type"), item.get("from"), item.get("to"))
+
+        before_relations = {relation_key(item) for item in before.get("relations", [])}
+        formed_relations = {relation_key(item) for item in formed.get("relations", [])}
+        active_relations = {relation_key(item) for item in active.get("relations", [])}
+        approved_relations = promotion.get("approved_relations", [])
+        approved_relation_keys = {
+            relation_key(item) for item in approved_relations if isinstance(item, dict)
+        }
+        proposed_relation_keys = set()
+        for item in proposal.get("proposed_relations", []):
+            if not isinstance(item, dict):
+                continue
+            relation_type = item.get("type")
+            other = item.get("other_capability_ref")
+            direction = item.get("direction")
+            if direction == "outgoing":
+                proposed_relation_keys.add((relation_type, capability_id, other))
+            elif direction == "incoming":
+                proposed_relation_keys.add((relation_type, other, capability_id))
+
+        known_before_ids = set(before_by_id)
+        for relation_type, source, target in approved_relation_keys:
+            if capability_id not in {source, target}:
+                errors.append(
+                    "ICLA-11: approved capability relation does not involve the formed identity"
+                )
+                continue
+            other = target if source == capability_id else source
+            if other not in known_before_ids:
+                errors.append(
+                    "ICLA-11: approved capability relation has a non-capability or unknown endpoint"
+                )
+            if (relation_type, source, target) not in proposed_relation_keys:
+                errors.append(
+                    "ICLA-11: approved capability relation is not traceable to the proposal"
+                )
+
+        expected_formed_relations = before_relations | approved_relation_keys
+        if formed_relations != expected_formed_relations:
+            errors.append(
+                "ICLA-11: formed Registry relations differ from prior plus approved relations"
+            )
+        if active_relations != formed_relations:
+            errors.append("ICLA-11: initial activation changes capability relations")
 
         supporting_records = set(proposal.get("supporting_record_refs", []))
         if not supporting_records.issubset(

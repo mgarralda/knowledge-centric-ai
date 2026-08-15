@@ -15,12 +15,12 @@ capability-formation path.
 
 | Construct or transition | Schema / retained artifact | Executable operation | Principal verification |
 |---|---|---|---|
-| Candidate proposal | `capability-proposal.schema.yaml`; OAuth `PROP-AUTH-EVOL-01` | None: proposal generation is outside the deterministic kernel | Candidate carries no institutional capability or CKC identity and may reference any authorized supporting-record type |
+| Candidate proposal | `capability-proposal.schema.yaml`; OAuth `PROP-AUTH-EVOL-01` | None: proposal generation is outside the deterministic kernel | Candidate carries no institutional capability or CKC identity, may reference any authorized supporting-record type, and may propose directional relations to existing capabilities without preassigning its future identity |
 | Submitted proposal | Same proposal type in `auth-evolution-formation` | Validated input to formation | A justified continuity expectation and declared horizon are present; the published trace uses observed history, while tests also admit prospective strategic, unresolved-intent, and onboarding references |
 | Supporting-record provenance | Proposal `generated_from.supporting_records` metadata | Checked before governed formation | Every supporting reference resolves to an identified repository, locator, version, and provenance-reference set; bundled companion locators resolve to published files |
 | Authorized review | `governance-decision.schema.yaml` | Declared decision consumed by `CapabilityFormationService` | Authority and ownership, distinctiveness, overlap, value, and evidence review results are present |
-| Governed promotion | Decision `governed_promotion` and `formation_append` | `CapabilityFormationService.promote` | Exactly one new identity and one complete immutable CKC v1 are appended |
-| Formed state | `REG-SNAP-AUTH-EVOL-FORMED` | Immutable snapshot returned by promotion | Capability is `approved`, has no active pointer, and prior entries are unchanged |
+| Governed promotion | Decision `governed_promotion` and `formation_append` | `CapabilityFormationService.promote` | Exactly one new identity and one complete immutable CKC v1 are appended; approved metadata and proposal-traceable capability relations are recorded |
+| Formed state | `REG-SNAP-AUTH-EVOL-FORMED` | Immutable snapshot returned by promotion | Capability is `approved`, has no active pointer, prior entries are unchanged, and Registry relations equal the prior graph plus the approved relations |
 | Initial activation | Decision `activation` block | Existing `ActivationService.activate` initial branch | Exact formation append is required; a separate activation publishes CKC v1 |
 | Active state | `REG-SNAP-AUTH-EVOL-ACTIVE` | Immutable snapshot returned by activation | Capability is `active`; exact pointer is `CKC-AUTH-EVOL v1` |
 | Formation lineage | Proposal, supporting records, decision, CKC provenance, transition edges | `LineageService` extractors | Supporting records, proposal, decision, formation append, identity, CKC, and activation are connected |
@@ -36,7 +36,13 @@ fixtures and deterministic implementation:
 - candidate and submitted proposals are pre-institutional and identity-free;
 - promotion accepts only a submitted proposal and an approved, authorized
   decision with the declared review results;
-- promotion assigns one previously unused capability identifier;
+- promotion assigns one previously unused capability identifier and records the
+  approved capability metadata;
+- proposed relations remain identity-free until promotion; approved relations
+  must involve the formed capability, point to an existing capability, and be
+  traceable to the proposal;
+- the formed Registry relation set is the prior relation set plus those approved
+  relations, and initial activation does not alter it;
 - promotion appends one complete canonical CKC v1 without a predecessor;
 - proposal, decision, retained supporting records, capability, and CKC provenance agree;
 - every supporting-record reference has identifiable and resolvable provenance

@@ -141,9 +141,11 @@ commitment in `CKC-VERIFY v10`.
   approved pointer decision; the original successor activation is not reused.
 - No new institutional capability is created by this decision.
 - The current OAuth trace does not by itself establish recurrence, so
-  `PROP-AUTH-EVOL-01` remains a pre-institutional `candidate`. Later recurrent
-  executions may provide the evidence required under this history-driven review
-  path. This is not a universal formation precondition: other proposals may be
+  `PROP-AUTH-EVOL-01` remains a pre-institutional `candidate`; its proposed
+  relations refer directionally to existing capabilities without assigning the
+  future identity. Later recurrent executions may provide the evidence required
+  under this history-driven review path. This is not a universal formation
+  precondition: other proposals may be
   supported by unresolved intents, strategic decisions, process-analysis or
   onboarding records and a justified prospective continuity expectation. The OAuth
   trace does not assign

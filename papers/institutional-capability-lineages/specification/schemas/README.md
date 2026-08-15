@@ -64,7 +64,9 @@ current pointer as the prior state.
 
 The standalone capability-proposal schema represents the same pre-institutional
 object in `candidate` and `submitted` states. It never carries an assigned
-capability identity or institutional CKC identifier. Its
+capability identity or institutional CKC identifier. Optional
+`proposed_relations` refer directionally to existing `CAP-*` identities without
+preassigning the future capability identity. Its
 `supporting_record_refs` may identify unresolved intents, realized work,
 strategic decisions, process-analysis records, onboarding records, or other
 authorized retained records; a pattern signal is not universally required.
@@ -81,7 +83,10 @@ declared.
 The governance-decision schema uses its existing `capability_formation` boundary
 to distinguish an unpromoted proposal reference from governed formation. A
 positive formation records the submitted proposal, authorized review, assigned
-identity, initial CKC v1, and inactive formation append. Initial activation is
+identity and metadata, any approved capability-to-capability Registry relations,
+initial CKC v1, and inactive formation append. Registry relations use only
+capability endpoints; links from the new identity or CKC to proposals and other
+non-capability supporting records belong to the broader lineage instead. Initial activation is
 optional at formation time and, when present, must remain a separate effect that
 references the exact formation append. The CKC schema conditionally requires
 proposal, decision, formation, and supporting-record origins when CKC v1 declares

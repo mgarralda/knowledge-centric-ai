@@ -76,4 +76,18 @@ candidate_owner: identity-and-api-governance-review
 overlap_analysis:
   - Review overlap with CAP-IAM, CAP-API, and CAP-VERIFY
 
+proposed_relations:
+  - type: depends_on
+    direction: outgoing
+    other_capability_ref: CAP-IAM
+    rationale: Authentication protocol evolution depends on governed identity policy
+  - type: depends_on
+    direction: outgoing
+    other_capability_ref: CAP-API
+    rationale: Authentication protocol evolution depends on coordinated API evolution
+  - type: depends_on
+    direction: outgoing
+    other_capability_ref: CAP-VERIFY
+    rationale: Authentication protocol evolution depends on governed security validation
+
 proposal_scoped_ckc_draft_ref: PROP-AUTH-EVOL-01-CKC-DRAFT

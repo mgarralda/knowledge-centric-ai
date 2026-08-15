@@ -77,12 +77,13 @@ class CapabilityProposalPort(Protocol):
         *,
         rationale: str,
         owner_candidate: str,
+        proposed_relations: list[dict[str, Any]] | None = None,
         proposal_scoped_ckc_draft_ref: str,
     ) -> Any: ...
 
 
 class CapabilityFormationPort(Protocol):
-    """Governed transition from a submitted proposal to identity plus initial CKC."""
+    """Governed transition to identity, approved Registry state, and initial CKC."""
 
     def promote_capability(
         self,

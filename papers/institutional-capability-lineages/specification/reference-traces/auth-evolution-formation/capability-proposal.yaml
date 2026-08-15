@@ -92,4 +92,18 @@ overlap_analysis:
   - capability_refs: [CAP-IAM, CAP-API, CAP-VERIFY]
     result: distinct-cross-capability-responsibility
 
+proposed_relations:
+  - type: depends_on
+    direction: outgoing
+    other_capability_ref: CAP-IAM
+    rationale: Authentication protocol evolution depends on governed identity policy
+  - type: depends_on
+    direction: outgoing
+    other_capability_ref: CAP-API
+    rationale: Authentication protocol evolution depends on coordinated API evolution
+  - type: depends_on
+    direction: outgoing
+    other_capability_ref: CAP-VERIFY
+    rationale: Authentication protocol evolution depends on governed security validation
+
 proposal_scoped_ckc_draft_ref: PROP-AUTH-EVOL-01-CKC-DRAFT

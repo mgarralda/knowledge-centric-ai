@@ -76,13 +76,15 @@ The implementation includes:
 - episodic evidence records and governed transition of accepted precedents into
   semantic or procedural CKC commitments;
 - a standalone pre-institutional capability proposal with only `candidate` and
-  `submitted` states, general supporting-record references, and an observed,
+  `submitted` states, general supporting-record references, identity-free
+  directional proposed relations to existing capabilities, and an observed,
   prospective, or mixed continuity justification; supporting references retain
   repository, locator, version, and provenance metadata;
 - institutional capability lifecycle states that exclude those
   pre-institutional proposal states;
 - governed formation from a submitted proposal to exactly one new capability
-  and one complete immutable initial CKC v1, without implicit activation;
+  with approved metadata and proposal-traceable capability relations, plus one
+  complete immutable initial CKC v1, without implicit activation;
 - a subsequent initial activation that publishes the already formed CKC for
   future resolutions through a separately identifiable record;
 - schema, artifact, profile, and cross-artifact conformance validation.
@@ -273,8 +275,9 @@ reference-implementation/
   blocking canonical state.
 - OAuth's candidate proposal never assigns identity; only the separate
   submitted-proposal trace crosses the governed formation boundary.
-- Formation creates an `approved` capability without an active pointer; only a
-  later initial activation changes it to `active` and publishes CKC v1.
+- Formation creates an `approved` capability without an active pointer and
+  records only the capability relations approved from its proposal; only a later
+  initial activation makes it resolution-eligible as `active` and publishes CKC v1.
 - Architecture decisions and validation failures carry machine-readable
   rationale.
 
@@ -285,9 +288,10 @@ trace represents the same responsibility after multiple retained records
 support submission. The proposal schema also admits unresolved intents,
 strategic decisions, process-analysis records, onboarding records, or other
 authorized retained references; observed frequency is not universally
-required. Its authorized decision
-assigns `CAP-AUTH-EVOL`, appends complete `CKC-AUTH-EVOL v1`, preserves formation
-provenance, and leaves the capability inactive until `ACT-AUTH-EVOL-001`.
+required. Its authorized decision assigns `CAP-AUTH-EVOL`, records the
+approved capability metadata and Registry relations, appends complete
+`CKC-AUTH-EVOL v1`, preserves formation provenance, and leaves the capability
+not resolution-eligible until `ACT-AUTH-EVOL-001`.
 
 This supports implementation-conformance claims for the exercised governed
 capability-formation path. It does **not** validate automatic pattern discovery,

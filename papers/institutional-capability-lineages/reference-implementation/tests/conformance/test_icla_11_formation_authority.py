@@ -61,7 +61,10 @@ def promotion_decision(**updates):
                     "owner": "OWNER",
                     "domain": "domain",
                     "lifecycle": "approved",
+                    "policy_refs": ["POL-FORMATION"],
+                    "conditions": {"continuity": "approved"},
                 },
+                "approved_relations": [],
                 "initial_ckc_ref": "CKC-NEW-v1",
             },
             "formation_append": {
@@ -95,6 +98,15 @@ def test_incomplete_decision_cannot_create_capability():
 
 def test_valid_positive_promotion_has_no_artifact_level_boundary_error():
     assert not check_icla_11_formation_authority(promotion_decision())
+
+    invalid = promotion_decision()
+    invalid["capability_formation"]["governed_promotion"]["approved_relations"] = [
+        {"type": "depends_on", "from": "CAP-A", "to": "CAP-B"}
+    ]
+    assert (
+        "ICLA-11: approved capability relation must involve the formed identity"
+        in check_icla_11_formation_authority(invalid)
+    )
 
 
 def test_pre_institutional_proposal_uses_candidate_or_submitted_only():

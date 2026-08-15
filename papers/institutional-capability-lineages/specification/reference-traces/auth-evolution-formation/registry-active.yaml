@@ -38,3 +38,6 @@ capabilities:
 relations:
   - {type: depends_on, from: CAP-API, to: CAP-IAM}
   - {type: depends_on, from: CAP-API, to: CAP-VERIFY}
+  - {type: depends_on, from: CAP-AUTH-EVOL, to: CAP-IAM}
+  - {type: depends_on, from: CAP-AUTH-EVOL, to: CAP-API}
+  - {type: depends_on, from: CAP-AUTH-EVOL, to: CAP-VERIFY}

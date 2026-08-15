@@ -236,6 +236,7 @@ properties:
           - review_decision_ref
           - formation_authority
           - assigned_capability
+          - approved_relations
           - initial_ckc_ref
         properties:
           proposal_ref: {type: string, pattern: "^PROP-[A-Z0-9-]+$"}
@@ -259,6 +260,26 @@ properties:
             not:
               required: [active_ckc]
             additionalProperties: true
+          approved_relations:
+            description: Registry relations approved as part of formation; each must involve the newly assigned capability identity.
+            type: array
+            uniqueItems: true
+            items:
+              type: object
+              required: [type, from, to]
+              properties:
+                type:
+                  enum:
+                    - depends_on
+                    - composes_with
+                    - specializes
+                    - replaces
+                    - shares_knowledge
+                    - derived_from
+                    - conflicts_with
+                from: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+                to: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+              additionalProperties: false
           initial_ckc_ref: {type: string, pattern: "^CKC-[A-Z0-9-]+-v1$"}
         additionalProperties: false
       formation_append:

@@ -8,7 +8,7 @@ Licensed under the MIT License.
 See the LICENSE file in the repository root for details.
 """
 
-# Module purpose: Governed identity assignment and initial-CKC append for crystallization.
+# Module purpose: Governed identity, metadata, relation, and initial-CKC formation.
 
 from typing import Any
 
@@ -18,7 +18,7 @@ from ..models.ckc import CapabilityKnowledgeContract
 from ..models.common import LifecycleStatus, utc_now
 from ..models.governance import FormationAppendReceipt, GovernanceDecision
 from ..models.proposal import CapabilityProposal, ProposalStatus
-from ..models.registry import RegistrySnapshot
+from ..models.registry import RegistryRelation, RegistrySnapshot
 from ..repositories.ckc_repository import CKCRepository
 
 
@@ -30,8 +30,44 @@ def _affirmed(value: Any) -> bool:
     return value is True or str(value).casefold() in {"approved", "pass", "passed", "confirmed"}
 
 
+def _relation_key(relation: RegistryRelation) -> tuple[str, str, str]:
+    return (relation.relation_type, relation.source, relation.target)
+
+
+def _proposed_relation_keys(
+    proposal: CapabilityProposal,
+    *,
+    new_capability_id: str,
+    snapshot: RegistrySnapshot,
+) -> set[tuple[str, str, str]]:
+    keys: set[tuple[str, str, str]] = set()
+    for item in proposal.proposed_relations:
+        relation_type = item.get("type")
+        direction = item.get("direction")
+        other = item.get("other_capability_ref")
+        if not relation_type or direction not in {"outgoing", "incoming"} or not other:
+            raise FormationError("Proposal contains an invalid proposed capability relation")
+        if snapshot.capability(str(other)) is None:
+            raise FormationError(
+                f"Proposed capability relation references unknown capability {other!r}"
+            )
+        raw = (
+            {"type": relation_type, "from": new_capability_id, "to": other}
+            if direction == "outgoing"
+            else {"type": relation_type, "from": other, "to": new_capability_id}
+        )
+        try:
+            relation = RegistryRelation.model_validate(raw)
+        except Exception as exc:  # Pydantic preserves exact validation details upstream.
+            raise FormationError(
+                "Proposal contains an invalid proposed capability relation"
+            ) from exc
+        keys.add(_relation_key(relation))
+    return keys
+
+
 class CapabilityFormationService:
-    """Execute governed promotion and initial-CKC append, not proposal discovery or review."""
+    """Execute governed promotion, Registry formation, and initial-CKC append."""
 
     def __init__(self, repository: CKCRepository) -> None:
         self.repository = repository
@@ -95,6 +131,44 @@ class CapabilityFormationService:
             raise FormationError(f"Capability identity already exists: {assigned['id']}")
         if proposal.candidate_owner != assigned.get("owner"):
             raise FormationError("Assigned owner differs from the reviewed candidate owner")
+
+        proposed_relation_keys = _proposed_relation_keys(
+            proposal,
+            new_capability_id=str(assigned["id"]),
+            snapshot=snapshot,
+        )
+        raw_approved_relations = promotion.get("approved_relations")
+        if not isinstance(raw_approved_relations, list):
+            raise FormationError("Promotion must record approved capability relations")
+        approved_relations: list[RegistryRelation] = []
+        approved_relation_keys: set[tuple[str, str, str]] = set()
+        for raw_relation in raw_approved_relations:
+            try:
+                relation = RegistryRelation.model_validate(raw_relation)
+            except Exception as exc:
+                raise FormationError("Approved capability relation is invalid") from exc
+            if relation.source == relation.target:
+                raise FormationError("Approved capability relation cannot be self-referential")
+            if str(assigned["id"]) not in {relation.source, relation.target}:
+                raise FormationError(
+                    "Approved capability relation must involve the formed capability"
+                )
+            other = (
+                relation.target
+                if relation.source == str(assigned["id"])
+                else relation.source
+            )
+            if snapshot.capability(other) is None:
+                raise FormationError(
+                    f"Approved capability relation references unknown capability endpoint {other!r}"
+                )
+            key = _relation_key(relation)
+            if key not in proposed_relation_keys:
+                raise FormationError("Approved capability relation was not proposed for review")
+            if key in approved_relation_keys:
+                raise FormationError("Approved capability relations must be unique")
+            approved_relation_keys.add(key)
+            approved_relations.append(relation)
 
         if initial_ckc.version != 1 or initial_ckc.predecessor:
             raise FormationError("The initial CKC must be version 1 without a predecessor")
@@ -199,6 +273,7 @@ class CapabilityFormationService:
             "formation_append": receipt.id,
         }
         formed.capabilities.append(capability)
+        formed.relations.extend(approved_relations)
         formed.registry["capability_count"] = len(formed.capabilities)
         formed.registry["last_transition"] = receipt.id
         return formed, receipt

@@ -26,7 +26,7 @@ flowchart TD
     EVD["Evidence Gateway<br/>qualification and receipt"]
     GOV["Governance Service<br/>declared adjudication"]
     SUC["Succession Service<br/>append complete inactive successor"]
-    FORM["Formation Service<br/>assign identity + append initial CKC"]
+    FORM["Formation Service<br/>assign identity + metadata + relations + initial CKC"]
     ACT["Activation Service<br/>separate governed active-pointer transition"]
     LIN["Lineage Service<br/>connected typed trace"]
 
@@ -80,7 +80,7 @@ linearly derived from the literature.
 | Governed Activation | Activate an appended successor or initial CKC, or reactivate an eligible retained CKC, through a separately identifiable pointer transition; preserve unrelated Registry entries and the explicit no-predecessor boundary for initial activation | [`activation_service.py`](src/icla/services/activation_service.py) |
 | Lineage trace | Build and validate a concrete connected, typed instantiation of the institutional capability lineage across artifacts and transitions | [`lineage_service.py`](src/icla/services/lineage_service.py) |
 | Impact Analysis | Identify source bindings, exact CKC versions, relation paths, retained assemblies, situated CEEs, and consumers that delimit review scope without directly invalidating or blocking canonical state | [`impact_analysis_service.py`](src/icla/services/impact_analysis_service.py) |
-| Capability Crystallization | Validate a common pre-institutional proposal type; execute governed identity assignment and initial CKC append from a submitted proposal; activate the formed capability separately; preserve formation-origin links | [`proposal.py`](src/icla/models/proposal.py), [`capability_formation_service.py`](src/icla/services/capability_formation_service.py), [`auth-evolution-formation/`](../specification/reference-traces/auth-evolution-formation/) |
+| Capability Crystallization | Validate a common pre-institutional proposal type; review identity-free proposed relations; execute governed identity assignment, approved metadata and Registry-relation update, and initial CKC append from a submitted proposal; activate the formed capability separately; preserve formation-origin links | [`proposal.py`](src/icla/models/proposal.py), [`capability_formation_service.py`](src/icla/services/capability_formation_service.py), [`auth-evolution-formation/`](../specification/reference-traces/auth-evolution-formation/) |
 
 ## Artifact flow
 
@@ -114,7 +114,8 @@ authorized supporting records
         -> candidate proposal (no identity)
         -> submitted proposal
         -> authorized governance decision
-        -> capability identity + complete initial CKC v1 (inactive)
+        -> capability identity + approved metadata + Registry relations
+        -> complete initial CKC v1 (inactive)
         -> separate initial activation
         -> active Registry snapshot
 ```
@@ -288,7 +289,9 @@ CKC succession through typed edges such as:
 - `supersedes`.
 
 The service can validate that a capability trace is connected and can traverse
-the graph from an execution or evidence identifier.
+the graph from an execution or evidence identifier. These links belong to the
+broader capability lineage; Registry `relations` remain capability-to-capability
+edges and are validated independently.
 
 ## Code layers
 
@@ -324,7 +327,7 @@ The conformance layer and tests make the main paper invariants executable:
 | ICLA-8 | Governed and non-standard measurements remain separate, receipts originate at the Evidence Gateway, schema conformity remains distinct from evidential sufficiency, and any submitted-report transformation is version-referenced in provenance |
 | ICLA-9 | Impact identifies review scope without automatic invalidation; canonical succession requires the latest appended predecessor and rejects stale-predecessor branching; successful change retains the complete successor, decision-linked delta, inactive append, separate pointer transition, and historical immutability; any eligible retained CKC reactivation requires a new approved decision and preserves unrelated pointer mappings |
 | ICLA-10 | Retained assemblies include version, access, retention, and policy metadata needed for reproduction and interpretation; authorized disposal remains outside the companion operation set |
-| ICLA-11 | Candidate and submitted proposals remain identity-free and their lifecycle states cannot be assigned to institutional capabilities; supporting records are general rather than pattern-only and retain resolvable repository, locator, version, and provenance metadata; the continuity justification may be observed or prospective; governed formation authority creates one new identity and complete initial CKC v1 with retained origins; the formed state has no active pointer; initial activation is executed separately |
+| ICLA-11 | Candidate and submitted proposals remain identity-free and their lifecycle states cannot be assigned to institutional capabilities; supporting records are general rather than pattern-only and retain resolvable repository, locator, version, and provenance metadata; proposed relations remain identity-free; governed formation records approved metadata and proposal-traceable capability relations, creates one new identity and complete initial CKC v1 with retained origins; the formed state has no active pointer; initial activation is executed separately |
 
 The corresponding tests live in [`tests/conformance/`](tests/conformance/).
 The complete evidence mapping, including the clauses that remain governed

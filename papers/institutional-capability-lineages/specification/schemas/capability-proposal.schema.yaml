@@ -125,6 +125,28 @@ properties:
       anyOf:
         - {type: string, minLength: 1}
         - {type: object, minProperties: 1}
+  proposed_relations:
+    description: Candidate relations to existing institutional capabilities; direction is relative to the proposed responsibility and does not assign it a CAP-* identity.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: object
+      required: [type, direction, other_capability_ref]
+      properties:
+        type:
+          enum:
+            - depends_on
+            - composes_with
+            - specializes
+            - replaces
+            - shares_knowledge
+            - derived_from
+            - conflicts_with
+        direction: {enum: [outgoing, incoming]}
+        other_capability_ref: {type: string, pattern: "^CAP-[A-Z0-9-]+$"}
+        rationale: {type: string, minLength: 1}
+      additionalProperties: false
   proposal_scoped_ckc_draft_ref:
     type: string
     pattern: "^PROP-[A-Z0-9-]+-CKC-DRAFT$"
