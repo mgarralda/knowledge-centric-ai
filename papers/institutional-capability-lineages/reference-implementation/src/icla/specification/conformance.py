@@ -393,12 +393,52 @@ def check_icla_7_canonical_transient_separation(artifact: dict[str, Any]) -> lis
             return ["ICLA-7: a materialization cannot silently become a canonical CKC"]
     if artifact.get("document_type") != "contextual-assembly":
         return []
-    return [
-        "ICLA-7: a consumer materialization cannot be marked canonical"
-        for item in artifact.get("materializations", [])
-        if item.get("canonical") is True
-        or item.get("status") in {"canonical", "canonical-approved", "active"}
-    ]
+    errors = []
+    assembly_ref = artifact.get("id")
+    cee_ref = artifact.get("lineage", {}).get("cee_ref")
+    transformations = {
+        (item.get("id"), item.get("version"))
+        for item in artifact.get("transformation_snapshot", [])
+    }
+    evaluation = artifact.get("evaluation_contract", {})
+    evidence = artifact.get("evidence_contract", {})
+    expected_evaluation = (evaluation.get("id"), evaluation.get("version"))
+    expected_evidence = (evidence.get("id"), evidence.get("version"))
+    for item in artifact.get("materializations", []):
+        if item.get("canonical") is True or item.get("status") in {
+            "canonical",
+            "canonical-approved",
+            "active",
+        }:
+            errors.append("ICLA-7: a CEE-side materialization cannot be marked canonical")
+        if item.get("assembly_ref") != assembly_ref or item.get("cee_ref") != cee_ref:
+            errors.append("ICLA-7: materialization loses its assembly or CEE traceability")
+        if _missing(item.get("substrate", {}), ("id", "version")):
+            errors.append("ICLA-7: materialization lacks a versioned CEE substrate")
+        transformation = item.get("transformation", {})
+        if _missing(transformation, ("id", "version")) or (
+            transformation.get("id"), transformation.get("version")
+        ) not in transformations:
+            errors.append("ICLA-7: materialization transformation is not version-pinned")
+        representation = item.get("representation", {})
+        if (
+            representation.get("control") != "cee-controlled"
+            or representation.get("payload_retention") != "policy-dependent"
+        ):
+            errors.append("ICLA-7: local representation is not CEE-controlled and policy-bound")
+        if item.get("preserves_assembly_semantics") is not True:
+            errors.append("ICLA-7: materialization does not preserve assembly semantics")
+        if item.get("preserves_assembly_authority") is not True:
+            errors.append("ICLA-7: materialization does not preserve assembly authority bounds")
+        evaluation_binding = item.get("evaluation_binding", {})
+        if (evaluation_binding.get("id"), evaluation_binding.get("version")) != (
+            expected_evaluation
+        ):
+            errors.append("ICLA-7: materialization loses its evaluation binding")
+        evidence_binding = item.get("evidence_binding", {})
+        if (evidence_binding.get("id"), evidence_binding.get("version")) != expected_evidence:
+            errors.append("ICLA-7: materialization loses its evidence binding")
+    return errors
 
 
 def check_icla_8_evidence_separation(artifact: dict[str, Any]) -> list[str]:
@@ -562,6 +602,18 @@ def check_icla_10_reproducibility(artifact: dict[str, Any]) -> list[str]:
         errors.append("ICLA-10: measurement interpretation contract is not version-pinned")
     if not artifact.get("retention", {}).get("policy_ref") or not artifact.get("access_policy_ref"):
         errors.append("ICLA-10: assembly lacks retention or access policy metadata")
+    materializations = artifact.get("materializations", [])
+    if not materializations:
+        errors.append("ICLA-10: retained execution trace identifies no CEE-side materialization")
+    for item in materializations:
+        if _missing(item, ("id", "assembly_ref", "cee_ref", "content_hash", "access")):
+            errors.append("ICLA-10: materialization lacks retained trace or hash/access metadata")
+        access = item.get("access", {})
+        if _missing(access, ("mode", "policy_ref")):
+            errors.append("ICLA-10: materialization access metadata is incomplete")
+        for binding_name in ("evaluation_binding", "evidence_binding"):
+            if _missing(item.get(binding_name, {}), ("id", "version")):
+                errors.append(f"ICLA-10: materialization lacks versioned {binding_name}")
     return errors
 
 

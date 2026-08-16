@@ -27,17 +27,39 @@ class OperationalMandate(ExtensibleModel):
     reresolution_triggers: list[str] = Field(min_length=1)
 
 
+class VersionedMaterializationComponent(ExtensibleModel):
+    id: str
+    version: int | str
+
+
+class MaterializationRepresentation(ExtensibleModel):
+    kind: Literal["bundle", "workspace", "message", "procedure", "payload", "access-handles"]
+    control: Literal["cee-controlled"] = "cee-controlled"
+    payload_retention: Literal["policy-dependent"] = "policy-dependent"
+    local_reference: str | None = None
+
+
+class MaterializationAccess(ExtensibleModel):
+    mode: Literal["local-reference", "governed-access-handles"]
+    policy_ref: str
+    handles: list[dict[str, Any]] = Field(default_factory=list)
+
+
 class Materialization(ExtensibleModel):
     id: str
     assembly_ref: str
-    substrate: str
-    uri: str | None = None
+    cee_ref: str
+    substrate: VersionedMaterializationComponent
+    transformation: VersionedMaterializationComponent
+    representation: MaterializationRepresentation
     content_hash: str
     created_at: datetime
     expires_at: datetime | None = None
-    delivery_mode: Literal["bundle", "payload", "access-handles"] = "bundle"
+    access: MaterializationAccess
+    evaluation_binding: VersionedMaterializationComponent
+    evidence_binding: VersionedMaterializationComponent
     preserves_assembly_semantics: Literal[True] = True
-    access_handles: list[dict[str, Any]] = Field(default_factory=list)
+    preserves_assembly_authority: Literal[True] = True
 
 
 class Assembly(SpecificationMetadata):

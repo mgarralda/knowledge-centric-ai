@@ -81,10 +81,13 @@ CKC-VERIFY v10 (future resolutions)
    records the deterministic `RequiredCovered` method and validator version
    plus the compatibility-conflict outcome and versioned policy basis before
    establishing the bounded operational mandate. Agent and reviewer
-   materializations preserve that mandate while `CEE-OAUTH-042` consumes the
-   authorized semantic, procedural, and episodic elements selected into the
-   assembly. Executable lineage exposes the bound source versions and both
-   materialization records as nodes connected to the retained assembly.
+   CEE-side materializations preserve that mandate while `CEE-OAUTH-042`
+   consumes the authorized semantic, procedural, and episodic elements selected
+   into the assembly. Each MAT pins assembly and CEE, substrate/transformation
+   versions, local policy-dependent representation, hash/access metadata, and
+   evaluation/evidence bindings. Executable lineage exposes the bound source
+   versions and both materialization records as nodes connected to the retained
+   assembly.
 5. [Evidence Bundle](./evidence-bundle.yaml) — `EVD-OAUTH-042` returns
    terminal, contract-selected knowledge produced by `CEE-OAUTH-042` during
    the autonomous `EXE-OAUTH-042` interval as artifacts, provenance, five

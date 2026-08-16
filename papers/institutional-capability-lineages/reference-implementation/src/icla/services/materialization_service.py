@@ -8,7 +8,7 @@ Licensed under the MIT License.
 See the LICENSE file in the repository root for details.
 """
 
-# Module purpose: Substrate adapters that preserve the logical assembly hash.
+# Module purpose: CEE-side substrate adapters that preserve assembly semantics and authority.
 
 from __future__ import annotations
 
@@ -24,39 +24,63 @@ from ..models.assembly import Assembly, Materialization
 from ..models.common import utc_now
 
 
-def _canonical(assembly: Assembly) -> bytes:
-    return json.dumps(
-        assembly.model_dump(mode="json", by_alias=True, exclude_none=True),
-        sort_keys=True,
-        separators=(",", ":"),
-    ).encode()
+def _versioned_binding(values: dict[str, Any], label: str) -> dict[str, Any]:
+    if not values.get("id") or values.get("version") is None:
+        raise ValueError(f"The assembly requires a versioned {label}")
+    return {"id": values["id"], "version": values["version"]}
+
+
+def _materialization_context(assembly: Assembly) -> dict[str, Any]:
+    cee_ref = assembly.lineage.get("cee_ref")
+    if not cee_ref:
+        raise ValueError("The assembly requires a CEE lineage reference")
+    if not assembly.transformation_snapshot:
+        raise ValueError("The assembly requires a versioned materialization transformation")
+    return {
+        "cee_ref": cee_ref,
+        "transformation": _versioned_binding(
+            assembly.transformation_snapshot[0], "materialization transformation"
+        ),
+        "evaluation_binding": _versioned_binding(
+            assembly.evaluation_contract, "evaluation binding"
+        ),
+        "evidence_binding": _versioned_binding(assembly.evidence_contract, "evidence binding"),
+    }
 
 
 class YamlBundleMaterializer:
-    substrate = "yaml-bundle"
+    substrate = {"id": "yaml-bundle", "version": 1}
+    representation_kind = "bundle"
 
     def materialize(self, assembly: Assembly, target: str | Path) -> Materialization:
-        content_hash = hashlib.sha256(_canonical(assembly)).hexdigest()
+        representation = yaml.safe_dump(
+            assembly.model_dump(mode="json", by_alias=True, exclude_none=True), sort_keys=False
+        )
+        content_hash = hashlib.sha256(representation.encode()).hexdigest()
         path = Path(target)
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(
-            yaml.safe_dump(
-                assembly.model_dump(mode="json", by_alias=True, exclude_none=True), sort_keys=False
-            ),
-            encoding="utf-8",
-        )
+        path.write_text(representation, encoding="utf-8")
         return Materialization(
-            id=f"MAT-{str(uuid5(NAMESPACE_URL, assembly.id + self.substrate)).upper()}",
+            id=f"MAT-{str(uuid5(NAMESPACE_URL, assembly.id + self.substrate['id'])).upper()}",
             assembly_ref=assembly.id,
             substrate=self.substrate,
-            uri=path.resolve().as_uri(),
+            representation={
+                "kind": self.representation_kind,
+                "local_reference": path.resolve().as_uri(),
+            },
             content_hash=content_hash,
             created_at=utc_now(),
+            access={
+                "mode": "local-reference",
+                "policy_ref": assembly.access_policy_ref or "POL-ICLA-LOCAL-ACCESS",
+            },
+            **_materialization_context(assembly),
         )
 
 
 class WorkspaceMaterializer(YamlBundleMaterializer):
-    substrate = "workspace"
+    substrate = {"id": "workspace", "version": 1}
+    representation_kind = "workspace"
 
     def materialize(self, assembly: Assembly, target: str | Path) -> Materialization:
         directory = Path(target)
@@ -67,7 +91,7 @@ class WorkspaceMaterializer(YamlBundleMaterializer):
 class AccessHandleMaterializer:
     """Materialize governed references without copying their source payloads."""
 
-    substrate = "governed-access-handles"
+    substrate = {"id": "governed-access-handles", "version": 1}
 
     def materialize(
         self,
@@ -80,14 +104,19 @@ class AccessHandleMaterializer:
         if any(required - handle.keys() for handle in handles):
             raise ValueError("Each access handle requires id, uri, and authority")
         descriptor = json.dumps(handles, sort_keys=True, separators=(",", ":")).encode()
-        content_hash = hashlib.sha256(_canonical(assembly) + descriptor).hexdigest()
-        identifier_seed = assembly.id + self.substrate + content_hash
+        content_hash = hashlib.sha256(descriptor).hexdigest()
+        identifier_seed = assembly.id + self.substrate["id"] + content_hash
         return Materialization(
             id=f"MAT-{str(uuid5(NAMESPACE_URL, identifier_seed)).upper()}",
             assembly_ref=assembly.id,
             substrate=self.substrate,
+            representation={"kind": "access-handles"},
             content_hash=content_hash,
             created_at=utc_now(),
-            delivery_mode="access-handles",
-            access_handles=handles,
+            access={
+                "mode": "governed-access-handles",
+                "policy_ref": assembly.access_policy_ref or "POL-ICLA-LOCAL-ACCESS",
+                "handles": handles,
+            },
+            **_materialization_context(assembly),
         )

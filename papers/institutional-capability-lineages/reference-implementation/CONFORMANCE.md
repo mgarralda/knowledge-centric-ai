@@ -25,7 +25,7 @@ capability-formation path.
 | Active state | `REG-SNAP-AUTH-EVOL-ACTIVE` | Immutable snapshot returned by activation | Capability is `active`; exact pointer is `CKC-AUTH-EVOL v1` |
 | Formation lineage | Proposal, supporting records, decision, CKC provenance, transition edges | `LineageService` extractors | Supporting records, proposal, decision, formation append, identity, CKC, and activation are connected |
 | Resolution outcome | `resolution.schema.yaml`; OAuth admitted resolution | `ResolutionService` plus `AssemblyService` | Outcomes use `admitted`, `rejected`, or `escalated`; admitted selection is nonempty and only admitted resolutions can be assembled |
-| Assembly lineage | OAuth assembly, source snapshots, and materializations | `LineageService` | Exact source-version and materialization nodes remain linked to the retained assembly |
+| Assembly lineage and CEE-side materialization | OAuth assembly, source snapshots, and MAT records | `MaterializationService` plus `LineageService` | Each MAT pins its assembly, CEE, substrate/transformation versions, hash/access metadata, and evaluation/evidence bindings while preserving assembly semantics and authority |
 | CKC succession and reactivation | OAuth decision, successor CKC, append and activation records; constructed reactivation decision | `SuccessionService` plus `ActivationService` | Successor append and activation remain separate; an eligible retained CKC requires a new activation decision and unrelated pointers remain unchanged |
 
 ## Machine-checked claims
@@ -58,6 +58,12 @@ fixtures and deterministic implementation:
   escalated outcomes cannot enter the assembly service;
 - assembly lineage contains the exact selected CKCs, bound source versions,
   and materialization records used by the fixture;
+- every retained MAT record identifies its assembly and CEE, pins the local
+  substrate and transformation versions, retains hash/access and
+  evaluation/evidence bindings, and declares preservation of assembly semantics
+  and authority bounds;
+- local representation and payload retention remain policy-dependent and under
+  CEE control; no delivery-service ownership claim is required or made;
 - invalid requests are rejected before append-only writes in the single-process
   reference flow;
 - input snapshots and earlier trace records are not rewritten;

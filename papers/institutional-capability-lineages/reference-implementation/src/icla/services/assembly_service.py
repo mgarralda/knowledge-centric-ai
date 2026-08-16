@@ -162,6 +162,8 @@ class AssemblyService:
                 "metrics": metrics,
             },
             evidence_contract={
+                "id": "EVIDENCE-ICLA-REFERENCE-ASSEMBLY",
+                "version": 1,
                 "contracts": [c.evidence_contract for c in ckcs],
                 "selection_mode": "contract-selected",
                 "working_state_disclosure": "prohibited-unless-contract-required",
@@ -186,12 +188,5 @@ class AssemblyService:
                 "historical_reproduction": "required",
             },
             access_policy_ref="POL-ICLA-TRACE-ACCESS-v1",
-            materializations=[
-                {
-                    "substrate": "logical",
-                    "delivery_mode": "logical",
-                    "preserves_assembly_semantics": True,
-                    "status": "available",
-                }
-            ],
+            materializations=[],
         )

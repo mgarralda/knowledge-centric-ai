@@ -91,6 +91,10 @@ policy_snapshot:
 transformation_snapshot:
   - id: TRANSFORM-OAUTH-ASSEMBLY
     version: 1
+  - id: TRANSFORM-OAUTH-AGENT-WORKSPACE
+    version: 1
+  - id: TRANSFORM-OAUTH-REVIEW-PACKET
+    version: 1
 
 operational_mandate:
   authority_scope: execution-scoped
@@ -192,6 +196,8 @@ evaluation_contract:
       authority: CKC-VERIFY-v9
 
 evidence_contract:
+  id: EVIDENCE-CONTRACT-OAUTH-042
+  version: 1
   selection_mode: contract-selected
   working_state_disclosure: prohibited-unless-contract-required
   checkpoint_policy: [terminal, contract-defined]
@@ -238,10 +244,58 @@ access_policy_ref: POL-ICLA-TRACE-ACCESS-v1
 
 materializations:
   - id: MAT-AGENT-042
-    substrate: coding-agent-workspace
-    delivery_mode: bundle
+    assembly_ref: ASM-OAUTH-042
+    cee_ref: CEE-OAUTH-042
+    substrate:
+      id: coding-agent-workspace
+      version: 1
+    transformation:
+      id: TRANSFORM-OAUTH-AGENT-WORKSPACE
+      version: 1
+    representation:
+      kind: workspace
+      control: cee-controlled
+      payload_retention: policy-dependent
+      local_reference: cee-local://CEE-OAUTH-042/workspaces/MAT-AGENT-042
+    content_hash: ca838461e645a7df970178b8cc9a75607f22f5de124629db34ad75008f85e3c8
+    created_at: "2026-01-15T10:00:00Z"
+    expires_at: null
+    access:
+      mode: local-reference
+      policy_ref: POL-ICLA-TRACE-ACCESS-v1
+    evaluation_binding:
+      id: EVAL-OAUTH-042
+      version: 1
+    evidence_binding:
+      id: EVIDENCE-CONTRACT-OAUTH-042
+      version: 1
     preserves_assembly_semantics: true
+    preserves_assembly_authority: true
   - id: MAT-REVIEW-042
-    substrate: human-review-packet
-    delivery_mode: payload
+    assembly_ref: ASM-OAUTH-042
+    cee_ref: CEE-OAUTH-042
+    substrate:
+      id: human-review-packet
+      version: 1
+    transformation:
+      id: TRANSFORM-OAUTH-REVIEW-PACKET
+      version: 1
+    representation:
+      kind: payload
+      control: cee-controlled
+      payload_retention: policy-dependent
+      local_reference: cee-local://CEE-OAUTH-042/review/MAT-REVIEW-042
+    content_hash: ebbffb687f77bf4c58231c99d8d8e65cdd4bcbe44cad3ec6a3640f090e3d885d
+    created_at: "2026-01-15T10:05:00Z"
+    expires_at: "2026-04-15T10:05:00Z"
+    access:
+      mode: local-reference
+      policy_ref: POL-ICLA-TRACE-ACCESS-v1
+    evaluation_binding:
+      id: EVAL-OAUTH-042
+      version: 1
+    evidence_binding:
+      id: EVIDENCE-CONTRACT-OAUTH-042
+      version: 1
     preserves_assembly_semantics: true
+    preserves_assembly_authority: true

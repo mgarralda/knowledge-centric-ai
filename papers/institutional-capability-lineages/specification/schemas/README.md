@@ -28,7 +28,13 @@ and escalated outcomes may have an empty selection and do not authorize
 assembly. The
 Assembly also makes the admitted operational mandate explicit:
 execution-scoped authority, local CEE autonomy, evidence-only disclosure, and
-event-driven re-resolution triggers. The Evidence Bundle records an autonomous
+event-driven re-resolution triggers. Its nested MAT records describe CEE-side
+realization rather than delivery-service ownership. Each MAT pins the assembly,
+CEE, versioned substrate and transformation, policy-dependent CEE-controlled
+representation, content hash, expiry/access metadata, evaluation/evidence
+bindings, and preservation of assembly semantics and authority bounds. The
+materialized payload itself may remain local or be represented only by governed
+access handles. The Evidence Bundle records an autonomous
 execution interval and contract-selected submission without requiring working
 state disclosure. Assembly correctness traces additionally retain the applied
 `RequiredCovered` assessment method and applicable validator, model, or

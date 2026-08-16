@@ -58,7 +58,10 @@ The implementation includes:
   semantics for resolution auditability;
 - immutable contextual assembly with an execution-scoped operational mandate
   and exact CKC, source, policy, evaluation, and transformation versions;
-- bundle, payload, workspace, and governed-access-handle materialization;
+- CEE-side bundle, payload, workspace, and governed-access-handle
+  materialization whose retained record pins assembly, CEE, substrate and
+  transformation versions, hash/access metadata, and evaluation/evidence
+  bindings;
 - execution-scoped CEE boundaries whose relevant configuration is pinned from
   intent through evidence, plus situated, non-authoritative candidate knowledge;
 - Evidence Gateway schema and measurement-conformity validation, evidence
@@ -109,8 +112,10 @@ several architectural boundaries from the paper executable:
   while conformance rejects step-wise Registry control of CEE execution;
 - **autonomy without opacity**: a CEE may keep local working state private,
   but selected evidence must retain contract, execution, and producer lineage;
-- **access without copying**: governed access handles can materialize an
-  assembly without moving source payloads or changing source authority;
+- **CEE-controlled realization**: the CEE may retain a policy-dependent local
+  representation or governed access handles; the MAT record preserves
+  assembly lineage, semantics, and authority without assigning the payload to
+  an institutional delivery service;
 - **event-driven re-resolution**: the mandate is reused until intent, coverage,
   authority, freshness, risk, or assurance invalidates it;
 - **learning without self-promotion**: candidate knowledge can affect canonical
@@ -265,7 +270,9 @@ reference-implementation/
 - Evidence provenance conditionally retains any versioned transformation used
   to construct the submitted report. This makes the transformation auditable;
   it does not establish semantic fidelity or substantive correctness.
-- Materializations cannot silently become canonical CKCs.
+- CEE-side materializations remain traceable to the immutable assembly and
+  preserve its semantics and authority bounds; they cannot silently become
+  canonical CKCs.
 - Successor append requires the latest appended CKC as predecessor; a stale
   predecessor is rejected without branching or activating the candidate.
 - Any retained eligible CKC can become current only through a new approved

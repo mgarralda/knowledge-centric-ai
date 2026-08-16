@@ -17,10 +17,13 @@ artifacts, practices, and decisions. Such outputs remain candidate knowledge
 until an identified evidence path and governance decision admit them.
 
 An Assembly is also the persistent record of a bounded operational mandate. It
-delegates execution-scoped authority without granting canonical change and can
-be materialized as copied content or governed access handles. Internal CEE
-working state remains local unless the evidence contract explicitly selects
-it.
+delegates execution-scoped authority without granting canonical change. The CEE
+may realize it as a policy-dependent local representation or governed access
+handles. Its MAT record retains assembly and CEE references, substrate and
+transformation versions, hash/access metadata, evaluation/evidence bindings,
+and explicit preservation of semantics and authority. It does not assign
+institutional ownership of the payload. Internal CEE working state remains
+local unless the evidence contract explicitly selects it.
 
 The initial object catalog is defined through the schemas:
 
