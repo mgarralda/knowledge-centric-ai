@@ -30,21 +30,25 @@ def _versioned_binding(values: dict[str, Any], label: str) -> dict[str, Any]:
     return {"id": values["id"], "version": values["version"]}
 
 
-def _materialization_context(assembly: Assembly) -> dict[str, Any]:
+def _materialization_context(
+    assembly: Assembly, transformation: dict[str, Any]
+) -> dict[str, Any]:
     cee_ref = assembly.lineage.get("cee_ref")
     if not cee_ref:
         raise ValueError("The assembly requires a CEE lineage reference")
-    if not assembly.transformation_snapshot:
-        raise ValueError("The assembly requires a versioned materialization transformation")
+    local_transformation = _versioned_binding(transformation, "CEE-side transformation")
     return {
         "cee_ref": cee_ref,
-        "transformation": _versioned_binding(
-            assembly.transformation_snapshot[0], "materialization transformation"
-        ),
+        "transformation": local_transformation,
         "evaluation_binding": _versioned_binding(
             assembly.evaluation_contract, "evaluation binding"
         ),
         "evidence_binding": _versioned_binding(assembly.evidence_contract, "evidence binding"),
+        "generated_from": {
+            "assembly": assembly.id,
+            "cee": cee_ref,
+            "transformation": local_transformation,
+        },
     }
 
 
@@ -52,7 +56,12 @@ class YamlBundleMaterializer:
     substrate = {"id": "yaml-bundle", "version": 1}
     representation_kind = "bundle"
 
-    def materialize(self, assembly: Assembly, target: str | Path) -> Materialization:
+    def materialize(
+        self,
+        assembly: Assembly,
+        target: str | Path,
+        transformation: dict[str, Any],
+    ) -> Materialization:
         representation = yaml.safe_dump(
             assembly.model_dump(mode="json", by_alias=True, exclude_none=True), sort_keys=False
         )
@@ -60,8 +69,11 @@ class YamlBundleMaterializer:
         path = Path(target)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(representation, encoding="utf-8")
+        transformation_seed = json.dumps(transformation, sort_keys=True, separators=(",", ":"))
+        identifier_seed = assembly.id + self.substrate["id"] + transformation_seed
         return Materialization(
-            id=f"MAT-{str(uuid5(NAMESPACE_URL, assembly.id + self.substrate['id'])).upper()}",
+            id=f"MAT-{str(uuid5(NAMESPACE_URL, identifier_seed)).upper()}",
+            schema_ref="schemas/materialization.schema.yaml",
             assembly_ref=assembly.id,
             substrate=self.substrate,
             representation={
@@ -74,7 +86,7 @@ class YamlBundleMaterializer:
                 "mode": "local-reference",
                 "policy_ref": assembly.access_policy_ref or "POL-ICLA-LOCAL-ACCESS",
             },
-            **_materialization_context(assembly),
+            **_materialization_context(assembly, transformation),
         )
 
 
@@ -82,10 +94,15 @@ class WorkspaceMaterializer(YamlBundleMaterializer):
     substrate = {"id": "workspace", "version": 1}
     representation_kind = "workspace"
 
-    def materialize(self, assembly: Assembly, target: str | Path) -> Materialization:
+    def materialize(
+        self,
+        assembly: Assembly,
+        target: str | Path,
+        transformation: dict[str, Any],
+    ) -> Materialization:
         directory = Path(target)
         directory.mkdir(parents=True, exist_ok=True)
-        return super().materialize(assembly, directory / "assembly.yaml")
+        return super().materialize(assembly, directory / "assembly.yaml", transformation)
 
 
 class AccessHandleMaterializer:
@@ -97,6 +114,7 @@ class AccessHandleMaterializer:
         self,
         assembly: Assembly,
         handles: list[dict[str, Any]],
+        transformation: dict[str, Any],
     ) -> Materialization:
         if not handles:
             raise ValueError("At least one governed access handle is required")
@@ -105,9 +123,11 @@ class AccessHandleMaterializer:
             raise ValueError("Each access handle requires id, uri, and authority")
         descriptor = json.dumps(handles, sort_keys=True, separators=(",", ":")).encode()
         content_hash = hashlib.sha256(descriptor).hexdigest()
-        identifier_seed = assembly.id + self.substrate["id"] + content_hash
+        transformation_seed = json.dumps(transformation, sort_keys=True, separators=(",", ":"))
+        identifier_seed = assembly.id + self.substrate["id"] + transformation_seed + content_hash
         return Materialization(
             id=f"MAT-{str(uuid5(NAMESPACE_URL, identifier_seed)).upper()}",
+            schema_ref="schemas/materialization.schema.yaml",
             assembly_ref=assembly.id,
             substrate=self.substrate,
             representation={"kind": "access-handles"},
@@ -118,5 +138,5 @@ class AccessHandleMaterializer:
                 "policy_ref": assembly.access_policy_ref or "POL-ICLA-LOCAL-ACCESS",
                 "handles": handles,
             },
-            **_materialization_context(assembly),
+            **_materialization_context(assembly, transformation),
         )

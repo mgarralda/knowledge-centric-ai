@@ -11,6 +11,9 @@
 $schema: https://json-schema.org/draft/2020-12/schema
 title: Contextual Assembly
 type: object
+allOf:
+  - not:
+      required: [materializations]
 required:
   - document_type
   - format_version
@@ -34,7 +37,6 @@ required:
   - correctness_trace
   - retention
   - access_policy_ref
-  - materializations
 properties:
   document_type: {const: contextual-assembly}
   format_version: {const: icla-artifact/0.1-draft}
@@ -203,70 +205,7 @@ properties:
     required: [policy_ref]
     additionalProperties: true
   access_policy_ref: {type: string}
-  materializations:
-    type: array
-    items:
-      type: object
-      required:
-        - id
-        - assembly_ref
-        - cee_ref
-        - substrate
-        - transformation
-        - representation
-        - content_hash
-        - created_at
-        - expires_at
-        - access
-        - evaluation_binding
-        - evidence_binding
-        - preserves_assembly_semantics
-        - preserves_assembly_authority
-      properties:
-        id: {type: string, pattern: "^MAT-[A-Z0-9-]+$"}
-        assembly_ref: {type: string, pattern: "^ASM-[A-Z0-9-]+$"}
-        cee_ref: {type: string, minLength: 1}
-        substrate: {$ref: "#/$defs/versioned_component"}
-        transformation: {$ref: "#/$defs/versioned_component"}
-        representation:
-          type: object
-          required: [kind, control, payload_retention]
-          properties:
-            kind: {enum: [bundle, workspace, message, procedure, payload, access-handles]}
-            control: {const: cee-controlled}
-            payload_retention: {const: policy-dependent}
-            local_reference: {type: string, minLength: 1}
-          additionalProperties: false
-        content_hash: {type: string, pattern: "^[a-f0-9]{64}$"}
-        created_at: {type: string, format: date-time}
-        expires_at: {type: [string, "null"], format: date-time}
-        access:
-          type: object
-          required: [mode, policy_ref]
-          properties:
-            mode: {enum: [local-reference, governed-access-handles]}
-            policy_ref: {type: string, minLength: 1}
-            handles:
-              type: array
-              minItems: 1
-              items:
-                type: object
-                required: [id, uri, authority]
-                additionalProperties: true
-          additionalProperties: false
-        evaluation_binding: {$ref: "#/$defs/versioned_component"}
-        evidence_binding: {$ref: "#/$defs/versioned_component"}
-        preserves_assembly_semantics: {const: true}
-        preserves_assembly_authority: {const: true}
-      additionalProperties: false
 $defs:
-  versioned_component:
-    type: object
-    required: [id, version]
-    properties:
-      id: {type: string, minLength: 1}
-      version: {type: [integer, string]}
-    additionalProperties: false
   knowledge_roles:
     type: array
     minItems: 1

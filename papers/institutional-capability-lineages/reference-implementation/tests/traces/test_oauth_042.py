@@ -76,6 +76,48 @@ def test_oauth_042_cee_configuration_is_stable_across_the_trace():
     assert "ICLA-3/5: CEE configuration changes across the execution trace" in errors
 
 
+def test_oauth_042_materializations_are_first_class_and_use_local_transformations():
+    validator = ArtifactValidator()
+    artifacts = {path.stem: validator.validate_file(path) for path in sorted(TRACE.glob("*.yaml"))}
+    assembly = artifacts["assembly"]
+    agent = artifacts["materialization-agent"]
+    review = artifacts["materialization-review"]
+
+    assert "materializations" not in assembly
+    assert assembly["transformation_snapshot"] == [
+        {"id": "TRANSFORM-OAUTH-ASSEMBLY", "version": 1}
+    ]
+    assert {agent["assembly_ref"], review["assembly_ref"]} == {assembly["id"]}
+    assert {agent["transformation"]["id"], review["transformation"]["id"]} == {
+        "TRANSFORM-OAUTH-AGENT-WORKSPACE",
+        "TRANSFORM-OAUTH-REVIEW-PACKET",
+    }
+
+
+def test_oauth_042_rejects_embedded_or_unlinked_materialization_state():
+    validator = ArtifactValidator()
+    artifacts = {path.stem: validator.validate_file(path) for path in sorted(TRACE.glob("*.yaml"))}
+    artifacts["assembly"]["materializations"] = [{"id": "MAT-AGENT-042"}]
+    artifacts["materialization-agent"]["assembly_ref"] = "ASM-OTHER"
+
+    errors = ConformanceChecker().check_trace(artifacts.values(), ConformanceProfile.GOVERNED)
+
+    assert "ICLA-7: an immutable assembly cannot embed later materialization records" in errors
+    assert "ICLA-7: materialization references a different assembly" in errors
+
+
+def test_oauth_042_rejects_projection_transform_as_local_realization_transform():
+    validator = ArtifactValidator()
+    artifacts = {path.stem: validator.validate_file(path) for path in sorted(TRACE.glob("*.yaml"))}
+    projection = artifacts["assembly"]["transformation_snapshot"][0]
+    artifacts["materialization-agent"]["transformation"] = projection
+    artifacts["materialization-agent"]["generated_from"]["transformation"] = projection
+
+    errors = ConformanceChecker().check_trace(artifacts.values(), ConformanceProfile.GOVERNED)
+
+    assert "ICLA-7: local realization transformation is conflated with projection" in errors
+
+
 @pytest.mark.skipif(
     not TRACE.is_dir(), reason="oauth-042 reference artifacts are not published yet"
 )
@@ -446,9 +488,9 @@ def test_oauth_042_end_to_end_governed_successor(tmp_path):
         for edge in lineage.edges
     )
     assert any(
-        edge.source == "MAT-AGENT-042"
-        and edge.relation_type == "materializes"
-        and edge.target == "ASM-OAUTH-042"
+        edge.source == "ASM-OAUTH-042"
+        and edge.relation_type == "materialized_as"
+        and edge.target == "MAT-AGENT-042"
         for edge in lineage.edges
     )
     assert any(

@@ -8,12 +8,12 @@ Licensed under the MIT License.
 See the LICENSE file in the repository root for details.
 """
 
-# Module purpose: Immutable logical assembly and substrate-specific materializations.
+# Module purpose: Separate immutable assembly and CEE-side materialization records.
 
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from .common import ExtensibleModel, SpecificationMetadata
 
@@ -45,7 +45,9 @@ class MaterializationAccess(ExtensibleModel):
     handles: list[dict[str, Any]] = Field(default_factory=list)
 
 
-class Materialization(ExtensibleModel):
+class Materialization(SpecificationMetadata):
+    document_type: Literal["cee-side-materialization"] = "cee-side-materialization"
+    status: Literal["immutable"] = "immutable"
     id: str
     assembly_ref: str
     cee_ref: str
@@ -78,4 +80,10 @@ class Assembly(SpecificationMetadata):
     correctness_trace: dict[str, Any] = Field(default_factory=dict)
     retention: dict[str, Any] = Field(default_factory=dict)
     access_policy_ref: str | None = None
-    materializations: list[dict[str, Any]] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_retrospective_materializations(cls, value: Any) -> Any:
+        if isinstance(value, dict) and "materializations" in value:
+            raise ValueError("An immutable assembly cannot embed later materialization records")
+        return value

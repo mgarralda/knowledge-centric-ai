@@ -28,8 +28,8 @@ and escalated outcomes may have an empty selection and do not authorize
 assembly. The
 Assembly also makes the admitted operational mandate explicit:
 execution-scoped authority, local CEE autonomy, evidence-only disclosure, and
-event-driven re-resolution triggers. Its nested MAT records describe CEE-side
-realization rather than delivery-service ownership. Each MAT pins the assembly,
+event-driven re-resolution triggers. Separate, first-class MAT records describe
+CEE-side realization rather than delivery-service ownership. Each MAT pins the assembly,
 CEE, versioned substrate and transformation, policy-dependent CEE-controlled
 representation, content hash, expiry/access metadata, evaluation/evidence
 bindings, and preservation of assembly semantics and authority bounds. The
@@ -107,5 +107,6 @@ proposal, decision, formation, and supporting-record origins when CKC v1 declare
 | [`intent.schema.yaml`](./intent.schema.yaml) | Operational intent |
 | [`resolution.schema.yaml`](./resolution.schema.yaml) | Resolution and admission |
 | [`assembly.schema.yaml`](./assembly.schema.yaml) | Contextual assembly |
+| [`materialization.schema.yaml`](./materialization.schema.yaml) | CEE-side materialization |
 | [`evidence-bundle.schema.yaml`](./evidence-bundle.schema.yaml) | Execution evidence bundle |
 | [`governance-decision.schema.yaml`](./governance-decision.schema.yaml) | Governance decision, successor append, and activation |

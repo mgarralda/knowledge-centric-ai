@@ -42,7 +42,10 @@ def test_access_handle_materialization_preserves_sources_without_copying_payload
         }
     ]
 
-    materialization = AccessHandleMaterializer().materialize(assembly(), handles)
+    local_transformation = {"id": "TRANSFORM-ACCESS-HANDLES", "version": 5}
+    materialization = AccessHandleMaterializer().materialize(
+        assembly(), handles, local_transformation
+    )
 
     assert materialization.assembly_ref == "ASM-TEST"
     assert materialization.cee_ref == "CEE-1"
@@ -50,7 +53,8 @@ def test_access_handle_materialization_preserves_sources_without_copying_payload
         "id": "governed-access-handles",
         "version": 1,
     }
-    assert materialization.transformation.model_dump() == {"id": "TRANSFORM-1", "version": 2}
+    assert materialization.transformation.model_dump() == local_transformation
+    assert materialization.transformation.id != assembly().transformation_snapshot[0]["id"]
     assert materialization.representation.kind == "access-handles"
     assert materialization.representation.control == "cee-controlled"
     assert materialization.representation.payload_retention == "policy-dependent"
@@ -64,7 +68,28 @@ def test_access_handle_materialization_preserves_sources_without_copying_payload
 
 def test_access_handle_materialization_requires_governed_descriptors():
     with pytest.raises(ValueError, match="id, uri, and authority"):
-        AccessHandleMaterializer().materialize(assembly(), [{"id": "HANDLE-1"}])
+        AccessHandleMaterializer().materialize(
+            assembly(),
+            [{"id": "HANDLE-1"}],
+            {"id": "TRANSFORM-ACCESS-HANDLES", "version": 1},
+        )
+
+
+def test_materialization_requires_an_explicit_versioned_local_transformation():
+    with pytest.raises(ValueError, match="versioned CEE-side transformation"):
+        AccessHandleMaterializer().materialize(
+            assembly(),
+            [{"id": "HANDLE-1", "uri": "https://example.test/1", "authority": "AUTH-1"}],
+            {"id": "TRANSFORM-ACCESS-HANDLES"},
+        )
+
+
+def test_assembly_model_rejects_retrospectively_embedded_materializations():
+    data = assembly().model_dump(mode="json")
+    data["materializations"] = [{"id": "MAT-LATER"}]
+
+    with pytest.raises(ValueError, match="cannot embed later materialization records"):
+        Assembly.model_validate(data)
 
 
 def test_reresolution_is_event_driven_not_stepwise():

@@ -1,0 +1,55 @@
+# Institutional Capability Lineage Architecture (ICLA)
+# Reference Trace
+#
+# This artifact is part of the ICLA Reference Specification.
+# It is a non-normative reference example and does not represent
+# operational or production data.
+#
+# Copyright (c) 2026 Mariano Garralda-Barrio
+#
+# Licensed under CC BY 4.0.
+
+document_type: cee-side-materialization
+format_version: "icla-artifact/0.1-draft"
+specification_version:
+  icla-spec: "0.1.0"
+id: MAT-AGENT-042
+artifact_status: reference
+normative: false
+schema_ref: ../../schemas/materialization.schema.yaml
+status: immutable
+
+generated_from:
+  assembly: ASM-OAUTH-042
+  cee: CEE-OAUTH-042
+  transformation:
+    id: TRANSFORM-OAUTH-AGENT-WORKSPACE
+    version: 1
+
+assembly_ref: ASM-OAUTH-042
+cee_ref: CEE-OAUTH-042
+substrate:
+  id: coding-agent-workspace
+  version: 1
+transformation:
+  id: TRANSFORM-OAUTH-AGENT-WORKSPACE
+  version: 1
+representation:
+  kind: workspace
+  control: cee-controlled
+  payload_retention: policy-dependent
+  local_reference: cee-local://CEE-OAUTH-042/workspaces/MAT-AGENT-042
+content_hash: ca838461e645a7df970178b8cc9a75607f22f5de124629db34ad75008f85e3c8
+created_at: "2026-01-15T10:00:00Z"
+expires_at: null
+access:
+  mode: local-reference
+  policy_ref: POL-ICLA-TRACE-ACCESS-v1
+evaluation_binding:
+  id: EVAL-OAUTH-042
+  version: 1
+evidence_binding:
+  id: EVIDENCE-CONTRACT-OAUTH-042
+  version: 1
+preserves_assembly_semantics: true
+preserves_assembly_authority: true

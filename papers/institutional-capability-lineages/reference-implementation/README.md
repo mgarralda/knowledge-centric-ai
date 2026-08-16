@@ -17,10 +17,11 @@ platform.
 
 - The reviewed manuscript defines the concepts, invariants, lifecycle, and
   evaluation claims; reviewer packages intentionally omit the manuscript.
-- [Reference schemas](../specification/schemas/README.md) — nine JSON Schema
+- [Reference schemas](../specification/schemas/README.md) — ten JSON Schema
   Draft 2020-12 contracts.
 - [OAuth 2.1 reference trace](../specification/reference-traces/oauth-042/README.md)
-  — eight linked artifacts corresponding to the paper's worked example.
+  — ten linked artifacts corresponding to the paper's worked example, including
+  two first-class CEE-side materialization records.
 - [Capability-formation trace](../specification/reference-traces/auth-evolution-formation/README.md)
   — six linked artifacts for submitted proposal, governed formation, and
   separate initial activation.
@@ -155,8 +156,8 @@ poetry run pytest
 The conformance commands should report:
 
 ```text
-Validated 9 schema(s)
-Validated 8 artifact(s); ICLA-Governed trace conformance passed; ICLA-11 pre-institutional proposal boundaries passed
+Validated 10 schema(s)
+Validated 10 artifact(s); ICLA-Governed trace conformance passed; ICLA-11 pre-institutional proposal boundaries passed
 Validated 6 artifact(s); ICLA-Evolving trace conformance passed; governed capability formation and separate initial activation are represented; proposal-generation or discovery effectiveness and institutional judgment were not assessed
 ```
 
@@ -182,7 +183,7 @@ poetry run icla run-trace oauth-042 --trace-dir ../specification/reference-trace
 
 The commands have distinct responsibilities:
 
-- `schemas` lists the nine available contracts;
+- `schemas` lists the ten available contracts;
 - `validate-schemas` validates the schema documents themselves;
 - `validate` validates one artifact or all artifacts in a directory;
 - `run-trace` validates cross-artifact identity, version, formation, activation,

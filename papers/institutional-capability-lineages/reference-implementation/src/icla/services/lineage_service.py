@@ -61,6 +61,7 @@ class LineageService:
             "institutional-capability-registry-snapshot": self.edges_from_registry_snapshot,
             "capability-resolution": self.edges_from_resolution,
             "contextual-assembly": self.edges_from_assembly,
+            "cee-side-materialization": self.edges_from_materialization,
             "capability-knowledge-contract": self.edges_from_ckc,
             "execution-evidence-bundle": self.edges_from_evidence,
             "governance-decision": self.edges_from_governance_decision,
@@ -323,18 +324,38 @@ class LineageService:
                         {"from": assembly_id, "type": "uses", "to": source_ref}
                     )
                 )
-        for materialization in artifact.get("materializations", []):
-            materialization_id = materialization.get("id")
-            if materialization_id:
-                edges.append(
-                    LineageEdge.model_validate(
-                        {
-                            "from": materialization_id,
-                            "type": "materializes",
-                            "to": assembly_id,
-                        }
-                    )
+        return edges
+
+    @staticmethod
+    def edges_from_materialization(artifact: dict[str, Any]) -> list[LineageEdge]:
+        materialization_id = artifact["id"]
+        edges = [
+            LineageEdge.model_validate(
+                {
+                    "from": artifact["assembly_ref"],
+                    "type": "materialized_as",
+                    "to": materialization_id,
+                }
+            ),
+            LineageEdge.model_validate(
+                {
+                    "from": materialization_id,
+                    "type": "realized_by",
+                    "to": artifact["cee_ref"],
+                }
+            ),
+        ]
+        transformation = LineageService._versioned_ref(artifact.get("transformation", {}))
+        if transformation:
+            edges.append(
+                LineageEdge.model_validate(
+                    {
+                        "from": materialization_id,
+                        "type": "transformed_by",
+                        "to": transformation,
+                    }
                 )
+            )
         return edges
 
     @staticmethod

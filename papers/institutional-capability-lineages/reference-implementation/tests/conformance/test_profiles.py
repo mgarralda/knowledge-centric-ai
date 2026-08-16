@@ -50,8 +50,8 @@ def test_missing_core_invariants_are_explicitly_checked():
     )
     assert check_icla_7_canonical_transient_separation(
         {
-            "document_type": "contextual-assembly",
-            "materializations": [{"status": "canonical"}],
+            "document_type": "cee-side-materialization",
+            "status": "canonical",
         }
     )
 

@@ -288,7 +288,9 @@ CKC succession through typed edges such as:
 - `derived_from`;
 - `consumes`;
 - `uses`;
-- `materializes`;
+- `materialized_as`;
+- `realized_by`;
+- `transformed_by`;
 - `performed_by`;
 - `operates_under`;
 - `produced_during`;
@@ -331,7 +333,7 @@ The conformance layer and tests make the main paper invariants executable:
 | ICLA-3 | Every execution records its situated CEE boundary and relevant configuration; autonomy and working-state privacy remain bounded, and candidate contributions gain authority only through governed adjudication |
 | ICLA-4 | Registry entries are filterable by metadata, lifecycle, policy, and conditions and expose typed relations and source-impact paths |
 | ICLA-5 | Resolution and assembly retain intent, situated CEE boundary and configuration, Registry snapshot, matcher identity/version, confidence semantics, selected capability set, exact capability-to-active-CKC map, one of the `admitted`/`rejected`/`escalated` outcomes, and mandatory-constraint traceability; admitted selections are nonempty, `RequiredCovered` retains its method/version, and `ConflictsResolved` retains conflict, compatible outcome, and policy/version basis |
-| ICLA-6 | Assemblies pin CKC, evaluation-contract, source, policy, and transformation versions; lineage exposes the exact source-version and materialization nodes used by the assembly |
+| ICLA-6 | Assemblies pin exact CKC, evaluation-contract, source, policy, and projection-transformation versions without incorporating later realization state |
 | ICLA-7 | Every CEE-side materialization traces to its immutable assembly and CEE and preserves the assembly's semantics and authority bounds while adapting only the local representation |
 | ICLA-8 | Governed and non-standard measurements remain separate, receipts originate at the Evidence Gateway, schema conformity remains distinct from evidential sufficiency, and any submitted-report transformation is version-referenced in provenance |
 | ICLA-9 | Impact identifies review scope without automatic invalidation; canonical succession requires the latest appended predecessor and rejects stale-predecessor branching; successful change retains the complete successor, decision-linked delta, inactive append, separate pointer transition, and historical immutability; any eligible retained CKC reactivation requires a new approved decision and preserves unrelated pointer mappings |

@@ -28,6 +28,7 @@ DOCUMENT_SCHEMAS = {
     "operational-intent": "intent",
     "capability-resolution": "resolution",
     "contextual-assembly": "assembly",
+    "cee-side-materialization": "materialization",
     "execution-evidence-bundle": "evidence-bundle",
     "governance-decision": "governance-decision",
     "capability-proposal": "capability-proposal",

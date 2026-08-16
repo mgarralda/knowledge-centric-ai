@@ -36,6 +36,7 @@ The initial object catalog is defined through the schemas:
 | Operational intent | [`intent.schema.yaml`](../schemas/intent.schema.yaml) |
 | Capability resolution | [`resolution.schema.yaml`](../schemas/resolution.schema.yaml) |
 | Contextual assembly | [`assembly.schema.yaml`](../schemas/assembly.schema.yaml) |
+| CEE-side materialization | [`materialization.schema.yaml`](../schemas/materialization.schema.yaml) |
 | Evidence bundle | [`evidence-bundle.schema.yaml`](../schemas/evidence-bundle.schema.yaml) |
 | Governance decision and activation | [`governance-decision.schema.yaml`](../schemas/governance-decision.schema.yaml) |
 

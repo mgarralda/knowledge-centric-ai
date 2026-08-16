@@ -51,8 +51,9 @@ RES-OAUTH-042 / ADM-OAUTH-042
       │
       ▼
 ASM-OAUTH-042
-      │
-      ▼
+      ├──> MAT-AGENT-042 ──┐
+      └──> MAT-REVIEW-042 ─┤
+                           ▼
 EVD-OAUTH-042 / RCPT-OAUTH-042
       │
       ▼
@@ -80,15 +81,17 @@ CKC-VERIFY v10 (future resolutions)
    versions, selects and excludes knowledge, binds governed metrics, and
    records the deterministic `RequiredCovered` method and validator version
    plus the compatibility-conflict outcome and versioned policy basis before
-   establishing the bounded operational mandate. Agent and reviewer
-   CEE-side materializations preserve that mandate while `CEE-OAUTH-042`
-   consumes the authorized semantic, procedural, and episodic elements selected
-   into the assembly. Each MAT pins assembly and CEE, substrate/transformation
-   versions, local policy-dependent representation, hash/access metadata, and
-   evaluation/evidence bindings. Executable lineage exposes the bound source
-   versions and both materialization records as nodes connected to the retained
-   assembly.
-5. [Evidence Bundle](./evidence-bundle.yaml) — `EVD-OAUTH-042` returns
+   establishing the bounded operational mandate. The assembly retains only its
+   own projection transformation and contains no later realization state.
+5. [Agent Materialization](./materialization-agent.yaml) — `MAT-AGENT-042`
+   records the CEE-controlled workspace realization and its distinct local
+   transformation.
+6. [Review Materialization](./materialization-review.yaml) — `MAT-REVIEW-042`
+   records the separate policy-dependent review representation. Both MATs pin
+   assembly and CEE, substrate/transformation versions, hash/access metadata,
+   evaluation/evidence bindings, and preservation of semantics and authority.
+   Executable lineage connects `ASM-OAUTH-042` to both first-class records.
+7. [Evidence Bundle](./evidence-bundle.yaml) — `EVD-OAUTH-042` returns
    terminal, contract-selected knowledge produced by `CEE-OAUTH-042` during
    the autonomous `EXE-OAUTH-042` interval as artifacts, provenance, five
    conforming governed measurements, and one explicitly non-standard
@@ -102,7 +105,7 @@ CKC-VERIFY v10 (future resolutions)
    records the execution as episodic memory, preserves candidate producer and
    execution identity, and declares submitted candidate lifecycle and
    memory-role transitions.
-6. [Governance Decision](./governance-decision.yaml) — `DEC-OAUTH-042`
+8. [Governance Decision](./governance-decision.yaml) — `DEC-OAUTH-042`
    accepts the conforming evidence, retains a local exception, authorizes the
    complete successor `CKC-VERIFY v10`, records its inactive append as
    `APPEND-VERIFY-010`, and activates that exact appended version through
@@ -113,12 +116,12 @@ CKC-VERIFY v10 (future resolutions)
    rationale, supporting evidence, authorizing decision, and rollback without
    acting as a reconstruction patch. It references, but does not embed or
    promote, `PROP-AUTH-EVOL-01`.
-7. [Capability Proposal](./capability-proposal.yaml) — the independent
+9. [Capability Proposal](./capability-proposal.yaml) — the independent
    pre-institutional candidate records current assembly and evidence signals,
    the finding that recurrence is not established, future execution types
    needed before submission, stable assembly rules, value basis, comparable
    outcomes, candidate ownership, overlap input, and proposal-scoped CKC draft.
-8. [Successor CKC](./ckc-verify-v10.yaml) — the complete immutable
+10. [Successor CKC](./ckc-verify-v10.yaml) — the complete immutable
    `CKC-VERIFY v10` contract records its predecessor, scope, obligations,
    authorities, evidence and evaluation definitions, source bindings,
    projection rules, governing decision, and decision-linked successor delta.

@@ -111,12 +111,12 @@ class ICLA:
         return self.assembler.assemble(intent, resolution, registry_snapshot, ckcs, policies)
 
     @staticmethod
-    def materialize(assembly, target: str | Path):
-        return YamlBundleMaterializer().materialize(assembly, target)
+    def materialize(assembly, target: str | Path, transformation: dict):
+        return YamlBundleMaterializer().materialize(assembly, target, transformation)
 
     @staticmethod
-    def materialize_access_handles(assembly, handles: list[dict]):
-        return AccessHandleMaterializer().materialize(assembly, handles)
+    def materialize_access_handles(assembly, handles: list[dict], transformation: dict):
+        return AccessHandleMaterializer().materialize(assembly, handles, transformation)
 
     @staticmethod
     def requires_reresolution(**conditions):

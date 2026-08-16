@@ -188,5 +188,4 @@ class AssemblyService:
                 "historical_reproduction": "required",
             },
             access_policy_ref="POL-ICLA-TRACE-ACCESS-v1",
-            materializations=[],
         )

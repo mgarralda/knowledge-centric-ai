@@ -14,17 +14,19 @@ def reproducible_assembly() -> dict:
         "evidence_contract": {"id": "EVIDENCE-X", "version": 1},
         "retention": {"policy_ref": "POL-RETENTION-X"},
         "access_policy_ref": "POL-ACCESS-X",
-        "materializations": [
-            {
-                "id": "MAT-X",
-                "assembly_ref": "ASM-X",
-                "cee_ref": "CEE-X",
-                "content_hash": "a" * 64,
-                "access": {"mode": "local-reference", "policy_ref": "POL-ACCESS-X"},
-                "evaluation_binding": {"id": "EVAL-X", "version": 1},
-                "evidence_binding": {"id": "EVIDENCE-X", "version": 1},
-            }
-        ],
+    }
+
+
+def reproducible_materialization() -> dict:
+    return {
+        "document_type": "cee-side-materialization",
+        "id": "MAT-X",
+        "assembly_ref": "ASM-X",
+        "cee_ref": "CEE-X",
+        "content_hash": "a" * 64,
+        "access": {"mode": "local-reference", "policy_ref": "POL-ACCESS-X"},
+        "evaluation_binding": {"id": "EVAL-X", "version": 1},
+        "evidence_binding": {"id": "EVIDENCE-X", "version": 1},
     }
 
 
@@ -38,11 +40,12 @@ def test_assembly_ckcs_must_be_version_pinned():
 
 def test_retained_trace_identifies_materialization_and_interpretation_bindings():
     assert check_icla_10_reproducibility(reproducible_assembly()) == []
+    assert check_icla_10_reproducibility(reproducible_materialization()) == []
 
 
 def test_materialization_requires_hash_access_and_evaluation_evidence_bindings():
-    artifact = reproducible_assembly()
-    artifact["materializations"][0] = {
+    artifact = {
+        "document_type": "cee-side-materialization",
         "id": "MAT-X",
         "assembly_ref": "ASM-X",
         "cee_ref": "CEE-X",
