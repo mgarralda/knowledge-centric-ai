@@ -54,12 +54,4 @@ class CapabilityProposal(SpecificationMetadata):
         }
         if not set(self.supporting_record_refs).issubset(indexed_refs):
             raise ValueError("Supporting records must have resolvable provenance metadata")
-        if (
-            self.status == ProposalStatus.SUBMITTED
-            and self.recurrence_assessment.get("justified_expectation") is not True
-        ):
-            raise ValueError(
-                "A submitted proposal must justify expected recurrence or continuing "
-                "institutional need"
-            )
         return self

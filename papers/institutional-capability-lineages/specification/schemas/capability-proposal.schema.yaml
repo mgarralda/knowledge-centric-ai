@@ -156,14 +156,4 @@ allOf:
         - required: [assigned_identity]
         - required: [institutional_capability_id]
         - required: [capability_ref]
-  - if:
-      properties:
-        status: {const: submitted}
-      required: [status]
-    then:
-      properties:
-        recurrence_assessment:
-          properties:
-            justified_expectation: {const: true}
-          required: [justified_expectation]
 additionalProperties: true

@@ -142,12 +142,11 @@ def test_pre_institutional_proposal_cannot_carry_assigned_identity():
     ]
 
 
-def test_submitted_proposal_requires_justified_continuity_expectation():
+def test_submitted_proposal_remains_valid_before_continuity_is_justified():
     artifact = proposal(status="submitted")
-    assert check_icla_11_formation_authority(artifact) == [
-        "ICLA-11: submitted proposal does not justify expected recurrence or continuing "
-        "institutional need"
-    ]
+
+    assert artifact["recurrence_assessment"]["justified_expectation"] is False
+    assert not check_icla_11_formation_authority(artifact)
 
 
 def test_submitted_proposal_may_use_general_records_and_prospective_justification():
@@ -201,7 +200,7 @@ def test_evolving_conformance_rejects_unresolved_supporting_record_provenance():
 
     assert ConformanceChecker().check_trace(
         [artifact], ConformanceProfile.EVOLVING
-    ) == ["ICLA-Evolving: supporting-record provenance is unresolved"]
+    ) == ["ICLA-11: supporting-record provenance is unresolved"]
 
 
 def test_zero_one_or_multiple_proposals_remain_preinstitutional():

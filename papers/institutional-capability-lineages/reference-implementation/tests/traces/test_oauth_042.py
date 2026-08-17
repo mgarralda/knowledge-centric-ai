@@ -427,7 +427,7 @@ def test_oauth_042_end_to_end_governed_successor(tmp_path):
     assert proposal.value_assessment
     GovernanceService(governance_repository).adjudicate(
         decision,
-        reviewer="security-and-release-governance-review",
+        decision_actor="security-and-release-governance-review",
         policy_refs=["POL-GOVERNANCE-REVIEW"],
     )
     successor = CapabilityKnowledgeContract.model_validate(artifacts["ckc-verify-v10"])

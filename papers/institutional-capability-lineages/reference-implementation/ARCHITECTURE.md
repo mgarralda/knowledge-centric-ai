@@ -78,7 +78,7 @@ linearly derived from the literature.
 | Materialization | Let the CEE adapt an immutable assembly to a versioned local substrate while retaining traceability, hash/access metadata, evaluation/evidence bindings, semantics, and authority bounds | [`materialization_service.py`](src/icla/services/materialization_service.py) |
 | Capability Execution Environment (CEE) | Record an execution-scoped situated boundary and the configuration needed for resolution, authorization, assurance, traceability, and evidence interpretation; operate autonomously inside the mandate and return only contract-selected evidence | [`intent.py`](src/icla/models/intent.py), [`evidence.py`](src/icla/models/evidence.py), [`conformance.py`](src/icla/specification/conformance.py) |
 | Execution Evidence | Separate governed from non-standard measurements, retain any versioned submitted-report transformation in provenance, check schema and provenance, and issue a qualification receipt | [`evidence_gateway.py`](src/icla/services/evidence_gateway.py) |
-| Governance | Persist an explicit institutional decision without synthesizing human approval | [`governance_service.py`](src/icla/services/governance_service.py) |
+| Governance | Persist an explicit institutional decision supplied by an authorized decision actor or mechanism without inferring institutional approval | [`governance_service.py`](src/icla/services/governance_service.py) |
 | CKC Succession | Verify the decision-linked delta and append the complete successor as an inactive lineage version without moving the Registry pointer | [`succession_service.py`](src/icla/services/succession_service.py), [`ckc_repository.py`](src/icla/repositories/ckc_repository.py) |
 | Governed Activation | Activate an appended successor or initial CKC, or reactivate an eligible retained CKC, through a separately identifiable pointer transition; preserve unrelated Registry entries and the explicit no-predecessor boundary for initial activation | [`activation_service.py`](src/icla/services/activation_service.py) |
 | Lineage trace | Build and validate a concrete connected, typed instantiation of the institutional capability lineage across artifacts and transitions | [`lineage_service.py`](src/icla/services/lineage_service.py) |
@@ -250,8 +250,9 @@ artifacts remain outside submission unless the evidence contract selects them.
 
 ### Governance, Succession Append, and Activation
 
-Governance records an explicit institutional decision. The implementation does
-not use an LLM to imitate a reviewer and never infers approval from evidence.
+Governance records an explicit institutional decision supplied by an authorized
+decision actor or mechanism. The implementation persists the declared outcome;
+it never synthesizes or infers institutional approval from evidence.
 
 Successor append and activation are intentionally different services and
 operations:

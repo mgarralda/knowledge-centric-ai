@@ -54,7 +54,7 @@ its authorized interpretation and temporal-validity dimensions, the traversed
 `CAP-IAM` relation path, governance decision, inactive `CKC-IAM v8` append,
 subsequent activation, and the
 historical assembly that remains linked to v7. This is a nested Registry
-history governed by the existing contract, not a ninth principal schema.
+history governed by the existing contract, not an additional principal schema.
 
 Capability records use only institutional lifecycle states and require an
 active CKC pointer only in the `active` state. The pre-institutional
@@ -79,12 +79,13 @@ authorized retained records; a pattern signal is not universally required.
 The existing `generated_from.supporting_records` metadata resolves each such
 reference through its record type, repository, locator, version, and provenance
 references. It is provenance metadata, not another principal object type.
-Submission records a justified expectation of recurrence or continuing
-institutional need over a declared horizon, using observed, prospective, or
-mixed grounds. OAuth keeps the proposal as a candidate because one execution
-does not satisfy its history-driven review criteria. The formation trace
-submits the same proposed responsibility after multiple retained records are
-declared.
+Submission remains pre-institutional and does not itself require a positive
+continuity judgment. Formation/promotion requires a submitted proposal with a
+justified expectation of recurrence or continuing institutional need over a
+declared horizon, using observed, prospective, or mixed grounds. OAuth keeps
+the proposal as a candidate under its history-driven review criteria. The
+formation trace supplies multiple retained records and a positive continuity
+assessment before promotion.
 
 The governance-decision schema uses its existing `capability_formation` boundary
 to distinguish an unpromoted proposal reference from governed formation. A

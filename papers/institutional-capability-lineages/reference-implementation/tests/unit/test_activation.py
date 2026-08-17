@@ -340,7 +340,7 @@ def test_facade_owns_and_persists_governance_service(tmp_path):
 
     result = facade.adjudicate(
         declared,
-        reviewer="OWNER",
+        decision_actor="OWNER",
         policy_refs=["POL-GOVERNANCE"],
     )
 

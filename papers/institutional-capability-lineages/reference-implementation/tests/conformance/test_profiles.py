@@ -4,7 +4,6 @@ from icla.specification.conformance import (
     check_icla_3_distributed_authority,
     check_icla_4_registry_navigation,
     check_icla_7_canonical_transient_separation,
-    check_icla_evolving_controls,
 )
 
 
@@ -56,7 +55,7 @@ def test_missing_core_invariants_are_explicitly_checked():
     )
 
 
-def test_evolving_profile_requires_event_impact_candidate_lifecycle_and_rollback():
+def test_evolving_profile_adds_only_icla_11_to_governed():
     incomplete = {
         "document_type": "governance-decision",
         "impact_record": {},
@@ -67,8 +66,31 @@ def test_evolving_profile_requires_event_impact_candidate_lifecycle_and_rollback
         "capability_formation": {},
     }
 
-    errors = check_icla_evolving_controls(incomplete)
+    checker = ConformanceChecker()
+    governed_errors = checker.check(incomplete, ConformanceProfile.GOVERNED)
+    evolving_errors = checker.check(incomplete, ConformanceProfile.EVOLVING)
 
-    assert any("continuous event" in error for error in errors)
-    assert any("rollback target" in error for error in errors)
-    assert any("governed lifecycle" in error for error in errors)
+    assert evolving_errors == governed_errors
+    assert all(not error.startswith("ICLA-Evolving:") for error in evolving_errors)
+
+
+def test_trace_level_formation_checks_apply_only_to_evolving():
+    duplicate_proposal = {
+        "document_type": "capability-proposal",
+        "id": "PROP-1",
+        "status": "candidate",
+    }
+    checker = ConformanceChecker()
+
+    assert not any(
+        error.startswith("ICLA-11")
+        for error in checker.check_trace(
+            [duplicate_proposal, duplicate_proposal], ConformanceProfile.GOVERNED
+        )
+    )
+    assert (
+        "ICLA-11: crystallization proposal identifiers must be unique"
+        in checker.check_trace(
+            [duplicate_proposal, duplicate_proposal], ConformanceProfile.EVOLVING
+        )
+    )

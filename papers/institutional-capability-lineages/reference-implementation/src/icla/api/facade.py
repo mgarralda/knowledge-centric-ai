@@ -129,12 +129,12 @@ class ICLA:
         self,
         decision: GovernanceDecision,
         *,
-        reviewer: str,
+        decision_actor: str,
         policy_refs: list[str],
     ):
         return self.governance.adjudicate(
             decision,
-            reviewer=reviewer,
+            decision_actor=decision_actor,
             policy_refs=policy_refs,
         )
 

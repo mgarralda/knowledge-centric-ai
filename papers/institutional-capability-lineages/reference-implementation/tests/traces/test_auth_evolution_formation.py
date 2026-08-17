@@ -67,7 +67,7 @@ def test_governed_formation_and_initial_activation_replay_the_published_states(t
     facade = ICLA(Settings(data_dir=tmp_path))
     facade.adjudicate(
         decision,
-        reviewer="institutional-capability-governance-board",
+        decision_actor="institutional-capability-governance-board",
         policy_refs=["POL-CAPABILITY-FORMATION"],
     )
 
@@ -123,6 +123,35 @@ def test_candidate_proposal_cannot_be_promoted_and_leaves_no_partial_write(tmp_p
     repository = CKCRepository(AppendOnlyStore(tmp_path))
 
     with pytest.raises(FormationError, match="submitted proposal"):
+        CapabilityFormationService(repository).promote(
+            before,
+            proposal,
+            initial_ckc,
+            decision,
+            actor="institutional-capability-governance-board",
+        )
+
+    assert repository.store.list("ckcs") == []
+    assert repository.store.list("formation-append-receipts") == []
+
+
+def test_submitted_proposal_without_justified_continuity_is_not_promotable(tmp_path):
+    values, before, _, initial_ckc, decision = inputs()
+    proposal_data = deepcopy(values["capability-proposal"])
+    proposal_data["recurrence_assessment"].update(
+        {
+            "justified_expectation": False,
+            "current_trace_sufficient": False,
+            "rationale": "Submission precedes a sufficient formation justification",
+        }
+    )
+
+    ArtifactValidator().validate_artifact(proposal_data)
+    proposal = CapabilityProposal.model_validate(proposal_data)
+    repository = CKCRepository(AppendOnlyStore(tmp_path))
+
+    assert proposal.status == "submitted"
+    with pytest.raises(FormationError, match="justified expected recurrence"):
         CapabilityFormationService(repository).promote(
             before,
             proposal,

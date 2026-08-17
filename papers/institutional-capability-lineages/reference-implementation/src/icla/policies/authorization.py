@@ -28,11 +28,13 @@ def can_submit_evidence(producer: str, assembly) -> tuple[bool, str]:
     )
 
 
-def can_activate(reviewer: str, capability) -> tuple[bool, str]:
-    permitted = reviewer == capability.owner or reviewer in capability.policy_refs
+def can_activate(decision_actor: str, capability) -> tuple[bool, str]:
+    permitted = (
+        decision_actor == capability.owner or decision_actor in capability.policy_refs
+    )
     return (
         permitted,
-        "reviewer authorized"
+        "decision actor authorized"
         if permitted
-        else "reviewer is not capability owner or delegated authority",
+        else "decision actor is not capability owner or delegated authority",
     )

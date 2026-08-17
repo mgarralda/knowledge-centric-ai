@@ -644,12 +644,6 @@ def check_icla_11_formation_authority(artifact: dict[str, Any]) -> list[str]:
         draft_ref = artifact.get("proposal_scoped_ckc_draft_ref")
         if isinstance(draft_ref, str) and draft_ref.startswith("CKC-"):
             errors.append("ICLA-11: proposal draft anticipates an institutional CKC identity")
-        recurrence = artifact.get("recurrence_assessment", {})
-        if status == "submitted" and recurrence.get("justified_expectation") is not True:
-            errors.append(
-                "ICLA-11: submitted proposal does not justify expected recurrence or "
-                "continuing institutional need"
-            )
         for relation in artifact.get("proposed_relations", []):
             if (
                 relation.get("direction") not in {"outgoing", "incoming"}
@@ -660,6 +654,28 @@ def check_icla_11_formation_authority(artifact: dict[str, Any]) -> list[str]:
                     "ICLA-11: proposed capability relation does not preserve the "
                     "pre-institutional identity boundary"
                 )
+        expected_refs = set(artifact.get("supporting_record_refs", []))
+        supporting_records = artifact.get("generated_from", {}).get(
+            "supporting_records", []
+        )
+        required_provenance_fields = {
+            "record_ref",
+            "record_type",
+            "repository_ref",
+            "record_locator",
+            "record_version",
+            "provenance_refs",
+        }
+        indexed_records = {
+            item.get("record_ref"): item
+            for item in supporting_records
+            if isinstance(item, dict)
+        }
+        if expected_refs - indexed_records.keys() or any(
+            required_provenance_fields - item.keys() or not item.get("provenance_refs")
+            for item in indexed_records.values()
+        ):
+            errors.append("ICLA-11: supporting-record provenance is unresolved")
         return errors
     if document_type != "governance-decision":
         return []
@@ -743,100 +759,6 @@ def check_icla_11_formation_authority(artifact: dict[str, Any]) -> list[str]:
     return errors
 
 
-def check_icla_evolving_controls(artifact: dict[str, Any]) -> list[str]:
-    """Additional observable capabilities required by the ICLA-Evolving profile."""
-    document_type = artifact.get("document_type")
-    if document_type == "execution-evidence-bundle":
-        return [
-            "ICLA-Evolving: candidate knowledge has no explicit lifecycle state"
-            for candidate in artifact.get("candidate_knowledge", [])
-            if candidate.get("lifecycle_status") != "submitted"
-        ]
-    if document_type == "capability-proposal":
-        required = (
-            "id",
-            "status",
-            "proposed_responsibility",
-            "supporting_record_refs",
-            "recurrence_assessment",
-            "stable_assembly_rules",
-            "value_assessment",
-            "comparable_outcome_refs",
-            "candidate_owner",
-            "overlap_analysis",
-            "proposal_scoped_ckc_draft_ref",
-        )
-        missing = _missing(artifact, required)
-        if missing:
-            return [f"ICLA-Evolving: crystallization proposal misses {missing}"]
-        expected_refs = set(artifact.get("supporting_record_refs", []))
-        entries = artifact.get("generated_from", {}).get("supporting_records", [])
-        required_fields = {
-            "record_ref",
-            "record_type",
-            "repository_ref",
-            "record_locator",
-            "record_version",
-            "provenance_refs",
-        }
-        indexed = {
-            item.get("record_ref"): item for item in entries if isinstance(item, dict)
-        }
-        if expected_refs - indexed.keys() or any(
-            required_fields - item.keys() or not item.get("provenance_refs")
-            for item in indexed.values()
-        ):
-            return ["ICLA-Evolving: supporting-record provenance is unresolved"]
-        return []
-    if document_type != "governance-decision":
-        return []
-
-    errors = []
-    if artifact.get("capability_formation", {}).get(
-        "new_capability_created_by_this_decision"
-    ) is True:
-        review = artifact.get("review", {})
-        for field in (
-            "ownership_review",
-            "distinctiveness_review",
-            "overlap_review",
-            "value_review",
-            "evidence_review",
-        ):
-            if not _passed(review.get(field)):
-                errors.append(f"ICLA-Evolving: capability formation lacks {field}")
-        if not artifact.get("inputs", {}).get("supporting_record_refs"):
-            errors.append("ICLA-Evolving: capability formation lacks supporting records")
-        return errors
-    impact = artifact.get("impact_record", {})
-    if impact.get("assessment_mode") != "continuous-event-driven" or not impact.get(
-        "change_event_ref"
-    ):
-        errors.append(
-            "ICLA-Evolving: impact analysis is not linked to an identified continuous event"
-        )
-    activation = artifact.get("activation", {})
-    transition = activation.get("active_pointer_transition", {})
-    if activation and (
-        not activation.get("rollback_target")
-        or activation.get("rollback_target") != transition.get("from")
-    ):
-        errors.append("ICLA-Evolving: activation has no exact rollback target")
-    for disposition in artifact.get("dispositions", {}).values():
-        if not isinstance(disposition, dict) or not disposition.get("candidate_ref"):
-            continue
-        lifecycle = disposition.get("candidate_lifecycle_transition", {})
-        if lifecycle.get("from") != "submitted" or lifecycle.get("to") not in {
-            "admitted",
-            "rejected",
-            "quarantined",
-            "retained-local",
-        }:
-            errors.append("ICLA-Evolving: candidate disposition has no governed lifecycle")
-
-    return errors
-
-
 class ConformanceChecker:
     _core: tuple[Callable[[dict[str, Any]], list[str]], ...] = (
         check_icla_1_capability_identity,
@@ -852,10 +774,7 @@ class ConformanceChecker:
         check_icla_8_evidence_separation,
         check_icla_9_governed_activation,
     )
-    _evolving = _governed + (
-        check_icla_11_formation_authority,
-        check_icla_evolving_controls,
-    )
+    _evolving = _governed + (check_icla_11_formation_authority,)
 
     def check(
         self, artifact: dict[str, Any], profile: ConformanceProfile = ConformanceProfile.CORE
@@ -882,20 +801,23 @@ class ConformanceChecker:
         """Check invariants plus cross-artifact identity and version continuity."""
         values = list(artifacts)
         errors = [error for artifact in values for error in self.check(artifact, profile)]
-        proposal_ids = [
-            artifact.get("id")
-            for artifact in values
-            if artifact.get("document_type") == "capability-proposal"
-        ]
-        if len(proposal_ids) != len(set(proposal_ids)):
-            errors.append("ICLA-11: crystallization proposal identifiers must be unique")
-        proposal_id_set = set(proposal_ids)
-        for artifact in values:
-            if artifact.get("document_type") != "governance-decision":
-                continue
-            referenced = set(artifact.get("capability_formation", {}).get("proposal_refs", []))
-            if not referenced.issubset(proposal_id_set):
-                errors.append("ICLA-11: governance decision references an unknown proposal")
+        if profile is ConformanceProfile.EVOLVING:
+            proposal_ids = [
+                artifact.get("id")
+                for artifact in values
+                if artifact.get("document_type") == "capability-proposal"
+            ]
+            if len(proposal_ids) != len(set(proposal_ids)):
+                errors.append("ICLA-11: crystallization proposal identifiers must be unique")
+            proposal_id_set = set(proposal_ids)
+            for artifact in values:
+                if artifact.get("document_type") != "governance-decision":
+                    continue
+                referenced = set(
+                    artifact.get("capability_formation", {}).get("proposal_refs", [])
+                )
+                if not referenced.issubset(proposal_id_set):
+                    errors.append("ICLA-11: governance decision references an unknown proposal")
         by_type = {artifact.get("document_type"): artifact for artifact in values}
         intent = by_type.get("operational-intent", {})
         resolution = by_type.get("capability-resolution", {})
@@ -941,7 +863,11 @@ class ConformanceChecker:
                     errors.append("ICLA-3: candidate knowledge loses its CEE producer identity")
                 if candidate.get("produced_during") != execution.get("id"):
                     errors.append("ICLA-3: candidate knowledge loses its execution identity")
-                if candidate.get("institutional_authority") != "candidate-pending-adjudication":
+                if (
+                    profile is not ConformanceProfile.CORE
+                    and candidate.get("institutional_authority")
+                    != "candidate-pending-adjudication"
+                ):
                     errors.append(
                         "ICLA-8: CEE-produced knowledge claims authority before adjudication"
                     )
@@ -961,7 +887,8 @@ class ConformanceChecker:
                 errors.append("ICLA-5: assembly does not reference the resolved intent result")
 
         if (
-            assembly
+            profile is not ConformanceProfile.CORE
+            and assembly
             and evidence
             and evidence.get("lineage", {}).get("assembly_ref") != assembly.get("id")
         ):
@@ -1012,9 +939,11 @@ class ConformanceChecker:
                 errors.append("ICLA-10: retained execution identifies no materialization")
             if not execution_materialization_refs.issubset(materialization_ids):
                 errors.append("ICLA-7/10: execution uses an unrecorded materialization")
-            if execution.get("submission", {}).get("selection_mode") != assembly.get(
-                "evidence_contract", {}
-            ).get("selection_mode"):
+            if profile is not ConformanceProfile.CORE and execution.get(
+                "submission", {}
+            ).get("selection_mode") != assembly.get("evidence_contract", {}).get(
+                "selection_mode"
+            ):
                 errors.append("ICLA-8: evidence submission exceeds the assembly contract")
             selected_roles = {
                 role
@@ -1029,7 +958,7 @@ class ConformanceChecker:
                     "ICLA-6: CEE-consumed memory roles differ from the authorized assembly"
                 )
 
-        if evidence and decision:
+        if profile is not ConformanceProfile.CORE and evidence and decision:
             receipt = evidence.get("gateway_receipt", {})
             inputs = decision.get("inputs", {})
             if inputs.get("evidence_ref") != evidence.get("id"):
@@ -1054,11 +983,16 @@ class ConformanceChecker:
                     )
                 lifecycle = disposition.get("candidate_lifecycle_transition", {})
                 if lifecycle.get("from") != candidate.get("lifecycle_status"):
-                    errors.append("ICLA-Evolving: candidate lifecycle loses its submitted state")
+                    errors.append("ICLA-9: candidate lifecycle loses its submitted state")
 
-        if decision and decision.get("capability_formation", {}).get(
-            "new_capability_created_by_this_decision"
-        ) is not True:
+        if (
+            profile is not ConformanceProfile.CORE
+            and decision
+            and decision.get("capability_formation", {}).get(
+                "new_capability_created_by_this_decision"
+            )
+            is not True
+        ):
             activation = decision.get("activation", {})
             successor_append = decision.get("successor_append", {})
             matching_successor = any(
@@ -1138,7 +1072,8 @@ class ConformanceChecker:
                     errors.append(
                         "ICLA-9: successor CKC memory-role delta differs from adjudication"
                     )
-        errors.extend(self._check_formation_trace(values))
+        if profile is ConformanceProfile.EVOLVING:
+            errors.extend(self._check_formation_trace(values))
         return errors
 
     @staticmethod

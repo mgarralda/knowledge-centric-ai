@@ -55,7 +55,13 @@ class EvidenceGatewayPort(Protocol):
 
 
 class GovernancePort(Protocol):
-    def adjudicate(self, decision: Any, *, reviewer: str, policy_refs: list[str]) -> Any: ...
+    def adjudicate(
+        self,
+        decision: Any,
+        *,
+        decision_actor: str,
+        policy_refs: list[str],
+    ) -> Any: ...
 
 
 class SuccessionPort(Protocol):

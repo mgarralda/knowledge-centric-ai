@@ -16,10 +16,10 @@ capability-formation path.
 | Construct or transition | Schema / retained artifact | Executable operation | Principal verification |
 |---|---|---|---|
 | Candidate proposal | `capability-proposal.schema.yaml`; OAuth `PROP-AUTH-EVOL-01` | None: proposal generation is outside the deterministic kernel | Candidate carries no institutional capability or CKC identity, may reference any authorized supporting-record type, and may propose directional relations to existing capabilities without preassigning its future identity |
-| Submitted proposal | Same proposal type in `auth-evolution-formation` | Validated input to formation | A justified continuity expectation and declared horizon are present; the published trace uses observed history, while tests also admit prospective strategic, unresolved-intent, and onboarding references |
+| Submitted proposal | Same proposal type in `auth-evolution-formation` | Pre-institutional input eligible for formation review | Submission does not require a positive continuity judgment; the published fixture has one, while a negative test admits submission without it and blocks promotion |
 | Supporting-record provenance | Proposal `generated_from.supporting_records` metadata | Checked before governed formation | Every supporting reference resolves to an identified repository, locator, version, and provenance-reference set; bundled companion locators resolve to published files |
 | Authorized review | `governance-decision.schema.yaml` | Declared decision consumed by `CapabilityFormationService` | Authority and ownership, distinctiveness, overlap, value, and evidence review results are present |
-| Governed promotion | Decision `governed_promotion` and `formation_append` | `CapabilityFormationService.promote` | Exactly one new identity and one complete immutable CKC v1 are appended; approved metadata and proposal-traceable capability relations are recorded |
+| Governed promotion | Decision `governed_promotion` and `formation_append` | `CapabilityFormationService.promote` | A submitted proposal must have a justified continuity expectation; only then are one new identity, one complete immutable CKC v1, approved metadata, and proposal-traceable capability relations appended |
 | Formed state | `REG-SNAP-AUTH-EVOL-FORMED` | Immutable snapshot returned by promotion | Capability is `approved`, has no active pointer, prior entries are unchanged, and Registry relations equal the prior graph plus the approved relations |
 | Initial activation | Decision `activation` block | Existing `ActivationService.activate` initial branch | Exact formation append is required; a separate activation publishes CKC v1 |
 | Active state | `REG-SNAP-AUTH-EVOL-ACTIVE` | Immutable snapshot returned by activation | Capability is `active`; exact pointer is `CKC-AUTH-EVOL v1` |
@@ -35,8 +35,9 @@ The companion supports the following bounded claims for its constructed
 fixtures and deterministic implementation:
 
 - candidate and submitted proposals are pre-institutional and identity-free;
-- promotion accepts only a submitted proposal and an approved, authorized
-  decision with the declared review results;
+- promotion accepts only a submitted proposal with a justified continuity
+  expectation and an approved, authorized decision with the declared review
+  results;
 - promotion assigns one previously unused capability identifier and records the
   approved capability metadata;
 - proposed relations remain identity-free until promotion; approved relations
@@ -48,8 +49,9 @@ fixtures and deterministic implementation:
 - proposal, decision, retained supporting records, capability, and CKC provenance agree;
 - every supporting-record reference has identifiable and resolvable provenance
   metadata before formation can append canonical state;
-- supporting records are not restricted to pattern signals, and the submitted
-  proposal may justify continuity prospectively without observed frequency;
+- supporting records are not restricted to pattern signals; submission can
+  precede a positive continuity judgment, while promotion may accept observed,
+  prospective, or mixed justification;
 - formation produces an immutable snapshot with no active pointer for the new
   capability;
 - initial activation is a later service call and references the exact formation

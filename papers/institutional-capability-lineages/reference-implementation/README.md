@@ -191,6 +191,12 @@ The commands have distinct responsibilities:
   formation trace and `ICLA-Governed` otherwise; `--profile` can select an
   explicit cumulative profile.
 
+The profile boundary follows Table 7 exactly: `ICLA-Core` checks ICLA-1--7 and
+ICLA-10, `ICLA-Governed` adds ICLA-8--9, and `ICLA-Evolving` adds only ICLA-11.
+Event-linked impact analysis, candidate adjudication, and successor rollback
+remain ICLA-9 checks; they are not additional requirements of the Evolving
+profile.
+
 `run-trace` validates retained artifacts; it does not execute institutional
 transitions. The end-to-end pytest scenarios replay both paths. OAuth runs
 resolution, Evidence Gateway qualification, governance persistence, inactive
@@ -290,10 +296,11 @@ reference-implementation/
   rationale.
 
 Crystallization belongs to the complete ICLA model. OAuth retains
-`PROP-AUTH-EVOL-01` in `candidate` state because one execution does not establish
-recurrence under that trace's history-driven criteria. A separate constructed
-trace represents the same responsibility after multiple retained records
-support submission. The proposal schema also admits unresolved intents,
+`PROP-AUTH-EVOL-01` in `candidate` state under that trace's history-driven
+criteria. A separate constructed trace represents the same responsibility as
+submitted; its multiple retained records additionally satisfy the continuity
+gate before promotion. Submission itself does not require that positive
+judgment. The proposal schema also admits unresolved intents,
 strategic decisions, process-analysis records, onboarding records, or other
 authorized retained references; observed frequency is not universally
 required. Its authorized decision assigns `CAP-AUTH-EVOL`, records the
