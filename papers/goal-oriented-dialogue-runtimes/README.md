@@ -35,7 +35,7 @@ Rather than replacing graph-based workflows, GODR complements them by introducin
 
 ## Publication
 
-- 🌐 arXiv (Preprint): [https://arxiv.org/abs/2607.02609](https://doi.org/10.48550/arXiv.2606.23797)
+- 🌐 arXiv (Preprint): [https://doi.org/10.48550/arXiv.2606.23797](https://doi.org/10.48550/arXiv.2606.23797)
 
 ---
 ## Related Resources
