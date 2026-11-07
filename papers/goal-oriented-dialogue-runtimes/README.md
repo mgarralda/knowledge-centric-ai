@@ -47,5 +47,5 @@ Rather than replacing graph-based workflows, GODR complements them by introducin
 
 ### Engineering Resources
 
-- 📘 [RAG Field Guide](../../field-guides/rag-field-guide/)
-- 📄 [Vol. 01 – From Uncertainty to Confidence](../../whitepapers/vol-01-from-uncertainty-to-confidence/)
+- 📘 [RAG Field Guide](../../field-guides/rag/)
+- 📄 [Vol. 01 – From Uncertainty to Confidence](../../whitepapers/from-uncertainty-to-confidence/)
