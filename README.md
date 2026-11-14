@@ -57,6 +57,7 @@ Engineering handbooks distilling research and industrial experience into practic
 | Resource | Description |
 |----------|-------------|
 | 📘 [RAG Field Guide](field-guides/rag/) | Practical handbook for designing, evaluating and operating Retrieval-Augmented Generation systems. |
+| [Python Concurrency for Agent Runtimes and Knowledge Pipelines](field-guides/python-concurrency/) | Decision guide for async I/O, threads, processes and background jobs in AI systems. |
 
 ---
 
