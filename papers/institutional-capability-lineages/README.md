@@ -523,6 +523,15 @@ Machine-readable metadata is available in [`citation.bib`](citation.bib) and
 
 ---
 
+## Related Research
+
+[Towards Evidence-Anchored Discoverability Assurance for Agent-Ready Knowledge Repositories](../evidence-anchored-discoverability/) examines whether agents can navigate
+versioned knowledge repositories to sufficient source evidence under a
+declared policy and budget. ICLA addresses how evidence informs governed
+changes to institutional capabilities.
+
+---
+
 ## License
 
 The paper and accompanying documentation are licensed under the:

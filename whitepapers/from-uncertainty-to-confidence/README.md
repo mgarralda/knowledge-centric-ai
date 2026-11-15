@@ -62,6 +62,8 @@ Its objective is to provide a conceptual framework that helps explain why modern
 
 ### Research Papers
 
+- [Towards Evidence-Anchored Discoverability Assurance for Agent-Ready Knowledge Repositories](../../papers/evidence-anchored-discoverability/)
+
 - 📄 [Knowledge-Centric Information Systems](../../papers/knowledge-centric-information-systems/)
 - 📄 [Governed Evolution of Agent Runtimes](../../papers/governed-evolution-agent-runtimes/)
 - 📄 [From Task-Guided Conversational Graphs to Goal-Oriented Dialogue Runtimes](../../papers/goal-oriented-dialogue-runtimes/)

@@ -28,6 +28,7 @@ Peer-reviewed and preprint research introducing new architectural concepts, refe
 | 📄 [Governed Evolution of Agent Runtimes through Executable Operational Cognition](papers/governed-evolution-agent-runtimes/) | Runtime Governance | Proposes a governance model for the controlled evolution of agent runtimes through **Executable Operational Cognition**. |
 | 📄 [From Task-Guided Conversational Graphs to Goal-Oriented Dialogue Runtimes](papers/goal-oriented-dialogue-runtimes/) | Goal-Oriented Agent Runtimes | Introduces the **Goal-Oriented Dialogue Runtime (GODR)** design pattern for long-lived conversational objectives. |
 | 📄 [Institutional Capability Lineages (ICLA)](papers/institutional-capability-lineages/) | Institutional Capability Engineering | Proposes a **registry-centered reference architecture** that transforms distributed organizational knowledge into **governed institutional capabilities** through canonical contracts, contextual assemblies, evidence-governed evolution, and persistent capability lineages. |
+| [Towards Evidence-Anchored Discoverability Assurance for Agent-Ready Knowledge Repositories](papers/evidence-anchored-discoverability/) | Discoverability Assurance | Proposes evidence-anchored auditing, bounded repair, and regression checks for agent-navigable knowledge repositories. |
 
 ---
 

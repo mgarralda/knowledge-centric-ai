@@ -46,6 +46,8 @@ Rather than treating organizational knowledge as passive information, the paper 
 
 ### Research Papers
 
+- [Towards Evidence-Anchored Discoverability Assurance for Agent-Ready Knowledge Repositories](../evidence-anchored-discoverability/)
+
 - 📄 [From Task-Guided Conversational Graphs to Goal-Oriented Dialogue Runtimes](../goal-oriented-dialogue-runtimes/)
 - 📄 [Governed Evolution of Agent Runtimes](../governed-evolution-agent-runtimes/)
 

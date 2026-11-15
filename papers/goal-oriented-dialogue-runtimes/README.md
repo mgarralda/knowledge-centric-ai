@@ -42,6 +42,8 @@ Rather than replacing graph-based workflows, GODR complements them by introducin
 
 ### Research Papers
 
+- [Towards Evidence-Anchored Discoverability Assurance for Agent-Ready Knowledge Repositories](../evidence-anchored-discoverability/)
+
 - 📄 [Knowledge-Centric Information Systems](../knowledge-centric-information-systems/)
 - 📄 [Governed Evolution of Agent Runtimes](../governed-evolution-agent-runtimes/)
 
