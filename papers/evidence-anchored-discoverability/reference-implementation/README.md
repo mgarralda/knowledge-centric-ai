@@ -2,7 +2,7 @@
 
 **Status:** Partial reference implementation with a deterministic worked
 example. Companion to [Towards Evidence-Anchored Discoverability Assurance
-for Agent-Ready Knowledge Repositories](../) ([BibTeX](../citation.bib)).
+for Agent-Ready Knowledge Repositories](../) ([SSRN preprint](https://ssrn.com/abstract=7709359), [BibTeX](../citation.bib)).
 
 ## Run the worked example
 

@@ -4,7 +4,7 @@
 
 Mariano Garralda-Barrio · Independent Researcher
 
-[BibTeX](citation.bib) · [Partial reference implementation](reference-implementation/)
+[SSRN preprint](https://ssrn.com/abstract=7709359) · [BibTeX](citation.bib) · [Partial reference implementation](reference-implementation/)
 
 ## Contribution
 
@@ -21,8 +21,13 @@ The TLS 1.3 worked example shows how a specific deployment constraint can disapp
 
 This manuscript presents a methodology and a proposed evaluation protocol. The protocol tests the contribution of recursive composition and bounded repair, and treats transfer to indexes built by other methods as an empirical question.
 
-- [BibTeX citation](citation.bib)
 - [Partial reference implementation and reproducible TLS 1.3 example](reference-implementation/)
+
+## Citation
+
+> Garralda-Barrio, Mariano (2026). *Towards Evidence-Anchored Discoverability Assurance for Agent-Ready Knowledge Repositories: A Methodological Perspective and Research Agenda*. SSRN preprint, November 15, 2026. [SSRN preprint](https://ssrn.com/abstract=7709359).
+
+Machine-readable citation metadata is available in [citation.bib](citation.bib).
 
 ## Related Research
 
