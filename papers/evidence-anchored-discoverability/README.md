@@ -25,7 +25,7 @@ This manuscript presents a methodology and a proposed evaluation protocol. The p
 
 ## Citation
 
-> Garralda-Barrio, Mariano (2026). *Towards Evidence-Anchored Discoverability Assurance for Agent-Ready Knowledge Repositories: A Methodological Perspective and Research Agenda*. SSRN preprint, November 15, 2026. [SSRN preprint](https://ssrn.com/abstract=7709359).
+> Garralda-Barrio, Mariano (2026). *Towards Evidence-Anchored Discoverability Assurance for Agent-Ready Knowledge Repositories: A Methodological Perspective and Research Agenda*. SSRN preprint, November 15, 2026. [Available at SSRN](http://dx.doi.org/10.2139/ssrn.7709359).
 
 Machine-readable citation metadata is available in [citation.bib](citation.bib).
 

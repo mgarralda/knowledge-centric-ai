@@ -28,7 +28,7 @@ Peer-reviewed and preprint research introducing new architectural concepts, refe
 | 📄 [Governed Evolution of Agent Runtimes through Executable Operational Cognition](papers/governed-evolution-agent-runtimes/) | Runtime Governance | Proposes a governance model for the controlled evolution of agent runtimes through **Executable Operational Cognition**. |
 | 📄 [From Task-Guided Conversational Graphs to Goal-Oriented Dialogue Runtimes](papers/goal-oriented-dialogue-runtimes/) | Goal-Oriented Agent Runtimes | Introduces the **Goal-Oriented Dialogue Runtime (GODR)** design pattern for long-lived conversational objectives. |
 | 📄 [Institutional Capability Lineages (ICLA)](papers/institutional-capability-lineages/) | Institutional Capability Engineering | Proposes a **registry-centered reference architecture** that transforms distributed organizational knowledge into **governed institutional capabilities** through canonical contracts, contextual assemblies, evidence-governed evolution, and persistent capability lineages. |
-| [Towards Evidence-Anchored Discoverability Assurance for Agent-Ready Knowledge Repositories](papers/evidence-anchored-discoverability/) ([SSRN preprint](https://ssrn.com/abstract=7709359)) | Discoverability Assurance | Proposes evidence-anchored auditing, bounded repair, and regression checks for agent-navigable knowledge repositories. |
+| 📄 [Towards Evidence-Anchored Discoverability Assurance for Agent-Ready Knowledge Repositories](papers/evidence-anchored-discoverability/) | Discoverability Assurance | Proposes evidence-anchored auditing, bounded repair, and regression checks for agent-navigable knowledge repositories. |
 
 ---
 
@@ -49,7 +49,7 @@ Engineering handbooks distilling research and industrial experience into practic
 | Resource | Description |
 |----------|-------------|
 | 📘 [RAG Field Guide](field-guides/rag/) | Practical handbook for designing, evaluating and operating Retrieval-Augmented Generation systems. |
-| [Python Concurrency for Agent Runtimes and Knowledge Pipelines](field-guides/python-concurrency/) | Decision guide for async I/O, threads, processes and background jobs in AI systems. |
+| 📘 [Python Concurrency for Agent Runtimes and Knowledge Pipelines](field-guides/python-concurrency/) | Decision guide for async I/O, threads, processes and background jobs in AI systems. |
 
 ---
 
